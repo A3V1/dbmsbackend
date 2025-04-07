@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Mentor-Mentee Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Include Chart.js for analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .dashboard-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 24px;
+            color: var(--primary-color);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .card {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 3px solid var(--primary-color);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-card {
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .blue { 
+            background-color: var(--primary-color);
+            border-top: none;
+        }
+        .orange { 
+            background-color: var(--secondary-color);
+            border-top: none;
+        }
+        .cyan { 
+            background-color: var(--accent-color);
+            border-top: none;
+        }
+        .yellow { 
+            background-color: #facc15;
+            border-top: none;
+        }
+        .red { 
+            background-color: var(--danger-color);
+            border-top: none;
+        }
+
+        .table-container {
+            margin-top: 24px;
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: var(--blue-light);
+        }
+        
+        tr:hover {
+            background-color: var(--orange-light);
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            background-color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background-color: #153e75;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #b91c1c;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--blue-light);
+            transform: translateY(-2px);
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+        }
+
+        .stat-content h3 {
+            margin: 0;
+            font-size: 0.875rem;
+            color: var(--light-text);
+        }
+
+        .stat-number {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .activity-log {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+
+        .activity-item:hover {
+            background-color: var(--orange-light);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--light-text);
+        }
+
+        .alerts-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .alert-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        
+        .alert-item:hover {
+            background-color: var(--orange-light);
+        }
+
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 8px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .feature-card {
+            text-align: center;
+            padding: 24px;
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .feature-card .icon-lg {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            color: var(--secondary-color);
+        }
+        
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+        
+        .feature-card p {
+            color: var(--light-text);
+            margin-bottom: 16px;
+        }
+        
+        .feature-card .btn {
+            margin-top: auto;
+        }
+
+        @media (max-width: 768px) {
+            .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .common-features {
+            width: 560px; /* Extra wide for better content display */
+            background: var(--background-color);
+            padding: 32px; /* More breathing room */
+            border-radius: 16px; /* Softer, modern rounded corners */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Deeper shadow for depth */
+            position: absolute;
+            right: 32px; /* Pushed further from the edge */
+            top: 140px; /* Slightly lower for better alignment */
+            z-index: 20; /* Higher z-index to ensure prominence */
+            border: 1px solid rgba(0, 0, 0, 0.05); /* Subtle border for definition */
+        }
+        
+        .common-features h2 {
+            font-size: 28px; /* Bigger heading */
+            margin-bottom: 28px; /* More space below title */
+            color: var(--primary-color);
+            font-weight: 700; /* Extra bold for impact */
+            letter-spacing: -0.5px; /* Slightly tighter letters for modern look */
+        }
+        
+        .common-features .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .common-features .feature-item {
+            margin-bottom: 24px; /* Bigger gap between items */
+        }
+        
+        .common-features .feature-link {
+            display: flex;
+            align-items: center;
+            gap: 20px; /* Wider spacing between icon and text */
+            padding: 20px 24px; /* More padding for a chunkier feel */
+            border-radius: 12px; /* Extra rounded for a soft look */
+            color: var(--primary-color);
+            text-decoration: none;
+            background: white;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother animation */
+            font-size: 20px; /* Larger text for readability */
+            font-weight: 500; /* Slightly bolder text */
+        }
+        
+        .common-features .feature-link:hover {
+            background-color: var(--blue-light);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px); /* More noticeable lift */
+            color: var(--primary-dark); /* Slightly darker on hover */
+        }
+        
+        .common-features .feature-link i {
+            font-size: 4.5rem; /* Massive icons */
+            min-width: 72px; /* Fixed width for alignment */
+            text-align: center;
+            color: var(--primary-color); /* Optional: Make icons match theme */
+            transition: transform 0.3s ease; /* Add icon animation */
+        }
+        
+        .common-features .feature-link:hover i {
+            transform: scale(1.05); /* Slight icon grow on hover */
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div id="navigation"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <h1>Admin Dashboard</h1>
+                    <p class="admin-privilege" id="adminPrivilege">Full Access</p>
+                </div>
+                <div class="header-right">
+                    <div class="date-time">
+                        <div class="date-box">
+                            <i class="fas fa-calendar"></i>
+                            <span id="currentDate"></span>
+                        </div>
+                        <div class="time-box">
+                            <i class="fas fa-clock"></i>
+                            <span id="currentTime"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="stats-grid">
+                <div class="stat-card primary">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Total Users</h3>
+                        <p id="totalUsers">0</p>
+                        <div class="stat-breakdown">
+                            <span id="activeUsers">0 Active</span>
+                            <span id="inactiveUsers">0 Inactive</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Mentors</h3>
+                        <p id="totalMentors">0</p>
+                        <div class="stat-breakdown">
+                            <span id="departmentCount">0 Departments</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card info">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Mentees</h3>
+                        <p id="totalMentees">0</p>
+                        <div class="stat-breakdown">
+                            <span id="averageAttendance">0% Avg. Attendance</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Alerts</h3>
+                        <p id="pendingAlerts">0</p>
+                        <div class="stat-breakdown">
+                            <span id="resolvedAlerts">0 Resolved</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Recent Activity -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-history"></i> Recent Activity</h2>
+                        <a href="logs.html" class="view-all">View All</a>
+                    </div>
+                    <div class="activity-list scrollable" id="recentActivity">
+                        <!-- Activity items will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Department Overview -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-building"></i> Departments</h2>
+                    </div>
+                    <div class="department-stats" id="departmentStats">
+                        <!-- Department stats will be populated by JavaScript -->
+                    </div>
+                    <canvas id="departmentChart" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Emergency Alerts -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-bell"></i> Emergency Alerts</h2>
+                    <div class="header-actions">
+                        <select id="alertFilter" class="alert-filter">
+                            <option value="all">All Alerts</option>
+                            <option value="pending">Pending</option>
+                            <option value="resolved">Resolved</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="alerts-grid" id="emergencyAlerts">
+                    <!-- Alerts will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions-grid">
+                <button class="action-btn" onclick="location.href='users.html'">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Add New User</span>
+                </button>
+                <button class="action-btn" onclick="location.href='departments.html'">
+                    <i class="fas fa-building"></i>
+                    <span>Manage Departments</span>
+                </button>
+                <button class="action-btn" onclick="location.href='announcements.html'">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Send Announcement</span>
+                </button>
+                <button class="action-btn" onclick="location.href='reports.html'">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Generate Reports</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="add-user-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New User</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="add-user-form" onsubmit="handleAddUser(event)">
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select class="form-input" id="user-role" required>
+                        <option value="mentor">Mentor</option>
+                        <option value="mentee">Mentee</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="user-email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">PRN ID</label>
+                    <input type="text" class="form-input" id="user-prn" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-input" id="user-phone" required>
+                </div>
+                <div class="form-group text-right">
+                    <button type="button" class="btn btn-outline mr-2" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="common-features">
+        <h2>Common Features</h2>
+        <ul class="feature-list">
+            <li class="feature-item">
+                <a href="meeting-schedule.html" class="feature-link">
+                    <i class="fas fa-calendar-alt"></i> Meeting Schedule
+                </a>
+            </li>
+            <li class="feature-item">
+                <a href="student-profile.html" class="feature-link">
+                    <i class="fas fa-user-graduate"></i> Student Profiles
+                </a>
+            </li>
+            <li class="feature-item">
+                <a href="communication-hub.html" class="feature-link">
+                    <i class="fas fa-comments"></i> Communication Hub
+                </a>
+            </li>
+            <li class="feature-item">
+                <a href="reports.html" class="feature-link">
+                    <i class="fas fa-chart-bar"></i> Reports & Achievements
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+    // Load navigation
+    fetch('components/navigation.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('navigation').innerHTML = data;
+        });
+
+    // Update date and time
+    function updateDateTime() {
+        const now = new Date();
+        document.getElementById('currentDate').textContent = now.toLocaleDateString();
+        document.getElementById('currentTime').textContent = now.toLocaleTimeString();
+    }
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+    // Update admin privilege
+    function updateAdminInfo() {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const adminData = JSON.parse(localStorage.getItem('admin'));
+        if (currentUser && adminData) {
+            const adminInfo = adminData.find(a => a.unique_user_no === currentUser.unique_user_no);
+            if (adminInfo) {
+                document.getElementById('adminPrivilege').textContent = adminInfo.privilege;
+            }
+        }
+    }
+    updateAdminInfo();
+
+    // Update statistics
+    function updateStatistics() {
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const mentors = JSON.parse(localStorage.getItem('mentors')) || [];
+        const mentees = JSON.parse(localStorage.getItem('mentees')) || [];
+        const menteeAcademics = JSON.parse(localStorage.getItem('mentee_academics')) || [];
+        const alerts = JSON.parse(localStorage.getItem('emergency_alerts')) || [];
+
+        // Update user stats
+        document.getElementById('totalUsers').textContent = users.length;
+        document.getElementById('activeUsers').textContent = `${users.length} Active`;
+        document.getElementById('inactiveUsers').textContent = '0 Inactive';
+
+        // Update mentor stats
+        document.getElementById('totalMentors').textContent = mentors.length;
+        const departments = [...new Set(mentors.map(m => m.department))];
+        document.getElementById('departmentCount').textContent = `${departments.length} Departments`;
+
+        // Update mentee stats
+        document.getElementById('totalMentees').textContent = mentees.length;
+        const avgAttendance = menteeAcademics.reduce((acc, curr) => acc + curr.attendance, 0) / menteeAcademics.length;
+        document.getElementById('averageAttendance').textContent = `${avgAttendance.toFixed(1)}% Avg. Attendance`;
+
+        // Update alerts stats
+        const pendingAlerts = alerts.filter(a => a.alert_status === 'pending').length;
+        const resolvedAlerts = alerts.filter(a => a.alert_status === 'resolved').length;
+        document.getElementById('pendingAlerts').textContent = pendingAlerts;
+        document.getElementById('resolvedAlerts').textContent = `${resolvedAlerts} Resolved`;
+
+        // Update department stats
+        updateDepartmentStats(departments, mentors, mentees);
+    }
+    updateStatistics();
+
+    // Update recent activity
+    function updateRecentActivity() {
+        const activityLogs = JSON.parse(localStorage.getItem('activity_logs')) || [];
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        
+        const activityList = document.getElementById('recentActivity');
+        activityList.innerHTML = activityLogs.map(log => {
+            const user = users.find(u => u.unique_user_no === log.user_id);
+            return `
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p><strong>${user ? user.official_mail_id : 'Unknown User'}</strong> ${log.activity}</p>
+                        <div class="activity-meta">
+                            <span class="activity-time">${new Date(log.log_time).toLocaleString()}</span>
+                            <span class="activity-ip">${log.ip_address}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    updateRecentActivity();
+
+    // Update emergency alerts
+    function updateEmergencyAlerts() {
+        const alerts = JSON.parse(localStorage.getItem('emergency_alerts')) || [];
+        const communications = JSON.parse(localStorage.getItem('communications')) || [];
+        
+        const alertsGrid = document.getElementById('emergencyAlerts');
+        alertsGrid.innerHTML = alerts.map(alert => {
+            const comm = communications.find(c => c.communication_id === alert.comm_id);
+            return `
+                <div class="alert-card ${alert.alert_status}">
+                    <div class="alert-icon">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="alert-content">
+                        <h3>${alert.alert_reason}</h3>
+                        <p>${comm ? comm.message_content : 'No message content'}</p>
+                        <div class="alert-meta">
+                            <span class="alert-status">${alert.alert_status}</span>
+                            <button class="btn-resolve" onclick="resolveAlert(${alert.alert_id})">
+                                ${alert.alert_status === 'pending' ? 'Resolve' : 'Resolved'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    updateEmergencyAlerts();
+
+    // Update department statistics
+    function updateDepartmentStats(departments, mentors, mentees) {
+        const departmentStats = document.getElementById('departmentStats');
+        const stats = departments.map(dept => {
+            const deptMentors = mentors.filter(m => m.department === dept);
+            const deptMentees = mentees.filter(m => 
+                deptMentors.some(dm => dm.mentor_id === m.mentor_id)
+            );
+            
+            return {
+                department: dept,
+                mentors: deptMentors.length,
+                mentees: deptMentees.length
+            };
+        });
+
+        departmentStats.innerHTML = stats.map(stat => `
+            <div class="dept-stat-item">
+                <h4>${stat.department}</h4>
+                <div class="dept-stat-numbers">
+                    <span>${stat.mentors} Mentors</span>
+                    <span>${stat.mentees} Mentees</span>
+                </div>
+            </div>
+        `).join('');
+
+        // Update department chart
+        const ctx = document.getElementById('departmentChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: stats.map(s => s.department),
+                datasets: [
+                    {
+                        label: 'Mentors',
+                        data: stats.map(s => s.mentors),
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgb(54, 162, 235)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Mentees',
+                        data: stats.map(s => s.mentees),
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Alert filter handler
+    document.getElementById('alertFilter').addEventListener('change', function(e) {
+        const status = e.target.value;
+        const alerts = document.querySelectorAll('.alert-card');
+        
+        alerts.forEach(alert => {
+            if (status === 'all' || alert.classList.contains(status)) {
+                alert.style.display = 'flex';
+            } else {
+                alert.style.display = 'none';
+            }
+        });
+    });
+
+    // Resolve alert function
+    function resolveAlert(alertId) {
+        const alerts = JSON.parse(localStorage.getItem('emergency_alerts'));
+        const updatedAlerts = alerts.map(alert => {
+            if (alert.alert_id === alertId) {
+                return { ...alert, alert_status: 'resolved' };
+            }
+            return alert;
+        });
+        
+        localStorage.setItem('emergency_alerts', JSON.stringify(updatedAlerts));
+        updateEmergencyAlerts();
+        updateStatistics();
+    }
+    </script>
+</body>
+</html>

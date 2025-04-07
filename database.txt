@@ -1,0 +1,454 @@
+Tables_in_dbmm       |
++----------------------+
+| achievement          |
+| activity_log         |
+| admin                |
+| communication        |
+| communication_view   |
+| emergency_alerts     |
+| mentee               |
+| mentee_academic_view |
+| mentee_academics     |
+| mentor               |
+| mentor_view          |
+| users               
+
+
+mysql> select * from users;
++----------------------+----------------+----------+------------+--------+--------+-----------------+---------------------+-------------+
+| official_mail_id     | unique_user_no | password | phone_num  | prn_id | role   | profile_picture | created_at          | calendar_id |
++----------------------+----------------+----------+------------+--------+--------+-----------------+---------------------+-------------+
+| admin1@college.edu   |              1 | pass123  | 9876543210 | PRN001 | admin  | NULL            | 2025-03-10 23:56:18 | calendar001 |
+| admin2@college.edu   |              2 | pass456  | 9876543211 | PRN002 | admin  | NULL            | 2025-03-10 23:56:18 | calendar002 |
+| mentor1@college.edu  |              3 | pass789  | 9876543212 | PRN003 | mentor | NULL            | 2025-03-10 23:56:18 | calendar003 |
+| mentor2@college.edu  |              4 | pass012  | 9876543213 | PRN004 | mentor | NULL            | 2025-03-10 23:56:18 | calendar004 |
+| mentor3@college.edu  |              5 | pass345  | 9876543214 | PRN005 | mentor | NULL            | 2025-03-10 23:56:18 | calendar005 |
+| mentor4@college.edu  |              6 | pass678  | 9876543215 | PRN006 | mentor | NULL            | 2025-03-10 23:56:18 | calendar006 |
+| mentor5@college.edu  |              7 | pass901  | 9876543216 | PRN007 | mentor | NULL            | 2025-03-10 23:56:18 | calendar007 |
+| mentee1@college.edu  |              8 | pass111  | 9876543217 | PRN008 | mentee | NULL            | 2025-03-10 23:57:46 | calendar008 |
+| mentee2@college.edu  |              9 | pass222  | 9876543218 | PRN009 | mentee | NULL            | 2025-03-10 23:57:46 | calendar009 |
+| mentee3@college.edu  |             10 | pass333  | 9876543219 | PRN010 | mentee | NULL            | 2025-03-10 23:57:46 | calendar010 |
+| mentee4@college.edu  |             11 | pass444  | 9876543220 | PRN011 | mentee | NULL            | 2025-03-10 23:57:46 | calendar011 |
+| mentee5@college.edu  |             12 | pass555  | 9876543221 | PRN012 | mentee | NULL            | 2025-03-10 23:57:46 | calendar012 |
+| mentee6@college.edu  |             13 | pass666  | 9876543222 | PRN013 | mentee | NULL            | 2025-03-10 23:57:46 | calendar013 |
+| mentee7@college.edu  |             14 | pass777  | 9876543223 | PRN014 | mentee | NULL            | 2025-03-10 23:57:46 | calendar014 |
+| mentee8@college.edu  |             15 | pass888  | 9876543224 | PRN015 | mentee | NULL            | 2025-03-10 23:57:46 | calendar015 |
+| mentee9@college.edu  |             16 | pass999  | 9876543225 | PRN016 | mentee | NULL            | 2025-03-10 23:57:46 | calendar016 |
+| mentee10@college.edu |             17 | pass000  | 9876543226 | PRN017 | mentee | NULL            | 2025-03-10 23:57:46 | calendar017 |
+| mentee11@college.edu |             18 | pass112  | 9876543227 | PRN018 | mentee | NULL            | 2025-03-10 23:57:46 | calendar018 |
+| mentee12@college.edu |             19 | pass223  | 9876543228 | PRN019 | mentee | NULL            | 2025-03-10 23:57:46 | calendar019 |
+| mentee13@college.edu |             20 | pass334  | 9876543229 | PRN020 | mentee | NULL            | 2025-03-10 23:57:46 | calendar020 |
+| mentee14@college.edu |             21 | pass445  | 9876543230 | PRN021 | mentee | NULL            | 2025-03-10 23:57:46 | calendar021 |
+| mentee15@college.edu |             22 | pass556  | 9876543231 | PRN022 | mentee | NULL            | 2025-03-10 23:57:46 | calendar022 |
+| mentee16@college.edu |             23 | pass667  | 9876543232 | PRN023 | mentee | NULL            | 2025-03-10 23:57:46 | calendar023 |
+| mentee17@college.edu |             24 | pass778  | 9876543233 | PRN024 | mentee | NULL            | 2025-03-10 23:57:46 | calendar024 |
+| mentee18@college.edu |             25 | pass889  | 9876543234 | PRN025 | mentee | NULL            | 2025-03-10 23:57:46 | calendar025 |
+| mentee19@college.edu |             26 | pass990  | 9876543235 | PRN026 | mentee | NULL            | 2025-03-10 23:57:46 | calendar026 |
+| mentee20@college.edu |             27 | pass101  | 9876543236 | PRN027 | mentee | NULL            | 2025-03-10 23:57:46 | calendar027 |
++----------------------+----------------+----------+------------+--------+--------+-----------------+---------------------+-------------+
+27 rows in set (0.02 sec)
+
+mysql> define users;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'define users' at line 1
+mysql> describe users;
++------------------+---------------------------------+------+-----+-------------------+-------------------+
+| Field            | Type                            | Null | Key | Default           | Extra             |
++------------------+---------------------------------+------+-----+-------------------+-------------------+
+| official_mail_id | varchar(255)                    | NO   | MUL | NULL              |                   |
+| unique_user_no   | int                             | NO   | PRI | NULL              | auto_increment    |
+| password         | varchar(255)                    | NO   |     | NULL              |                   |
+| phone_num        | varchar(15)                     | YES  |     | NULL              |                   |
+| prn_id           | varchar(50)                     | NO   | UNI | NULL              |                   |
+| role             | enum('admin','mentor','mentee') | NO   |     | NULL              |                   |
+| profile_picture  | varchar(255)                    | YES  |     | NULL              |                   |
+| created_at       | timestamp                       | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
+| calendar_id      | varchar(50)                     | YES  | UNI | NULL              |                   |
++------------------+---------------------------------+------+-----+-------------------+-------------------+
+9 rows in set (0.01 sec)
+
+mysql> describe mentor;
++---------------------+--------------+------+-----+---------+----------------+
+| Field               | Type         | Null | Key | Default | Extra          |
++---------------------+--------------+------+-----+---------+----------------+
+| mentor_id           | int          | NO   | PRI | NULL    | auto_increment |
+| unique_user_no      | int          | NO   | MUL | NULL    |                |
+| room_no             | varchar(50)  | YES  |     | NULL    |                |
+| timetable           | text         | YES  |     | NULL    |                |
+| department          | varchar(255) | YES  |     | NULL    |                |
+| academic_background | text         | YES  |     | NULL    |                |
++---------------------+--------------+------+-----+---------+----------------+
+6 rows in set (0.00 sec)
+
+mysql> select * from mentor;
++-----------+----------------+---------+--------------------+------------------+----------------------------+
+| mentor_id | unique_user_no | room_no | timetable          | department       | academic_background        |
++-----------+----------------+---------+--------------------+------------------+----------------------------+
+|         1 |              3 | Room A1 | Mon-Wed: 10AM-1PM  | Computer Science | PhD in Computer Science    |
+|         2 |              4 | Room B2 | Tue-Thu: 11AM-2PM  | Mathematics      | PhD in Applied Mathematics |
+|         3 |              5 | Room C3 | Mon-Wed: 2PM-5PM   | Physics          | PhD in Theoretical Physics |
+|         4 |              6 | Room D4 | Tue-Thu: 10AM-12PM | Chemistry        | PhD in Organic Chemistry   |
+|         5 |              7 | Room E5 | Fri: 9AM-12PM      | Biology          | PhD in Microbiology        |
++-----------+----------------+---------+--------------------+------------------+----------------------------+
+5 rows in set (0.01 sec)
+
+mysql> select * from mentor_view;
++-----------+---------------------+-----------+----------------------+
+| mentor_id | mentor_email        | mentee_id | mentee_email         |
++-----------+---------------------+-----------+----------------------+
+|         1 | mentor1@college.edu |         1 | mentee1@college.edu  |
+|         1 | mentor1@college.edu |         2 | mentee2@college.edu  |
+|         1 | mentor1@college.edu |         3 | mentee3@college.edu  |
+|         1 | mentor1@college.edu |        12 | mentee12@college.edu |
+|         1 | mentor1@college.edu |        17 | mentee17@college.edu |
+|         2 | mentor2@college.edu |         4 | mentee4@college.edu  |
+|         2 | mentor2@college.edu |         5 | mentee5@college.edu  |
+|         2 | mentor2@college.edu |        13 | mentee13@college.edu |
+|         2 | mentor2@college.edu |        18 | mentee18@college.edu |
+|         3 | mentor3@college.edu |         6 | mentee6@college.edu  |
+|         3 | mentor3@college.edu |         7 | mentee7@college.edu  |
+|         3 | mentor3@college.edu |        14 | mentee14@college.edu |
+|         3 | mentor3@college.edu |        19 | mentee19@college.edu |
+|         4 | mentor4@college.edu |         8 | mentee8@college.edu  |
+|         4 | mentor4@college.edu |         9 | mentee9@college.edu  |
+|         4 | mentor4@college.edu |        15 | mentee15@college.edu |
+|         4 | mentor4@college.edu |        20 | mentee20@college.edu |
+|         5 | mentor5@college.edu |        10 | mentee10@college.edu |
+|         5 | mentor5@college.edu |        11 | mentee11@college.edu |
+|         5 | mentor5@college.edu |        16 | mentee16@college.edu |
++-----------+---------------------+-----------+----------------------+
+20 rows in set (0.00 sec)
+
+mysql> describe mentor_view;
++--------------+--------------+------+-----+---------+-------+
+| Field        | Type         | Null | Key | Default | Extra |
++--------------+--------------+------+-----+---------+-------+
+| mentor_id    | int          | NO   |     | 0       |       |
+| mentor_email | varchar(255) | NO   |     | NULL    |       |
+| mentee_id    | int          | NO   |     | 0       |       |
+| mentee_email | varchar(255) | NO   |     | NULL    |       |
++--------------+--------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> describe mentee;
++----------------+------+------+-----+---------+----------------+
+| Field          | Type | Null | Key | Default | Extra          |
++----------------+------+------+-----+---------+----------------+
+| mentee_id      | int  | NO   | PRI | NULL    | auto_increment |
+| unique_user_no | int  | NO   | MUL | NULL    |                |
+| mentor_id      | int  | NO   | MUL | NULL    |                |
++----------------+------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> select * from mentee;
++-----------+----------------+-----------+
+| mentee_id | unique_user_no | mentor_id |
++-----------+----------------+-----------+
+|         1 |              8 |         1 |
+|         2 |              9 |         1 |
+|         3 |             10 |         1 |
+|         4 |             11 |         2 |
+|         5 |             12 |         2 |
+|         6 |             13 |         3 |
+|         7 |             14 |         3 |
+|         8 |             15 |         4 |
+|         9 |             16 |         4 |
+|        10 |             17 |         5 |
+|        11 |             18 |         5 |
+|        12 |             19 |         1 |
+|        13 |             20 |         2 |
+|        14 |             21 |         3 |
+|        15 |             22 |         4 |
+|        16 |             23 |         5 |
+|        17 |             24 |         1 |
+|        18 |             25 |         2 |
+|        19 |             26 |         3 |
+|        20 |             27 |         4 |
++-----------+----------------+-----------+
+20 rows in set (0.00 sec)
+
+mysql> select * from mentee_academics;
++-----------+------------------------+------+------------+------------------+---------------------------------------------------+
+| mentee_id | course                 | year | attendance | academic_context | academic_background                               |
++-----------+------------------------+------+------------+------------------+---------------------------------------------------+
+|         1 | B.Sc. Computer Science |    1 |       85.5 | Good             | Completed high school with distinction.           |
+|         2 | B.Sc. Computer Science |    2 |         92 | Excellent        | Excelled in previous year with top grades.        |
+|         3 | B.Sc. Computer Science |    3 |         70 | Average          | Struggling with core subjects, needs improvement. |
+|         4 | B.Sc. Mathematics      |    1 |         75 | Good             | Strong understanding of basics.                   |
+|         5 | B.Sc. Mathematics      |    2 |         60 | Poor             | Below average performance, requires guidance.     |
+|         6 | B.Sc. Physics          |    1 |       72.5 | Average          | Good understanding of theoretical concepts.       |
+|         7 | B.Sc. Physics          |    2 |         78 | Good             | Improving with practical knowledge.               |
+|         8 | B.Sc. Chemistry        |    3 |         91 | Excellent        | Exceptional performance in all areas.             |
+|         9 | B.Sc. Chemistry        |    2 |         83 | Good             | Understanding practical concepts well.            |
+|        10 | B.Sc. Biology          |    1 |         68 | Average          | Needs improvement in theoretical concepts.        |
+|        11 | B.Sc. Biology          |    2 |       80.5 | Good             | Steady progress with good practical skills.       |
+|        12 | B.Sc. Computer Science |    1 |         94 | Excellent        | Outstanding performance in programming.           |
+|        13 | B.Sc. Mathematics      |    3 |         55 | Poor             | Poor performance, needs intensive tutoring.       |
+|        14 | B.Sc. Physics          |    3 |         82 | Good             | Strong analytical skills.                         |
+|        15 | B.Sc. Chemistry        |    1 |         65 | Average          | Requires more focus on fundamentals.              |
+|        16 | B.Sc. Biology          |    3 |         79 | Good             | Solid performance, especially in lab work.        |
+|        17 | B.Sc. Computer Science |    2 |         74 | Average          | Moderate progress, requires motivation.           |
+|        18 | B.Sc. Mathematics      |    2 |         77 | Good             | Consistent improvement.                           |
+|        19 | B.Sc. Physics          |    1 |         90 | Excellent        | Highly proficient in all areas.                   |
+|        20 | B.Sc. Chemistry        |    3 |         85 | Good             | Good theoretical knowledge and practical skills.  |
++-----------+------------------------+------+------------+------------------+---------------------------------------------------+
+20 rows in set (0.01 sec)
+
+mysql> describe mentee_academics;
++---------------------+--------------+------+-----+---------+-------+
+| Field               | Type         | Null | Key | Default | Extra |
++---------------------+--------------+------+-----+---------+-------+
+| mentee_id           | int          | NO   | PRI | NULL    |       |
+| course              | varchar(255) | YES  |     | NULL    |       |
+| year                | int          | YES  |     | NULL    |       |
+| attendance          | float        | YES  |     | NULL    |       |
+| academic_context    | varchar(15)  | YES  |     | NULL    |       |
+| academic_background | text         | YES  |     | NULL    |       |
++---------------------+--------------+------+-----+---------+-------+
+6 rows in set (0.00 sec)
+
+mysql> describe mentee_academics_view;
+ERROR 1146 (42S02): Table 'dbmm.mentee_academics_view' doesn't exist
+mysql> describe mentee_academic_view;
++------------------+--------------+------+-----+---------+-------+
+| Field            | Type         | Null | Key | Default | Extra |
++------------------+--------------+------+-----+---------+-------+
+| mentee_id        | int          | NO   |     | 0       |       |
+| mentee_email     | varchar(255) | NO   |     | NULL    |       |
+| course           | varchar(255) | YES  |     | NULL    |       |
+| year             | int          | YES  |     | NULL    |       |
+| attendance       | float        | YES  |     | NULL    |       |
+| academic_context | varchar(15)  | YES  |     | NULL    |       |
++------------------+--------------+------+-----+---------+-------+
+6 rows in set (0.00 sec)
+
+mysql> select * from mentee_academic_view;
++-----------+----------------------+------------------------+------+------------+------------------+
+| mentee_id | mentee_email         | course                 | year | attendance | academic_context |
++-----------+----------------------+------------------------+------+------------+------------------+
+|         1 | mentee1@college.edu  | B.Sc. Computer Science |    1 |       85.5 | Good             |
+|         2 | mentee2@college.edu  | B.Sc. Computer Science |    2 |         92 | Excellent        |
+|         3 | mentee3@college.edu  | B.Sc. Computer Science |    3 |         70 | Average          |
+|         4 | mentee4@college.edu  | B.Sc. Mathematics      |    1 |         75 | Good             |
+|         5 | mentee5@college.edu  | B.Sc. Mathematics      |    2 |         60 | Poor             |
+|         6 | mentee6@college.edu  | B.Sc. Physics          |    1 |       72.5 | Average          |
+|         7 | mentee7@college.edu  | B.Sc. Physics          |    2 |         78 | Good             |
+|         8 | mentee8@college.edu  | B.Sc. Chemistry        |    3 |         91 | Excellent        |
+|         9 | mentee9@college.edu  | B.Sc. Chemistry        |    2 |         83 | Good             |
+|        10 | mentee10@college.edu | B.Sc. Biology          |    1 |         68 | Average          |
+|        11 | mentee11@college.edu | B.Sc. Biology          |    2 |       80.5 | Good             |
+|        12 | mentee12@college.edu | B.Sc. Computer Science |    1 |         94 | Excellent        |
+|        13 | mentee13@college.edu | B.Sc. Mathematics      |    3 |         55 | Poor             |
+|        14 | mentee14@college.edu | B.Sc. Physics          |    3 |         82 | Good             |
+|        15 | mentee15@college.edu | B.Sc. Chemistry        |    1 |         65 | Average          |
+|        16 | mentee16@college.edu | B.Sc. Biology          |    3 |         79 | Good             |
+|        17 | mentee17@college.edu | B.Sc. Computer Science |    2 |         74 | Average          |
+|        18 | mentee18@college.edu | B.Sc. Mathematics      |    2 |         77 | Good             |
+|        19 | mentee19@college.edu | B.Sc. Physics          |    1 |         90 | Excellent        |
+|        20 | mentee20@college.edu | B.Sc. Chemistry        |    3 |         85 | Good             |
++-----------+----------------------+------------------------+------+------------+------------------+
+20 rows in set (0.00 sec)
+
+mysql> describe emergency_alerts;
++--------------------+----------------------------+------+-----+---------+----------------+
+| Field              | Type                       | Null | Key | Default | Extra          |
++--------------------+----------------------------+------+-----+---------+----------------+
+| emergency_alert_id | int                        | NO   | PRI | NULL    | auto_increment |
+| comm_id            | int                        | NO   | MUL | NULL    |                |
+| alert_reason       | text                       | YES  |     | NULL    |                |
+| alert_status       | enum('pending','resolved') | YES  |     | NULL    |                |
++--------------------+----------------------------+------+-----+---------+----------------+
+4 rows in set (0.00 sec)
+
+mysql> select * from emergency_alerts;
++--------------------+---------+--------------------------------------------------+--------------+
+| emergency_alert_id | comm_id | alert_reason                                     | alert_status |
++--------------------+---------+--------------------------------------------------+--------------+
+|                  1 |       1 | Mentee reported feeling unwell during a meeting. | pending      |
+|                  2 |       2 | Urgent academic assistance request from mentee.  | resolved     |
+|                  3 |       3 | Technical issue reported by mentor.              | pending      |
+|                  4 |       4 | Mentee reported cyberbullying incident.          | resolved     |
+|                  5 |       5 | Emergency meeting request for urgent guidance.   | pending      |
++--------------------+---------+--------------------------------------------------+--------------+
+5 rows in set (0.01 sec)
+
+mysql> select * from communication;
++---------+-----------+-------------+----------------------------------------------------+----------------+---------------------+-----------------+-------------+
+| comm_id | sender_id | receiver_id | message_content                                    | message_status | timestamp           | attached_file   | type        |
++---------+-----------+-------------+----------------------------------------------------+----------------+---------------------+-----------------+-------------+
+|       1 |         1 |           3 | Meeting scheduled for Monday at 10 AM.             | delivered      | 2025-03-11 00:10:21 | NULL            | one-to-one  |
+|       2 |         2 |           4 | Please share your progress report.                 | sent           | 2025-03-11 00:10:21 | NULL            | one-to-one  |
+|       3 |         3 |           5 | Feedback on the project: Great effort!             | read           | 2025-03-11 00:10:21 | NULL            | feedback    |
+|       4 |         4 |           6 | You have been invited to the mentorship meeting.   | delivered      | 2025-03-11 00:10:21 | NULL            | broadcast   |
+|       5 |         5 |           7 | Meeting request for discussion on academic issues. | sent           | 2025-03-11 00:10:21 | NULL            | meeting_req |
+|       6 |         3 |           1 | Meeting notes attached.                            | read           | 2025-03-11 00:10:21 | notes.pdf       | one-to-one  |
+|       7 |         2 |           5 | Group discussion scheduled at 2 PM.                | delivered      | 2025-03-11 00:10:21 | NULL            | broadcast   |
+|       8 |         1 |           4 | Please review the attached assignment.             | sent           | 2025-03-11 00:10:21 | assignment.docx | one-to-one  |
+|       9 |         5 |           6 | Request for meeting approval.                      | delivered      | 2025-03-11 00:10:21 | NULL            | meeting_req |
+|      10 |         4 |           3 | Broadcast message: New guidelines released.        | read           | 2025-03-11 00:10:21 | NULL            | broadcast   |
+|      11 |         7 |           5 | Feedback: Keep up the good work.                   | read           | 2025-03-11 00:10:21 | NULL            | feedback    |
+|      12 |         6 |           2 | Please upload your project files.                  | delivered      | 2025-03-11 00:10:21 | NULL            | one-to-one  |
+|      13 |         3 |           1 | Feedback on submission: Well done.                 | read           | 2025-03-11 00:10:21 | NULL            | feedback    |
+|      14 |         1 |           2 | Meeting request for semester planning.             | sent           | 2025-03-11 00:10:21 | NULL            | meeting_req |
+|      15 |         5 |           4 | Broadcast: Holiday announcement.                   | delivered      | 2025-03-11 00:10:21 | NULL            | broadcast   |
+|      16 |         7 |           1 | Meeting scheduled for next week.                   | read           | 2025-03-11 00:10:21 | NULL            | one-to-one  |
+|      17 |         2 |           3 | Feedback: Improve your attendance.                 | read           | 2025-03-11 00:10:21 | NULL            | feedback    |
+|      18 |         4 |           6 | Request for feedback submission.                   | delivered      | 2025-03-11 00:10:21 | NULL            | feedback    |
+|      19 |         3 |           7 | Meeting notes attached.                            | read           | 2025-03-11 00:10:21 | notes2.pdf      | one-to-one  |
+|      20 |         5 |           2 | Feedback: Continue your progress.                  | read           | 2025-03-11 00:10:21 | NULL            | feedback    |
++---------+-----------+-------------+----------------------------------------------------+----------------+---------------------+-----------------+-------------+
+20 rows in set (0.01 sec)
+
+mysql> describe communication;
++-----------------+---------------------------------------------------------+------+-----+-------------------+-------------------+
+| Field           | Type                                                    | Null | Key | Default           | Extra             |
++-----------------+---------------------------------------------------------+------+-----+-------------------+-------------------+
+| comm_id         | int                                                     | NO   | PRI | NULL              | auto_increment    |
+| sender_id       | int                                                     | NO   | MUL | NULL              |                   |
+| receiver_id     | int                                                     | NO   | MUL | NULL              |                   |
+| message_content | text                                                    | YES  |     | NULL              |                   |
+| message_status  | enum('sent','delivered','read')                         | YES  |     | sent              |                   |
+| timestamp       | timestamp                                               | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
+| attached_file   | varchar(255)                                            | YES  |     | NULL              |                   |
+| type            | enum('one-to-one','broadcast','feedback','meeting_req') | NO   |     | NULL              |                   |
++-----------------+---------------------------------------------------------+------+-----+-------------------+-------------------+
+8 rows in set (0.00 sec)
+
+mysql> select * from communication_view;
++-----------+-------------+---------------------+---------------------+----------------------------------------------------+----------------+
+| sender_id | receiver_id | sender_email        | receiver_email      | message_content                                    | message_status |
++-----------+-------------+---------------------+---------------------+----------------------------------------------------+----------------+
+|         1 |           3 | admin1@college.edu  | mentor1@college.edu | Meeting scheduled for Monday at 10 AM.             | delivered      |
+|         2 |           4 | admin2@college.edu  | mentor2@college.edu | Please share your progress report.                 | sent           |
+|         3 |           5 | mentor1@college.edu | mentor3@college.edu | Feedback on the project: Great effort!             | read           |
+|         4 |           6 | mentor2@college.edu | mentor4@college.edu | You have been invited to the mentorship meeting.   | delivered      |
+|         5 |           7 | mentor3@college.edu | mentor5@college.edu | Meeting request for discussion on academic issues. | sent           |
+|         3 |           1 | mentor1@college.edu | admin1@college.edu  | Meeting notes attached.                            | read           |
+|         2 |           5 | admin2@college.edu  | mentor3@college.edu | Group discussion scheduled at 2 PM.                | delivered      |
+|         1 |           4 | admin1@college.edu  | mentor2@college.edu | Please review the attached assignment.             | sent           |
+|         5 |           6 | mentor3@college.edu | mentor4@college.edu | Request for meeting approval.                      | delivered      |
+|         4 |           3 | mentor2@college.edu | mentor1@college.edu | Broadcast message: New guidelines released.        | read           |
+|         7 |           5 | mentor5@college.edu | mentor3@college.edu | Feedback: Keep up the good work.                   | read           |
+|         6 |           2 | mentor4@college.edu | admin2@college.edu  | Please upload your project files.                  | delivered      |
+|         3 |           1 | mentor1@college.edu | admin1@college.edu  | Feedback on submission: Well done.                 | read           |
+|         1 |           2 | admin1@college.edu  | admin2@college.edu  | Meeting request for semester planning.             | sent           |
+|         5 |           4 | mentor3@college.edu | mentor2@college.edu | Broadcast: Holiday announcement.                   | delivered      |
+|         7 |           1 | mentor5@college.edu | admin1@college.edu  | Meeting scheduled for next week.                   | read           |
+|         2 |           3 | admin2@college.edu  | mentor1@college.edu | Feedback: Improve your attendance.                 | read           |
+|         4 |           6 | mentor2@college.edu | mentor4@college.edu | Request for feedback submission.                   | delivered      |
+|         3 |           7 | mentor1@college.edu | mentor5@college.edu | Meeting notes attached.                            | read           |
+|         5 |           2 | mentor3@college.edu | admin2@college.edu  | Feedback: Continue your progress.                  | read           |
++-----------+-------------+---------------------+---------------------+----------------------------------------------------+----------------+
+20 rows in set (0.00 sec)
+
+mysql> describe communication_view;
++-----------------+---------------------------------+------+-----+---------+-------+
+| Field           | Type                            | Null | Key | Default | Extra |
++-----------------+---------------------------------+------+-----+---------+-------+
+| sender_id       | int                             | NO   |     | NULL    |       |
+| receiver_id     | int                             | NO   |     | NULL    |       |
+| sender_email    | varchar(255)                    | NO   |     | NULL    |       |
+| receiver_email  | varchar(255)                    | NO   |     | NULL    |       |
+| message_content | text                            | YES  |     | NULL    |       |
+| message_status  | enum('sent','delivered','read') | YES  |     | sent    |       |
++-----------------+---------------------------------+------+-----+---------+-------+
+6 rows in set (0.00 sec)
+
+mysql> describe admin;
++----------------+--------------+------+-----+---------+----------------+
+| Field          | Type         | Null | Key | Default | Extra          |
++----------------+--------------+------+-----+---------+----------------+
+| admin_id       | int          | NO   | PRI | NULL    | auto_increment |
+| unique_user_no | int          | NO   | MUL | NULL    |                |
+| privilege      | varchar(255) | YES  |     | NULL    |                |
++----------------+--------------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> select * from admin;
++----------+----------------+-----------------+
+| admin_id | unique_user_no | privilege       |
++----------+----------------+-----------------+
+|        1 |              1 | Full Access     |
+|        2 |              2 | Moderate Access |
++----------+----------------+-----------------+
+2 rows in set (0.01 sec)
+
+mysql> select * from activity_log;
++--------+---------+---------------------+-----------------------------+--------------+---------------------+
+| log_id | user_id | log_time            | activity                    | ip_address   | last_login          |
++--------+---------+---------------------+-----------------------------+--------------+---------------------+
+|      1 |       1 | 2025-03-11 09:15:00 | Logged in as Admin          | 192.168.0.1  | 2025-03-11 09:00:00 |
+|      2 |       2 | 2025-03-11 09:20:00 | Logged in as Admin          | 192.168.0.2  | 2025-03-11 09:05:00 |
+|      3 |       3 | 2025-03-11 10:00:00 | Logged in as Mentor         | 192.168.0.3  | 2025-03-11 09:45:00 |
+|      4 |       4 | 2025-03-11 10:05:00 | Checked messages            | 192.168.0.4  | 2025-03-11 09:50:00 |
+|      5 |       5 | 2025-03-11 10:30:00 | Scheduled a meeting         | 192.168.0.5  | 2025-03-11 10:15:00 |
+|      6 |       6 | 2025-03-11 10:35:00 | Uploaded academic materials | 192.168.0.6  | 2025-03-11 10:20:00 |
+|      7 |       7 | 2025-03-11 10:40:00 | Logged out                  | 192.168.0.7  | 2025-03-11 10:25:00 |
+|      8 |       8 | 2025-03-11 10:45:00 | Sent a message to mentor    | 192.168.0.8  | 2025-03-11 10:30:00 |
+|      9 |       9 | 2025-03-11 11:00:00 | Submitted academic report   | 192.168.0.9  | 2025-03-11 10:45:00 |
+|     10 |      10 | 2025-03-11 11:15:00 | Joined a scheduled meeting  | 192.168.0.10 | 2025-03-11 11:00:00 |
++--------+---------+---------------------+-----------------------------+--------------+---------------------+
+10 rows in set (0.00 sec)
+
+mysql> describe activity_log;
++------------+-------------+------+-----+-------------------+-------------------+
+| Field      | Type        | Null | Key | Default           | Extra             |
++------------+-------------+------+-----+-------------------+-------------------+
+| log_id     | int         | NO   | PRI | NULL              | auto_increment    |
+| user_id    | int         | NO   | MUL | NULL              |                   |
+| log_time   | timestamp   | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
+| activity   | text        | YES  |     | NULL              |                   |
+| ip_address | varchar(50) | YES  |     | NULL              |                   |
+| last_login | timestamp   | YES  |     | NULL              |                   |
++------------+-------------+------+-----+-------------------+-------------------+
+6 rows in set (0.00 sec)
+
+mysql> describe achievement;
++--------------+--------------+------+-----+---------+----------------+
+| Field        | Type         | Null | Key | Default | Extra          |
++--------------+--------------+------+-----+---------+----------------+
+| achvmt_id    | int          | NO   | PRI | NULL    | auto_increment |
+| mentor_id    | int          | YES  | MUL | NULL    |                |
+| mentee_id    | int          | YES  | MUL | NULL    |                |
+| title        | varchar(255) | YES  |     | NULL    |                |
+| description  | text         | YES  |     | NULL    |                |
+| date_awarded | date         | YES  |     | NULL    |                |
+| badge_icon   | varchar(255) | YES  |     | NULL    |                |
++--------------+--------------+------+-----+---------+----------------+
+7 rows in set (0.00 sec)
+
+mysql> describe activity_log;
++------------+-------------+------+-----+-------------------+-------------------+
+| Field      | Type        | Null | Key | Default           | Extra             |
++------------+-------------+------+-----+-------------------+-------------------+
+| log_id     | int         | NO   | PRI | NULL              | auto_increment    |
+| user_id    | int         | NO   | MUL | NULL              |                   |
+| log_time   | timestamp   | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
+| activity   | text        | YES  |     | NULL              |                   |
+| ip_address | varchar(50) | YES  |     | NULL              |                   |
+| last_login | timestamp   | YES  |     | NULL              |                   |
++------------+-------------+------+-----+-------------------+-------------------+
+6 rows in set (0.00 sec)
+
+mysql> select * from achievement;
++-----------+-----------+-----------+----------------------------+------------------------------------------------------------------+--------------+------------------------+
+| achvmt_id | mentor_id | mentee_id | title                      | description                                                      | date_awarded | badge_icon             |
++-----------+-----------+-----------+----------------------------+------------------------------------------------------------------+--------------+------------------------+
+|         1 |         1 |         8 | Best Project Award         | Awarded for outstanding performance in the semester project.     | 2025-03-01   | project_badge.png      |
+|         2 |         2 |         9 | Perfect Attendance         | Awarded for maintaining 100% attendance throughout the semester. | 2025-03-02   | attendance_badge.png   |
+|         3 |         3 |        10 | Research Excellence        | Awarded for exemplary research work in Physics.                  | 2025-03-03   | research_badge.png     |
+|         4 |         4 |        11 | Top Scorer                 | Awarded for securing the highest marks in Chemistry.             | 2025-03-04   | top_scorer_badge.png   |
+|         5 |         5 |        12 | Community Service          | Recognition for valuable contributions to community projects.    | 2025-03-05   | community_badge.png    |
+|         6 |         1 |        13 | Coding Competition Winner  | First place in inter-college coding competition.                 | 2025-03-06   | coding_badge.png       |
+|         7 |         2 |        14 | Mathematics Olympiad       | Excellence in Mathematics problem-solving.                       | 2025-03-07   | math_badge.png         |
+|         8 |         3 |        15 | Physics Presentation Award | Best presentation at the annual Physics seminar.                 | 2025-03-08   | presentation_badge.png |
+|         9 |         4 |        16 | Lab Assistant Award        | Outstanding performance as a lab assistant.                      | 2025-03-09   | lab_badge.png          |
+|        10 |         5 |        17 | Science Fair Winner        | Best innovative project at the Science Fair.                     | 2025-03-10   | science_badge.png      |
+|        11 |         1 |        18 | Hackathon Champion         | Awarded for winning the college hackathon.                       | 2025-03-11   | hackathon_badge.png    |
+|        12 |         2 |        19 | Mathematics Prodigy        | Awarded for exceptional problem-solving skills.                  | 2025-03-12   | prodigy_badge.png      |
+|        13 |         3 |        20 | Physics Research Award     | Outstanding contribution to Physics research.                    | 2025-03-13   | research_award.png     |
+|        14 |         4 |        21 | Chemistry Quiz Winner      | First place in the inter-college Chemistry quiz.                 | 2025-03-14   | quiz_badge.png         |
+|        15 |         5 |        22 | Biology Excellence         | Recognition for academic excellence in Biology.                  | 2025-03-15   | biology_badge.png      |
++-----------+-----------+-----------+----------------------------+------------------------------------------------------------------+--------------+------------------------+
+15 rows in set (0.01 sec)
+
+mysql>

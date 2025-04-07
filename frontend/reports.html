@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Mentor-Mentee Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 16px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 16px;
+        }
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            background-color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #153e75;
+        }
+    </style>
+</head>
+<body>
+    <div id="navigation"></div>
+    <div class="container">
+        <h1 class="section-title">Reports</h1>
+        <div class="report-grid">
+            <div class="card">
+                <h2>User Statistics</h2>
+                <div class="chart-container">
+                    <canvas id="userStatsChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Mentor-Mentee Distribution</h2>
+                <div class="chart-container">
+                    <canvas id="mentorMenteeChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Department Overview</h2>
+                <div class="chart-container">
+                    <canvas id="departmentChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h2>Generate Detailed Report</h2>
+            <p>Click the button below to download a detailed report of the system.</p>
+            <button class="btn" id="generateReportBtn">Download Report</button>
+        </div>
+    </div>
+    <script>
+        // Load navigation
+        fetch('components/navigation.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navigation').innerHTML = data;
+            });
+
+        // Chart.js example data
+        const userStatsCtx = document.getElementById('userStatsChart').getContext('2d');
+        const mentorMenteeCtx = document.getElementById('mentorMenteeChart').getContext('2d');
+        const departmentCtx = document.getElementById('departmentChart').getContext('2d');
+
+        new Chart(userStatsCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Active Users', 'Inactive Users'],
+                datasets: [{
+                    data: [75, 25],
+                    backgroundColor: ['#3b82f6', '#e5e7eb']
+                }]
+            }
+        });
+
+        new Chart(mentorMenteeCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Mentors', 'Mentees'],
+                datasets: [{
+                    label: 'Count',
+                    data: [50, 200],
+                    backgroundColor: ['#10b981', '#f59e0b']
+                }]
+            }
+        });
+
+        new Chart(departmentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['CS', 'LAW', 'MBA', 'BSC'],
+                datasets: [{
+                    data: [30, 20, 25, 25],
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444']
+                }]
+            }
+        });
+
+        // Generate report button
+        document.getElementById('generateReportBtn').addEventListener('click', () => {
+            alert('Report generation is not implemented yet.');
+        });
+    </script>
+</body>
+</html>

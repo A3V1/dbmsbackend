@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile - Mentor-Mentee Portal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div id="nav-placeholder"></div>
+
+    <div class="container">
+        <div class="grid grid-2">
+            <!-- Left Column - Personal Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Personal Information</h2>
+                    <button class="btn btn-outline" onclick="editProfile()">Edit Profile</button>
+                </div>
+                <div class="profile-info">
+                    <div class="profile-image">
+                        <img src="https://via.placeholder.com/150" alt="Profile Picture" style="border-radius: 50%; margin-bottom: 1rem;">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Name</label>
+                        <p id="student-name">Loading...</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">PRN ID</label>
+                        <p id="prn-id">Loading...</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <p id="email">Loading...</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <p id="phone">Loading...</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Course</label>
+                        <p id="course">Loading...</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Year</label>
+                        <p id="year">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Academic Progress -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Academic Progress</h2>
+                    </div>
+                    <div class="academic-info">
+                        <div class="form-group">
+                            <label class="form-label">Attendance</label>
+                            <div class="progress-bar">
+                                <div id="attendance-progress" class="progress" style="width: 0%"></div>
+                            </div>
+                            <p id="attendance-value">Loading...</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Academic Context</label>
+                            <p id="academic-context">Loading...</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Academic Background</label>
+                            <p id="academic-background">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Achievements Section -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h2>Achievements</h2>
+                    </div>
+                    <div id="achievements-list" class="achievements-grid">
+                        <!-- Achievements will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Meeting History -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2>Meeting History</h2>
+                <button class="btn btn-primary" onclick="scheduleMeeting()">Schedule Meeting</button>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody id="meeting-history">
+                    <!-- Meeting history will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <style>
+    .progress-bar {
+        width: 100%;
+        height: 20px;
+        background-color: var(--background-color);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 0.5rem 0;
+    }
+
+    .progress {
+        height: 100%;
+        background-color: var(--primary-color);
+        transition: width 0.3s ease;
+    }
+
+    .achievements-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        padding: 1rem 0;
+    }
+
+    .achievement-card {
+        text-align: center;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+    }
+
+    .achievement-card img {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 0.5rem;
+    }
+    </style>
+
+    <script>
+    // Load navigation
+    fetch('components/navigation.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('nav-placeholder').innerHTML = data;
+        });
+
+    // Sample data - Replace with actual API calls
+    const studentData = {
+        name: "John Doe",
+        prn_id: "PRN008",
+        email: "mentee1@college.edu",
+        phone: "9876543217",
+        course: "B.Sc. Computer Science",
+        year: 1,
+        attendance: 85.5,
+        academic_context: "Good",
+        academic_background: "Completed high school with distinction."
+    };
+
+    const achievements = [
+        {
+            title: "Best Project Award",
+            description: "Outstanding performance in semester project",
+            badge_icon: "project_badge.png",
+            date_awarded: "2025-03-01"
+        },
+        // Add more achievements
+    ];
+
+    const meetings = [
+        {
+            date: "2025-03-15",
+            time: "10:00 AM",
+            type: "Academic Review",
+            status: "Scheduled",
+            notes: "Semester progress discussion"
+        },
+        // Add more meetings
+    ];
+
+    // Load student data
+    function loadStudentData() {
+        document.getElementById('student-name').textContent = studentData.name;
+        document.getElementById('prn-id').textContent = studentData.prn_id;
+        document.getElementById('email').textContent = studentData.email;
+        document.getElementById('phone').textContent = studentData.phone;
+        document.getElementById('course').textContent = studentData.course;
+        document.getElementById('year').textContent = studentData.year;
+        
+        // Update attendance progress bar
+        document.getElementById('attendance-progress').style.width = `${studentData.attendance}%`;
+        document.getElementById('attendance-value').textContent = `${studentData.attendance}%`;
+        
+        document.getElementById('academic-context').textContent = studentData.academic_context;
+        document.getElementById('academic-background').textContent = studentData.academic_background;
+    }
+
+    // Load achievements
+    function loadAchievements() {
+        const achievementsContainer = document.getElementById('achievements-list');
+        achievementsContainer.innerHTML = achievements.map(achievement => `
+            <div class="achievement-card">
+                <img src="${achievement.badge_icon}" alt="${achievement.title}">
+                <h3>${achievement.title}</h3>
+                <p class="small">${achievement.description}</p>
+                <p class="text-light">${new Date(achievement.date_awarded).toLocaleDateString()}</p>
+            </div>
+        `).join('');
+    }
+
+    // Load meeting history
+    function loadMeetingHistory() {
+        const meetingHistoryContainer = document.getElementById('meeting-history');
+        meetingHistoryContainer.innerHTML = meetings.map(meeting => `
+            <tr>
+                <td>${meeting.date}</td>
+                <td>${meeting.time}</td>
+                <td>${meeting.type}</td>
+                <td><span class="badge badge-primary">${meeting.status}</span></td>
+                <td>${meeting.notes}</td>
+            </tr>
+        `).join('');
+    }
+
+    // Edit profile function
+    function editProfile() {
+        // Implement edit profile functionality
+        alert('Edit profile functionality will be implemented here');
+    }
+
+    // Schedule meeting function
+    function scheduleMeeting() {
+        // Implement schedule meeting functionality
+        alert('Schedule meeting functionality will be implemented here');
+    }
+
+    // Load all data when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        loadStudentData();
+        loadAchievements();
+        loadMeetingHistory();
+    });
+    </script>
+</body>
+</html>

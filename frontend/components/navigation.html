@@ -1,0 +1,125 @@
+<!-- Sidebar Navigation -->
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <img src="../assets/mit-wpu_logo.png" alt="MMS Logo" class="logo-img">
+        <span class="logo-text"></span>
+    </div>
+
+    <div class="sidebar-content">
+        <ul class="nav-menu">
+            <!-- ...existing code for nav items... -->
+            <li class="nav-item admin-only" style="display: none;">
+                <a href="#" class="nav-link" data-page="logs">
+                    <i class="fas fa-history"></i>
+                    <span>Logs</span>
+                </a>
+            </li>
+            <li class="nav-item admin-only" style="display: none;">
+                <a href="#" class="nav-link" data-page="announcements">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Announcements</span>
+                </a>
+            </li>
+            <!-- ...existing code for mentor-only and mentee-only items... -->
+        </ul>
+    </div>
+
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <img src="../assets/default-avatar.png" alt="User Avatar" class="user-avatar">
+            <div class="user-details">
+                <span class="user-name">User Name</span>
+                <span class="user-role">Role</span>
+            </div>
+        </div>
+        <button id="logoutBtn" class="btn btn-outline">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </button>
+    </div>
+</nav>
+
+<!-- Top Navigation -->
+<header class="top-nav">
+    <div class="top-nav-content">
+        <button id="sidebarToggle" class="sidebar-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search...">
+        </div>
+        <div class="top-nav-right">
+            <div class="notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">3</span>
+            </div>
+            <div class="settings">
+                <i class="fas fa-cog"></i>
+            </div>
+        </div>
+    </div>
+</header>
+
+<style>
+    /* ...existing CSS code... */
+</style>
+
+<script>
+    // Toggle dropdown menu
+    function toggleDropdown() {
+        const dropdown = document.getElementById('userDropdown');
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+    
+    // Close dropdown when clicking outside
+    window.onclick = function(event) {
+        if (!event.target.matches('.dropdown-toggle')) {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown.style.display === 'block') {
+                dropdown.style.display = 'none';
+            }
+        }
+    }
+    
+    // Update navigation based on user role
+    function updateNavigation() {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (!currentUser) return;
+        
+        // Update user name
+        document.getElementById('userName').textContent = currentUser.official_mail_id;
+        
+        // Show/hide role-specific navigation items
+        const adminItems = document.querySelectorAll('.admin-only');
+        const mentorItems = document.querySelectorAll('.mentor-only');
+        const menteeItems = document.querySelectorAll('.mentee-only');
+        
+        adminItems.forEach(item => item.style.display = currentUser.role === 'admin' ? 'block' : 'none');
+        mentorItems.forEach(item => item.style.display = currentUser.role === 'mentor' ? 'block' : 'none');
+        menteeItems.forEach(item => item.style.display = currentUser.role === 'mentee' ? 'block' : 'none');
+        
+        // Highlight active page
+        const currentPage = window.location.pathname.split('/').pop().replace('.html', '');
+        document.querySelectorAll('.navbar-nav a').forEach(link => {
+            const linkPage = link.getAttribute('href').replace('.html', '');
+            if (linkPage === currentPage) {
+                link.classList.add('active');
+            }
+        });
+    }
+    
+    // Initialize navigation
+    document.addEventListener('DOMContentLoaded', function() {
+        updateNavigation();
+        
+        // Add logout handler
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function() {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'mit-wpu-login.html';
+            });
+        }
+    });
+</script>

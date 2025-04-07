@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Mentor-Mentee Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <img src="assets/logo.png" alt="MMS Logo" class="logo-img">
+                <span class="logo-text">MMS</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="mit-wpu-login.html" class="btn btn-primary">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Signup Section -->
+    <section class="signup-section">
+        <div class="container">
+            <h1>Create Your Account</h1>
+            <p>Choose your role to get started</p>
+
+            <div class="role-selector">
+                <button class="role-btn active" data-role="mentor">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span>Mentor</span>
+                </button>
+                <button class="role-btn" data-role="mentee">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Mentee</span>
+                </button>
+            </div>
+
+            <!-- Mentor Signup Form -->
+            <form id="mentorSignupForm" class="signup-form">
+                <div class="form-group">
+                    <label for="mentorName">Full Name</label>
+                    <input type="text" id="mentorName" required>
+                </div>
+                <div class="form-group">
+                    <label for="mentorEmail">Email Address</label>
+                    <input type="email" id="mentorEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="mentorInstitutionId">PRN</label>
+                    <input type="text" id="mentorInstitutionId" required>
+                </div>
+                <div class="form-group">
+                    <label for="mentorDepartment">Department</label>
+                    <input type="text" id="mentorDepartment" required>
+                </div>
+                <div class="form-group">
+                    <label for="mentorPassword">Password</label>
+                    <input type="password" id="mentorPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="mentorConfirmPassword">Confirm Password</label>
+                    <input type="password" id="mentorConfirmPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Mentor Account</button>
+            </form>
+
+            <!-- Mentee Signup Form -->
+            <form id="menteeSignupForm" class="signup-form" style="display: none;">
+                <div class="form-group">
+                    <label for="menteeName">Full Name</label>
+                    <input type="text" id="menteeName" required>
+                </div>
+                <div class="form-group">
+                    <label for="menteeEmail">Email Address</label>
+                    <input type="email" id="menteeEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="menteeInstitutionId">PRN</label>
+                    <input type="text" id="menteeInstitutionId" required>
+                </div>
+                <div class="form-group">
+                    <label for="menteeCourse">Course</label>
+                    <input type="text" id="menteeCourse" required>
+                </div>
+                <div class="form-group">
+                    <label for="menteeYear">Year of Study</label>
+                    <select id="menteeYear" required>
+                        <option value="">Select Year</option>
+                        <option value="1">First Year</option>
+                        <option value="2">Second Year</option>
+                        <option value="3">Third Year</option>
+                        <option value="4">Fourth Year</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="menteePassword">Password</label>
+                    <input type="password" id="menteePassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="menteeConfirmPassword">Confirm Password</label>
+                    <input type="password" id="menteeConfirmPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Mentee Account</button>
+            </form>
+
+            <div class="login-link">
+                Already have an account? <a href="mit-wpu-login.html">Login here</a>
+            </div>
+        </div>
+    </section>
+
+
+    <script src="js/main.js"></script>
+    <script>
+        // Role selector functionality
+        document.querySelectorAll('.role-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                // Update active button
+                document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                // Show/hide forms
+                const role = button.dataset.role;
+                document.getElementById('mentorSignupForm').style.display = role === 'mentor' ? 'block' : 'none';
+                document.getElementById('menteeSignupForm').style.display = role === 'mentee' ? 'block' : 'none';
+            });
+        });
+
+        // Form submission handlers
+        document.getElementById('mentorSignupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Add mentor signup logic here
+            console.log('Mentor signup submitted');
+        });
+
+        document.getElementById('menteeSignupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Add mentee signup logic here
+            console.log('Mentee signup submitted');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Role - Mentor-Mentee Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        
+        .role-container {
+            max-width: 800px;
+            width: 100%;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .logo {
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .logo h2 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .role-card {
+            background: var(--background-light);
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .role-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .role-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .role-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+        
+        .role-description {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .role-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .role-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="role-container">
+        <div class="logo">
+            <h1></h1>
+            <h2>Select Your Role</h2>
+        </div>
+
+        <div class="role-grid">
+            <div class="role-card" onclick="selectRole('admin')">
+                <div class="role-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="role-title">Admin</div>
+                <div class="role-description">System administration and oversight</div>
+            </div>
+
+            <div class="role-card" onclick="selectRole('mentor')">
+                <div class="role-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div class="role-title">Mentor</div>
+                <div class="role-description">Guide and support mentees</div>
+            </div>
+
+            <div class="role-card" onclick="selectRole('mentee')">
+                <div class="role-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="role-title">Mentee</div>
+                <div class="role-description">Learn and grow with guidance</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <script src="js/sample-data.js"></script> -->
+    <script src="js/main.js"></script>
+    <script>
+        function selectRole(role) {
+            // Get the corresponding user from sample data
+            const users = JSON.parse(localStorage.getItem('users'));
+            const user = users.find(u => u.role === role);
+            
+            if (user) {
+                // Store the current user in localStorage
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                
+                // Create a login activity log
+                const activityLogs = JSON.parse(localStorage.getItem('activity_logs')) || [];
+                activityLogs.push({
+                    log_id: activityLogs.length + 1,
+                    user_id: user.unique_user_no,
+                    activity: `Logged in as ${role}`,
+                    log_time: new Date().toISOString(),
+                    ip_address: '192.168.0.1',
+                    last_login: new Date().toISOString()
+                });
+                localStorage.setItem('activity_logs', JSON.stringify(activityLogs));
+                
+                // Redirect to appropriate dashboard
+                switch(role) {
+                    case 'admin':
+                        window.location.href = 'admin-dashboard.html';
+                        break;
+                    case 'mentor':
+                        window.location.href = 'mentor-dashboard.html';
+                        break;
+                    case 'mentee':
+                        window.location.href = 'mentee-dashboard.html';
+                        break;
+                }
+            }
+        }
+    </script>
+</body>
+</html>

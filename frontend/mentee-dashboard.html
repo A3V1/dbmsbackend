@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentee Dashboard - Mentor-Mentee Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/dashboard-shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/meeting-manager.js" defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 24px;
+        }
+
+        .dashboard-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 3px solid var(--primary-color);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .card-header h2 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .btn, .btn-outline {
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn:hover {
+            background-color: #153e75;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--blue-light);
+            transform: translateY(-2px);
+        }
+
+        .mentor-info {
+            padding: 12px;
+            background: var(--blue-light);
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+        
+        .mentor-info h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        .mentor-rating {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .star {
+            color: var(--secondary-color);
+        }
+
+        .progress-tracker {
+            margin-top: 16px;
+        }
+        
+        .progress-tracker h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 8px;
+        }
+
+        .progress-bar-container {
+            background-color: #e5e7eb;
+            height: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            background-color: var(--secondary-color);
+            height: 10px;
+            border-radius: 4px;
+            width: 70%; /* Example progress */
+        }
+
+        .achievements {
+            margin-top: 24px;
+        }
+        
+        .achievements h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 8px;
+        }
+
+        .achievement-item {
+            padding: 12px;
+            background-color: var(--orange-light);
+            margin-bottom: 8px;
+            border-radius: 4px;
+            border-left: 4px solid var(--secondary-color);
+            transition: transform 0.2s ease;
+        }
+        
+        .achievement-item:hover {
+            transform: translateX(5px);
+        }
+
+        .upcoming-meetings, .recent-messages {
+            margin-top: 24px;
+        }
+
+        .meeting-item, .message-item {
+            padding: 12px;
+            background-color: var(--blue-light);
+            border-radius: 4px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.2s ease;
+        }
+        
+        .meeting-item:hover, .message-item:hover {
+            transform: translateX(5px);
+        }
+
+        .notification {
+            background-color: var(--orange-light);
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .contact-mentor {
+            margin-top: 16px;
+            text-align: right;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 8px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .feature-card {
+            text-align: center;
+            padding: 24px;
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .feature-card .icon-lg {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            color: var(--secondary-color);
+        }
+        
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+        
+        .feature-card p {
+            color: var(--light-text);
+            margin-bottom: 16px;
+        }
+        
+        .feature-card .btn {
+            margin-top: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Meeting Styling */
+        .meeting-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .meeting-item {
+            display: flex;
+            padding: 16px;
+            background-color: var(--white);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+
+        .meeting-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .meeting-icon {
+            flex: 0 0 40px;
+            width: 40px;
+            height: 40px;
+            background-color: var(--blue-light);
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .meeting-content {
+            flex: 1;
+        }
+
+        .meeting-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .meeting-title {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .meeting-status {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        .meeting-status.scheduled {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .meeting-status.pending {
+            background-color: #fff3e0;
+            color: #ff9800;
+        }
+
+        .meeting-status.completed {
+            background-color: #e8f5e9;
+            color: #4caf50;
+        }
+
+        .meeting-status.cancelled {
+            background-color: #ffebee;
+            color: #f44336;
+        }
+
+        .meeting-details {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--light-text);
+        }
+
+        .meeting-detail {
+            display: flex;
+            align-items: center;
+        }
+
+        .meeting-detail i {
+            margin-right: 4px;
+            font-size: 12px;
+        }
+
+        /* Meeting details modal */
+        .meeting-details-header {
+            margin-bottom: 20px;
+        }
+
+        .meeting-title-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .meeting-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .meeting-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--light-text);
+        }
+
+        .detail-section {
+            margin-bottom: 16px;
+        }
+
+        .detail-section h4 {
+            font-size: 14px;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+
+        .meeting-details-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Form row for side by side fields */
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        @media (max-width: 576px) {
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .meeting-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .meeting-details-footer {
+                flex-direction: column;
+            }
+            
+            .meeting-details-footer button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="dashboard-layout">
+    <!-- Include navigation component -->
+    <div id="navigation-container"></div>
+
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1>Mentee Dashboard</h1>
+                <div class="mentee-info">
+                    <span id="mentee-name">John Doe</span> <!-- Placeholder for mentee name -->
+                    <span id="mentee-department">Computer Science</span> <!-- Placeholder for department -->
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="date-time">
+                    <div class="date-box">
+                        <i class="fas fa-calendar"></i>
+                        <span id="current-date">01/01/2023</span> <!-- Placeholder for current date -->
+                    </div>
+                    <div class="time-box">
+                        <i class="fas fa-clock"></i>
+                        <span id="current-time">12:00 PM</span> <!-- Placeholder for current time -->
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <!-- Quick Stats -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card primary">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Achievements</h3>
+                            <div class="stat-number" id="total-achievements"></div> <!-- Dynamically populated -->
+                        </div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Completed Tasks</h3>
+                            <div class="stat-number" id="completed-tasks">2</div>
+                        </div>
+                    </div>
+                    <div class="stat-card info">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Upcoming Meetings</h3>
+                            <div class="stat-number" id="upcoming-meetings">3</div>
+                        </div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Pending Tasks</h3>
+                            <div class="stat-number" id="pending-tasks">1</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Mentor Information -->
+                <section class="dashboard-section mentor-info">
+                    <div class="section-header">
+                        <h2>My Mentor</h2>
+                    </div>
+                    <div class="mentor-card" id="mentor-card">
+                        <!-- Placeholder for mentor info -->
+                        <h3>Dr. Alice Johnson</h3>
+                        <p>Department: Computer Science</p>
+                        <div class="mentor-rating">
+                            <span>Rating: 4.8</span>
+                            <i class="fas fa-star star"></i>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Task Management -->
+                <section class="dashboard-section task-management">
+                    <div class="section-header">
+                        <h2>My Tasks</h2>
+                        <select id="task-filter" class="filter-select">
+                            <option value="all">All Tasks</option>
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="task-list scrollable" id="task-list"></div>
+                </section>
+
+                <!-- Progress Tracking -->
+                <section class="dashboard-section progress-tracking">
+                    <div class="section-header">
+                        <h2>My Progress</h2>
+                        <select id="progress-period" class="filter-select">
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="semester">This Semester</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="progress-chart"></canvas>
+                    </div>
+                </section>
+
+                <!-- Upcoming Meetings -->
+                <section class="dashboard-section meetings">
+                    <div class="section-header">
+                        <h2>Upcoming Meetings</h2>
+                        <div class="meeting-actions">
+                            <button class="btn-primary" id="request-meeting">
+                                <i class="fas fa-calendar-plus"></i> Request Meeting
+                            </button>
+                            <button class="btn-danger" id="request-emergency-meeting">
+                                <i class="fas fa-exclamation-circle"></i> Emergency Meeting
+                            </button>
+                        </div>
+                    </div>
+                    <div class="meeting-list scrollable" id="meeting-list">
+                        <div class="empty-state" id="no-meetings-message" style="display:none;">
+                            <i class="fas fa-calendar-alt"></i>
+                            <p>No upcoming meetings scheduled</p>
+                            <button class="btn-outline" id="request-first-meeting">Request Your First Meeting</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Achievements -->
+                <section class="dashboard-section achievements">
+                    <div class="section-header">
+                        <h2>My Achievements</h2>
+                    </div>
+                    <div class="achievement-list scrollable" id="achievement-list">
+                        <div class="achievement-card">
+                            <h3>Top Performer</h3>
+                            <p>Awarded for outstanding performance</p>
+                            <span>15/09/2023</span> <!-- Placeholder for achievements -->
+                        </div>
+                        <div class="achievement-card">
+                            <h3>Hackathon Winner</h3>
+                            <p>Won the annual hackathon</p>
+                            <span>10/08/2023</span> <!-- Placeholder for achievements -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recent Communications -->
+                <section class="dashboard-section communications">
+                    <div class="section-header">
+                        <h2>Communications</h2>
+                        <button class="btn-primary" id="new-message">
+                            <i class="fas fa-paper-plane"></i> New Message
+                        </button>
+                    </div>
+                    <div class="communication-list scrollable" id="communication-list">
+                        <div class="communication-card">
+                            <div class="comm-header">
+                                <span>Message</span>
+                                <span>01/10/2023, 10:00 AM</span> <!-- Placeholder for communication -->
+                            </div>
+                            <p>Hello, how are you?</p>
+                        </div>
+                        <div class="communication-card">
+                            <div class="comm-header">
+                                <span>Reply</span>
+                                <span>01/10/2023, 10:05 AM</span> <!-- Placeholder for communication -->
+                            </div>
+                            <p>I am good, thank you!</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Meeting Request Modal -->
+    <div class="modal" id="meeting-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Request Meeting</h2>
+                <button class="close-modal" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="meeting-form">
+                    <div class="form-group">
+                        <label for="meeting-title">Meeting Title</label>
+                        <input type="text" id="meeting-title" name="meeting-title" required 
+                               placeholder="Brief description of meeting purpose">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="meeting-type">Meeting Type</label>
+                            <select id="meeting-type" name="meeting-type" required>
+                                <option value="academic-review">Academic Review</option>
+                                <option value="project-discussion">Project Discussion</option>
+                                <option value="general-mentoring">General Mentoring</option>
+                                <option value="emergency">Emergency Meeting</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="meeting-mode">Meeting Mode</label>
+                            <select id="meeting-mode" name="meeting-mode" required>
+                                <option value="online">Online</option>
+                                <option value="offline">Offline (In Person)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="meeting-date">Preferred Date</label>
+                            <input type="date" id="meeting-date" name="meeting-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="meeting-time">Preferred Time</label>
+                            <input type="time" id="meeting-time" name="meeting-time" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="meeting-duration">Duration</label>
+                            <select id="meeting-duration" name="meeting-duration" required>
+                                <option value="30">30 minutes</option>
+                                <option value="60" selected>1 hour</option>
+                                <option value="90">1.5 hours</option>
+                                <option value="120">2 hours</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="meeting-priority">Priority</label>
+                            <select id="meeting-priority" name="meeting-priority" required>
+                                <option value="normal">Normal</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="meeting-agenda">Agenda</label>
+                        <textarea id="meeting-agenda" name="meeting-agenda" required rows="4" 
+                                  placeholder="Please provide details about what you'd like to discuss"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="meetingManager.closeModal('meeting-modal')">Cancel</button>
+                        <button type="submit" class="btn-primary">Request Meeting</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="message-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Message</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="message-form">
+                    <div class="form-group">
+                        <label for="message-content">Message</label>
+                        <textarea id="message-content" required></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal('message-modal')">Cancel</button>
+                        <button type="submit" class="btn-primary">Send Message</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meeting Details Modal -->
+    <div class="modal" id="meeting-details-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Meeting Details</h2>
+                <button class="close-modal" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="meeting-details-content">
+                    <div class="meeting-details-header">
+                        <div class="meeting-title-container">
+                            <h3 id="detail-meeting-title">Meeting Title</h3>
+                            <span class="badge" id="detail-meeting-status">Scheduled</span>
+                        </div>
+                        <div class="meeting-meta">
+                            <div class="meeting-meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span id="detail-meeting-date">Date</span>
+                            </div>
+                            <div class="meeting-meta-item">
+                                <i class="fas fa-clock"></i>
+                                <span id="detail-meeting-time">Time</span>
+                            </div>
+                            <div class="meeting-meta-item">
+                                <i class="fas fa-hourglass-half"></i>
+                                <span id="detail-meeting-duration">Duration</span>
+                            </div>
+                            <div class="meeting-meta-item">
+                                <i class="fas fa-tag"></i>
+                                <span id="detail-meeting-priority">Priority</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="meeting-details-body">
+                        <div class="detail-section">
+                            <h4>Meeting Type</h4>
+                            <p id="detail-meeting-type">Academic Review</p>
+                        </div>
+                        <div class="detail-section">
+                            <h4>Meeting Mode</h4>
+                            <p id="detail-meeting-mode">Online</p>
+                        </div>
+                        <div class="detail-section">
+                            <h4>Agenda</h4>
+                            <p id="detail-meeting-agenda">Meeting agenda details will appear here</p>
+                        </div>
+                        <div class="detail-section" id="meeting-location-section">
+                            <h4>Location</h4>
+                            <p id="detail-meeting-location">Location details will appear here</p>
+                        </div>
+                        <div class="detail-section" id="meeting-link-section">
+                            <h4>Meeting Link</h4>
+                            <p><a href="#" id="detail-meeting-link" target="_blank">Join Meeting</a></p>
+                        </div>
+                        <div class="detail-section" id="meeting-notes-section">
+                            <h4>Notes</h4>
+                            <p id="detail-meeting-notes">No notes available</p>
+                        </div>
+                    </div>
+                    <div class="meeting-details-footer">
+                        <button class="btn-outline" id="reschedule-meeting">
+                            <i class="fas fa-calendar-alt"></i> Reschedule
+                        </button>
+                        <button class="btn-danger" id="cancel-meeting">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/navigation.js"></script>
+    <script src="js/dashboard-styles.js"></script>
+   <!--<script src="js/mentee-dashboard.js"></script>--> 
+    
+    <script>
+        // Add emergency meeting button handler
+        document.getElementById('request-emergency-meeting').addEventListener('click', () => {
+            meetingManager.showMeetingModal(true);
+        });
+
+        // Dynamically populate total achievements
+        document.getElementById('total-achievements').textContent = 2; // Replace 2 with dynamic data as needed
+    </script>
+</body>
+</html>
