@@ -3,136 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mentor-Mentee Management System</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>MIT WPU - Mentor-Mentee System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1e3c72;
+            --accent-color: #2a5298;
+            --text-color: #333;
+            --text-muted: #666;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .navbar {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 80px);
+            padding: 20px;
+        }
+
+        .login-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        .btn {
+            background: #0d47a1;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* Role Selection */
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .role-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .role-icon {
+            font-size: 2rem;
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .role-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Add this to your existing styles */
+        .signup-link {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+
+        .signup-link a {
+            color: #0d47a1;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="navbar-content">
-            <div class="logo logo-large">
-                <img src="assets/mit-wpu_logo.png" alt="Logo" class="logo-img">
-                <span class="logo-text">MIT WPU</span>
-            </div>
-            <div class="nav-links">
-                <a href="#about" class="nav-link">About</a>
-                <a href="#features" class="nav-link">Features</a>
-                <a href="mit-wpu-login.html" class="btn btn-primary">Login</a>
-                <a href="signup.html" class="btn btn-primary">Sign Up</a>
-                <a href="role.html" class="btn btn-primary">Select Role</a>
+            <div class="logo">
+                <img src="assets/mit-wpu_logo.png" alt="MIT WPU Logo">
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero hero-large">
-        <div class="hero-content">
-            <h1>Transform Your Mentorship Journey</h1>
-            <p>Streamline communication, track progress, and achieve more with our comprehensive mentor-mentee management system.</p>
-            <div class="hero-buttons">
-                <a href="mit-wpu-login.html" class="btn btn-primary">login</a>
-                <a href="signup.html" class="btn btn-primary">Sign Up</a>
-                <a href="role.html" class="btn btn-primary">Select Role</a>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about" class="about">
+    <div class="main-content">
         <div class="container">
-            <h2>About Our System</h2>
-            <div class="about-content">
-                <div class="about-text">
-                    <p>Our Mentor-Mentee Management System is designed to create a seamless experience for educational institutions, facilitating effective communication and progress tracking between mentors and mentees.</p>
-                    <ul class="about-features">
-                        <li><i class="fas fa-check"></i> Structured mentorship programs</li>
-                        <li><i class="fas fa-check"></i> Real-time progress tracking</li>
-                        <li><i class="fas fa-check"></i> Integrated communication tools</li>
-                        <li><i class="fas fa-check"></i> Comprehensive reporting system</li>
-                    </ul>
+            <div class="login-section">
+                <h2>Welcome to MIT WPU</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <input type="text" placeholder="Username" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn">Login</button>
+                </form>
+
+                <div class="signup-link">
+                    Don't have an account? <a href="signup.html">Sign Up</a>
                 </div>
-                <div class="about-image">
-                    <img src="assets/about-image.jpg" alt="Mentorship Illustration">
+
+                <h3 style="margin-top: 30px;">Select Your Role</h3>
+                <div class="role-grid">
+                    <div class="role-card" onclick="selectRole('admin')">
+                        <div class="role-icon"><i class="fas fa-user-shield"></i></div>
+                        <div>Admin</div>
+                    </div>
+                    <div class="role-card" onclick="selectRole('mentor')">
+                        <div class="role-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                        <div>Mentor</div>
+                    </div>
+                    <div class="role-card" onclick="selectRole('mentee')">
+                        <div class="role-icon"><i class="fas fa-user-graduate"></i></div>
+                        <div>Mentee</div>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Features Section -->
-    <section id="features" class="features">
-        <div class="container">
-            <h2>Key Features</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3>Track Progress</h3>
-                    <p>Monitor academic performance, attendance, and overall development with detailed analytics.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
-                    <h3>Schedule Meetings</h3>
-                    <p>Easily plan and manage mentorship sessions with our intuitive calendar system.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <h3>Seamless Communication</h3>
-                    <p>Stay connected through integrated messaging, announcements, and emergency alerts.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-trophy"></i>
-                    </div>
-                    <h3>Achievements & Reports</h3>
-                    <p>Track accomplishments and generate comprehensive reports for better insights.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    <script>
+        function selectRole(role) {
+            // Store selected role
+            localStorage.setItem('selectedRole', role);
+            
+            // Redirect to appropriate dashboard (you'll need to create these)
+            switch(role) {
+                case 'admin':
+                    window.location.href = 'admin-dashboard.html';
+                    break;
+                case 'mentor':
+                    window.location.href = 'mentor-dashboard.html';
+                    break;
+                case 'mentee':
+                    window.location.href = 'mentee-dashboard.html';
+                    break;
+            }
+        }
 
-    <!-- CTA Section -->
-    <section class="cta">
-        <div class="container">
-            <h2>Ready to Transform Your Mentorship Experience?</h2>
-            <p>Join thousands of institutions already using our platform to enhance their mentorship programs.</p>
-            <a href="mit-wpu-login.html" class="btn btn-primary">Get Started Now</a>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="#about">About</a></li>
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="mit-wpu-login.html">Select Role</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>Follow Us</h3>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 Mentor-Mentee Management System. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="js/main.js"></script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Add your login logic here
+        });
+    </script>
 </body>
 </html>

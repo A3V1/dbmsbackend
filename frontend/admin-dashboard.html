@@ -415,7 +415,7 @@
             <div class="dashboard-header">
                 <div class="header-left">
                     <h1>Admin Dashboard</h1>
-                    <p class="admin-privilege" id="adminPrivilege">Full Access</p>
+                    <p class="admin-privilege" id="adminPrivilege"></p>
                 </div>
                 <div class="header-right">
                     <div class="date-time">
@@ -486,164 +486,158 @@
 
         
 
-    <!-- All Users Table -->
+    <!-- Tables Section -->
     <div class="container">
-        <div class="table-container">
-            <h2 class="section-title"><i class="fas fa-users-cog"></i> All Users</h2>
-            <div style="margin-bottom: 16px;">
-                <button class="btn btn-primary" onclick="openModal()">
-                    <i class="fas fa-user-plus"></i> Add New User
-                </button>
-                <select id="roleFilter" class="btn btn-outline" style="margin-left: 10px;" onchange="filterUsersByRole()">
-                    <option value="all">All Roles</option>
-                    <option value="mentor">Mentors</option>
-                    <option value="mentee">Mentees</option>
-                    <option value="admin">Admins</option>
-                </select>
+        <div class="tables-grid">
+            <!-- All Users Table -->
+            <div class="table-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 class="section-title" style="margin: 0;"><i class="fas fa-users-cog"></i> All Users</h2>
+                    <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Add User</button>
+                </div>
+                <div class="table-responsive">
+                    <table id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>PRN ID</th>
+                                <th>Role</th>
+                                <th>Phone Number</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- User rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="table-responsive">
-                <table id="usersTable">
-                    <thead>
-                        <tr>
-                            <th>Email</th>
-                            <th>PRN ID</th>
-                            <th>Role</th>
-                            <th>Phone Number</th>
-                            <th>Created At</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTableBody">
-                        <!-- User rows will be populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 
-    <!-- Emergency Alerts Table -->
-    <div class="container">
-        <div class="table-container">
-             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                 <h2 class="section-title" style="margin: 0;"><i class="fas fa-exclamation-triangle"></i> Emergency Alerts</h2>
-                 <button class="btn btn-primary" onclick="addAlert()"><i class="fas fa-plus"></i> Add Alert</button>
+            <!-- Mentors Table -->
+            <div class="table-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 class="section-title" style="margin: 0;"><i class="fas fa-chalkboard-teacher"></i> Mentors</h2>
+                </div>
+                <div class="table-responsive">
+                    <table id="mentorsTable">
+                        <thead>
+                            <tr>
+                                <th>Mentor ID</th>
+                                <th>Unique User No</th>
+                                <th>Room No</th>
+                                <th>Timetable</th>
+                                <th>Department</th>
+                                <th>Academic Background</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mentorsTableBody">
+                            <!-- Mentor rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="table-responsive">
-                <table id="emergencyAlertsTable">
-                    <thead>
-                        <tr>
-                            <th>Alert ID</th>
-                            <th>Communication ID</th>
-                            <th>Alert Reason</th>
-                            <th>Alert Status</th>
-                            <th>Created At</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="emergencyAlertsTableBody">
-                        <!-- Emergency alerts will be populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 
-    <!-- Communication View Table -->
-    <div class="container">
-        <div class="table-container">
-            <h2 class="section-title"><i class="fas fa-envelope"></i> Communication View</h2>
-            <div class="table-responsive">
-                <table id="communicationViewTable">
-                    <thead>
-                        <tr>
-                            <th>Sender Email</th>
-                            <th>Receiver Email</th>
-                            <th>Message Content</th>
-                            <th>Message Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="communicationViewTableBody">
-                        <!-- Communication rows will be populated by JavaScript -->
-                    </tbody>
-                </table>
+            <!-- Emergency Alerts Table -->
+            <div class="table-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 class="section-title" style="margin: 0;"><i class="fas fa-exclamation-triangle"></i> Emergency Alerts</h2>
+                    <button class="btn btn-primary" id="toggleAlertsTableBtn" onclick="toggleTable('alertsTableContainer', 'toggleAlertsTableBtn')">Show Table</button>
+                </div>
+                <div class="table-responsive" id="alertsTableContainer" style="display: none;">
+                    <table id="emergencyAlertsTable">
+                        <thead>
+                            <tr>
+                                <th>Alert ID</th>
+                                <th>Communication ID</th>
+                                <th>Alert Reason</th>
+                                <th>Alert Status</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="emergencyAlertsTableBody">
+                            <!-- Emergency alerts will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Activity Log Table -->
-    <div class="container">
-        <div class="table-container">
-            <h2 class="section-title"><i class="fas fa-history"></i> Activity Log</h2>
-            <div class="table-responsive">
-                <table id="activityLogTable">
-                    <thead>
-                        <tr>
-                            <th>Log ID</th>
-                            <th>User ID</th>
-                            <th>Log Time</th>
-                            <th>Activity</th>
-                            <th>IP Address</th>
-                            <th>Last Login</th>
-                        </tr>
-                    </thead>
-                    <tbody id="activityLogTableBody">
-                        <!-- Activity log rows will be populated by JavaScript -->
-                    </tbody>
-                </table>
+            <!-- Communication View Table -->
+            <div class="table-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 class="section-title" style="margin: 0;"><i class="fas fa-envelope"></i> Communication View</h2>
+                    <button class="btn btn-primary" id="toggleCommunicationTableBtn" onclick="toggleTable('communicationTableContainer', 'toggleCommunicationTableBtn')">Show Table</button>
+                </div>
+                <div class="table-responsive" id="communicationTableContainer" style="display: none;">
+                    <table id="communicationViewTable">
+                        <thead>
+                            <tr>
+                                <th>Sender Email</th>
+                                <th>Receiver Email</th>
+                                <th>Message Content</th>
+                                <th>Message Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="communicationViewTableBody">
+                            <!-- Communication rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Achievements Table -->
-    <div class="container">
-        <div class="table-container">
-             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                 <h2 class="section-title" style="margin: 0;"><i class="fas fa-trophy"></i> Achievements</h2>
-                 <button class="btn btn-primary" onclick="addAchievement()"><i class="fas fa-plus"></i> Add Achievement</button>
+            <!-- Achievements Table -->
+            <div class="table-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 class="section-title" style="margin: 0;"><i class="fas fa-trophy"></i> Achievements</h2>
+                    <button class="btn btn-primary" id="toggleAchievementsTableBtn" onclick="toggleTable('achievementsTableContainer', 'toggleAchievementsTableBtn')">Show Table</button>
+                </div>
+                <div class="table-responsive" id="achievementsTableContainer" style="display: none;">
+                    <table id="achievementsTable">
+                        <thead>
+                            <tr>
+                                <th>Achievement ID</th>
+                                <th>Mentor ID</th>
+                                <th>Mentee ID</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Date Awarded</th>
+                                <th>Badge Icon</th>
+                            </tr>
+                        </thead>
+                        <tbody id="achievementsTableBody">
+                            <!-- Achievements rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="table-responsive">
-                <table id="achievementsTable">
-                    <thead>
-                        <tr>
-                            <th>Achievement ID</th>
-                            <th>Mentor ID</th>
-                            <th>Mentee ID</th>
-                            <th>Title</th>
-                            <th>Description</th>
-                            <th>Date Awarded</th>
-                            <th>Badge Icon</th>
-                        </tr>
-                    </thead>
-                    <tbody id="achievementsTableBody">
-                        <!-- Achievements rows will be populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 
-    <!-- Mentors Table -->
-    <div class="container">
-        <div class="table-container">
-            <h2 class="section-title"><i class="fas fa-chalkboard-teacher"></i> Mentors</h2>
-            <div class="table-responsive">
-                <table id="mentorsTable">
-                    <thead>
-                        <tr>
-                            <th>Mentor ID</th>
-                            <th>Unique User No</th>
-                            <th>Room No</th>
-                            <th>Timetable</th>
-                            <th>Department</th>
-                            <th>Academic Background</th>
-                            <th>Actions</th> {/* Added Actions Header */}
-                        </tr>
-                    </thead>
-                    <tbody id="mentorsTableBody">
-                        {/* Mentors rows will be populated by JavaScript */}
-                    </tbody>
-                </table>
+            <!-- Activity Log Table -->
+            <div class="table-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 class="section-title" style="margin: 0;"><i class="fas fa-history"></i> Activity Log</h2>
+                    <button class="btn btn-primary" id="toggleActivityLogBtn" onclick="toggleTable('activityLogTableContainer', 'toggleActivityLogBtn')">Show Table</button>
+                </div>
+                <div class="table-responsive" id="activityLogTableContainer" style="display: none;">
+                    <table id="activityLogTable">
+                        <thead>
+                            <tr>
+                                <th>Log ID</th>
+                                <th>User ID</th>
+                                <th>Log Time</th>
+                                <th>Activity</th>
+                                <th>IP Address</th>
+                                <th>Last Login</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityLogTableBody">
+                            <!-- Activity log rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
         </div>
     </div>
 
@@ -786,7 +780,6 @@
     }
     updateAdminInfo();
 
-
     // --- Toast Notification Functions ---
     let toastTimeout;
     function showToast(message, type = 'info') { // types: info, success, error
@@ -795,38 +788,32 @@
             document.body.removeChild(existingToast);
             clearTimeout(toastTimeout);
         }
-
         const toast = document.createElement('div');
         toast.id = 'toast-notification';
         toast.className = `toast-notification ${type}`;
         toast.textContent = message;
         document.body.appendChild(toast);
-
         // Trigger reflow to enable transition
-        toast.offsetHeight; 
-
+        toast.offsetHeight;
         toast.classList.add('show');
-
         // Auto-hide after 3 seconds
         toastTimeout = setTimeout(() => {
             hideToast();
         }, 3000);
     }
-
     function hideToast() {
         const toast = document.getElementById('toast-notification');
         if (toast) {
             toast.classList.remove('show');
             // Remove from DOM after transition ends
             toast.addEventListener('transitionend', () => {
-                 if (toast.parentNode) {
+                if (toast.parentNode) {
                     toast.parentNode.removeChild(toast);
-                 }
+                }
             }, { once: true });
         }
         clearTimeout(toastTimeout);
     }
-
 
     // --- Helper Function for Fetching Data ---
     async function fetchData(url, elementId, processDataFunc, errorMsg) {
@@ -835,12 +822,11 @@
             console.error(`${errorMsg}: Element with ID '${elementId}' not found.`);
             return;
         }
-
         try {
             const response = await fetch(url);
             if (!response.ok) {
-                 const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
-                 throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
             processDataFunc(element, data);
@@ -850,7 +836,7 @@
                 const colSpan = element.previousElementSibling?.rows?.[0]?.cells?.length || 1;
                 element.innerHTML = `<tr><td colspan="${colSpan}">${errorMsg}. ${error.message}</td></tr>`;
             } else {
-                 element.textContent = 'Error'; // For stat cards
+                element.textContent = 'Error'; // For stat cards
             }
         }
     }
@@ -896,7 +882,7 @@
         populateGenericTable('/api/mentor', 'mentorsTableBody', 6, ['mentor_id', 'unique_user_no', 'room_no', 'timetable', 'department', 'academic_background'], 'Error fetching mentors', undefined, { delete: true, idColumn: 'mentor_id', tableName: 'mentor' });
     }
 
-     // Generic Table Population Function (Updated with actions)
+    // Generic Table Population Function (Updated with actions)
     async function populateGenericTable(url, tableBodyId, colSpan, columns, errorMsg, dataFormatter = (d) => d, actions = { delete: false, idColumn: null, tableName: null }) {
         const tableBody = document.getElementById(tableBodyId);
         const tableHead = tableBody.previousElementSibling; // Get the thead
@@ -904,10 +890,8 @@
             console.error(`${errorMsg}: Table body '${tableBodyId}' or head not found.`);
              return;
         }
-
         // Adjust colspan based on whether actions are enabled
         const actualColSpan = actions.delete ? colSpan + 1 : colSpan; // Add 1 for actions column if delete is true
-
         // Add "Actions" header if delete is enabled and header doesn't already exist
         const headerRow = tableHead.rows[0];
         let actionsHeaderExists = false;
@@ -922,9 +906,7 @@
              th.textContent = 'Actions';
              headerRow.appendChild(th);
         }
-
         tableBody.innerHTML = `<tr><td colspan="${actualColSpan}"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>`; // Use adjusted colspan
-
         try {
             const response = await fetch(url);
             if (!response.ok) {
@@ -938,12 +920,10 @@
                  }
             }
             const data = await response.json();
-
             if (!Array.isArray(data) || data.length === 0) {
                 tableBody.innerHTML = `<tr><td colspan="${actualColSpan}">No records found.</td></tr>`;
                 return;
             }
-
             tableBody.innerHTML = data.map(item => {
                 const formattedItem = dataFormatter(item);
                 let cells = columns.map(col => `<td>${formattedItem[col] !== null && formattedItem[col] !== undefined ? formattedItem[col] : 'N/A'}</td>`).join('');
@@ -962,13 +942,11 @@
                 }
                 return `<tr>${cells}</tr>`;
             }).join('');
-
         } catch (error) {
             console.error(`${errorMsg}:`, error);
             tableBody.innerHTML = `<tr><td colspan="${actualColSpan}">${errorMsg}. ${error.message}</td></tr>`;
         }
     }
-
 
     // --- Generic Delete Function ---
     async function deleteItem(event, tableName, itemId, idColumnName) {
@@ -977,27 +955,22 @@
         if (!deleteButton) return;
         const row = deleteButton.closest('tr');
         const originalContent = deleteButton.innerHTML;
-
         // Use a more specific confirmation message
         const itemType = tableName.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase()); // Format table name nicely
         if (confirm(`Are you sure you want to delete this ${itemType} (ID: ${itemId})? This action cannot be undone.`)) {
             deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             deleteButton.disabled = true;
             if (row) row.style.opacity = '0.5';
-
             try {
                 // Construct the API URL using the generic endpoint structure
                 // Assumes the generic router handles DELETE /api/:tableName/:id
                 const apiUrl = `/api/${tableName}/${itemId}`;
                 console.log(`Sending DELETE request to: ${apiUrl}`);
-
                 const response = await fetch(apiUrl, { method: 'DELETE' });
-
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
                     throw new Error(errorData.message || `Failed to delete item (Status: ${response.status})`);
                 }
-
                 // Success: Remove row visually and show toast
                 if (row) {
                     row.style.transition = 'opacity 0.5s ease';
@@ -1012,7 +985,6 @@
                     else if (tableName === 'achievement') populateGenericTable('/api/achievement', 'achievementsTableBody', 7, ['achvmt_id', 'mentor_id', 'mentee_id', 'title', 'description', 'date_awarded', 'badge_icon'], 'Error fetching achievements', (ach) => ({...ach, date_awarded: ach.date_awarded ? new Date(ach.date_awarded).toLocaleDateString() : 'N/A', badge_icon: `<img src="${ach.badge_icon || 'img/default-badge.svg'}" alt="Badge" style="width: 30px; height: 30px;">` }), { delete: true, idColumn: 'achvmt_id', tableName: 'achievement' });
                 }
                 showToast(`${itemType} deleted successfully`, 'success');
-
             } catch (error) {
                 console.error(`Error deleting ${tableName} item:`, error);
                 showToast(`Error: ${error.message}`, 'error');
@@ -1026,7 +998,6 @@
         }
     }
 
-
     // --- Specific Table Functions (Users & Alerts due to actions) ---
     // Note: populateUsersTable and populateAlertsTable are kept separate
     // because they might have more complex actions (like Edit) than just Delete.
@@ -1039,25 +1010,20 @@
             return;
         }
         tableBody.innerHTML = '<tr><td colspan="6"><i class="fas fa-spinner fa-spin"></i> Loading users...</td></tr>'; // Added loading icon
-
         try {
             console.log('Fetching data from /api/users endpoint...');
             const response = await fetch('/api/users'); // Use relative path
             console.log('Fetch response status:', response.status);
-
             if (!response.ok) {
                  const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
                  throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
-
             const users = await response.json();
             console.log('Received user data:', users);
-
             if (!Array.isArray(users) || users.length === 0) { // Check if array
                 tableBody.innerHTML = '<tr><td colspan="6">No users found.</td></tr>';
                 return;
             }
-
             tableBody.innerHTML = users.map(user => `
                  <tr>
                     <td>${user.official_mail_id || 'N/A'}</td>
@@ -1077,8 +1043,8 @@
         }
     }
 
-     // Update the alerts table
-     async function populateAlertsTable() { // Renamed for clarity
+    // Update the alerts table
+    async function populateAlertsTable() { // Renamed for clarity
         console.log('populateAlertsTable function called');
         const tableBody = document.getElementById('emergencyAlertsTableBody');
         if (!tableBody) {
@@ -1086,12 +1052,10 @@
             return;
         }
         tableBody.innerHTML = '<tr><td colspan="6"><i class="fas fa-spinner fa-spin"></i> Loading alerts...</td></tr>'; // Added loading icon
-
         try {
             console.log('Fetching data from /api/alerts endpoint...');
             const response = await fetch('/api/alerts'); // Use relative path
             console.log('Fetch response status:', response.status);
-
             if (!response.ok) {
                  // Handle 404 specifically as "no alerts found"
                  if (response.status === 404) {
@@ -1101,22 +1065,19 @@
                  const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
                  throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
-
             const alerts = await response.json();
             console.log('Received alerts data:', alerts);
-
             if (!Array.isArray(alerts) || alerts.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="6">No emergency alerts found.</td></tr>';
                 return;
             }
-
             tableBody.innerHTML = alerts.map(alert => `
                 <tr>
                     <td>${alert.emergency_alert_id || 'N/A'}</td>
                     <td>${alert.comm_id || 'N/A'}</td>
                     <td>${alert.alert_reason || 'N/A'}</td>
                     <td>${alert.alert_status || 'N/A'}</td>
-                     <td>${alert.created_at ? new Date(alert.created_at).toLocaleDateString() : 'N/A'}</td>
+                    <td>${alert.created_at ? new Date(alert.created_at).toLocaleDateString() : 'N/A'}</td>
                     <td>
                         <button class="btn btn-sm btn-danger" onclick="deleteAlert(event, ${alert.emergency_alert_id})"><i class="fas fa-trash"></i> Delete</button>
                         <button class="btn btn-sm btn-secondary" onclick="updateAlert(event, ${alert.emergency_alert_id})"><i class="fas fa-edit"></i> Update</button>
@@ -1129,31 +1090,24 @@
         }
     }
 
-
     // --- Edit/Delete/Add User Functions (Refactored) ---
-
      // Edit User: Fetch data and populate modal
      async function editUser(event, userId) {
-        console.log('Edit user:', userId);
         const editButton = event.target.closest('button');
         if (!editButton) return; // Should not happen if called from button click
         const originalContent = editButton.innerHTML;
         editButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         editButton.disabled = true;
-
         try {
             showToast('Loading user data...', 'info');
             const response = await fetch(`/api/users/${userId}`);
             hideToast(); // Hide loading toast regardless of outcome
-
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
                 throw new Error(errorData.message || `Failed to fetch user data (Status: ${response.status})`);
             }
-
             const userData = await response.json();
             console.log('User data received:', userData);
-
             // Populate the edit form
             document.getElementById('edit-user-id').value = userData.unique_user_no || '';
             document.getElementById('edit-user-email').value = userData.official_mail_id || '';
@@ -1161,9 +1115,7 @@
             document.getElementById('edit-user-role').value = userData.role || 'mentee';
             document.getElementById('edit-user-phone').value = userData.phone_num || '';
             document.getElementById('edit-user-password').value = ''; // Clear password field
-
             openEditModal(); // Show the modal
-
         } catch (error) {
             console.error('Error fetching user details:', error);
             showToast(`Error: ${error.message}`, 'error');
@@ -1181,20 +1133,16 @@
         if (!deleteButton) return;
         const row = deleteButton.closest('tr');
         const originalContent = deleteButton.innerHTML;
-
         if (confirm(`Are you sure you want to delete user ID: ${userId}? This action cannot be undone.`)) {
             deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             deleteButton.disabled = true;
             if (row) row.style.opacity = '0.5';
-
             try {
                 const response = await fetch(`/api/users/${userId}`, { method: 'DELETE' });
-
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
                     throw new Error(errorData.message || `Failed to delete user (Status: ${response.status})`);
                 }
-
                 // Success: Remove row visually and show toast
                 if (row) {
                     row.style.transition = 'opacity 0.5s ease';
@@ -1204,7 +1152,6 @@
                     populateUsersTable(); // Fallback refresh
                 }
                 showToast('User deleted successfully', 'success');
-
             } catch (error) {
                 console.error('Error deleting user:', error);
                 showToast(`Error: ${error.message}`, 'error');
@@ -1219,7 +1166,6 @@
         }
     }
 
-
     // --- Modal Functions (Refactored) ---
      function openModal() {
         const modal = document.getElementById('add-user-modal');
@@ -1228,26 +1174,22 @@
         document.getElementById('add-user-form').reset();
         document.body.classList.add('modal-open'); // Prevent background scroll
     }
-
     function closeModal() {
         const modal = document.getElementById('add-user-modal');
         modal.style.display = 'none';
         document.body.classList.remove('modal-open');
     }
-
     function openEditModal() {
         const modal = document.getElementById('edit-user-modal');
         modal.style.display = 'block';
         document.getElementById('edit-form-status').style.display = 'none';
         document.body.classList.add('modal-open');
     }
-
     function closeEditModal() {
         const modal = document.getElementById('edit-user-modal');
         modal.style.display = 'none';
         document.body.classList.remove('modal-open');
     }
-
      // Close modal if clicking outside the content area
      window.addEventListener('click', function(event) {
         const addUserModal = document.getElementById('add-user-modal');
@@ -1260,7 +1202,6 @@
         }
      });
 
-
     // --- Form Handlers (Refactored) ---
      async function handleAddUser(event) {
         event.preventDefault();
@@ -1269,7 +1210,6 @@
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
         statusDiv.style.display = 'none';
-
         try {
             const userData = {
                 official_mail_id: document.getElementById('user-email').value.trim(),
@@ -1278,7 +1218,6 @@
                 prn_id: document.getElementById('user-prn').value.trim(),
                 phone_num: document.getElementById('user-phone').value.trim() || null,
             };
-
              // Client-side validation
              if (!userData.official_mail_id || !userData.password || !userData.prn_id || !userData.role) {
                  throw new Error('Please fill in all required fields (Email, Password, PRN ID, Role).');
@@ -1286,27 +1225,21 @@
              if (!/\S+@\S+\.\S+/.test(userData.official_mail_id)) {
                  throw new Error('Please enter a valid email address.');
              }
-
             const response = await fetch('/api/users', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData)
             });
             const result = await response.json();
-
             if (!response.ok) {
                 throw new Error(result.message || `Failed to add user (Status: ${response.status})`);
             }
-
             // Show success message in modal
             statusDiv.className = 'form-status success';
             statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> User added successfully!`;
             statusDiv.style.display = 'block';
-
             populateUsersTable(); // Refresh table in background
-
             setTimeout(closeModal, 1500); // Close modal after delay
-
         } catch (error) {
             // Show error message in modal
             statusDiv.className = 'form-status error';
@@ -1323,25 +1256,21 @@
         const submitBtn = document.getElementById('edit-submit-btn');
         const statusDiv = document.getElementById('edit-form-status');
         const userId = document.getElementById('edit-user-id').value;
-
         if (!userId) {
             statusDiv.className = 'form-status error';
             statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> User ID is missing. Cannot update.`;
             statusDiv.style.display = 'block';
             return;
         }
-
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
         statusDiv.style.display = 'none';
-
         try {
             const email = document.getElementById('edit-user-email').value.trim();
             const password = document.getElementById('edit-user-password').value;
             const prn_id = document.getElementById('edit-user-prn').value.trim();
             const role = document.getElementById('edit-user-role').value;
             const phone_num = document.getElementById('edit-user-phone').value.trim() || null;
-
              // Client-side validation
              if (!email || !prn_id || !role) {
                  throw new Error('Please fill in required fields (Email, PRN ID, Role).');
@@ -1349,32 +1278,25 @@
              if (!/\S+@\S+\.\S+/.test(email)) {
                  throw new Error('Please enter a valid email address.');
              }
-
             const updateData = { official_mail_id: email, prn_id, role, phone_num };
             if (password) { // Only include password if a new one is entered
                 updateData.password = password;
             }
-
             const response = await fetch(`/api/users/${userId}`, {
                 method: 'PUT', // Using PUT as per original code, assumes backend handles partial updates or expects all fields
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updateData)
             });
             const result = await response.json();
-
             if (!response.ok) {
                 throw new Error(result.message || `Failed to update user (Status: ${response.status})`);
             }
-
             // Show success message in modal
             statusDiv.className = 'form-status success';
             statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> User updated successfully!`;
             statusDiv.style.display = 'block';
-
             populateUsersTable(); // Refresh table
-
             setTimeout(closeEditModal, 1500); // Close modal
-
         } catch (error) {
             console.error('Error updating user:', error);
             // Show error message in modal
@@ -1387,13 +1309,11 @@
         }
     }
 
-
     // --- Filtering ---
      function filterUsersByRole() {
          const roleFilter = document.getElementById('roleFilter').value;
         const tableBody = document.getElementById('usersTableBody');
         const rows = tableBody.querySelectorAll('tr');
-
         rows.forEach(row => {
             // Assuming role is in the 3rd cell (index 2)
             const roleCell = row.cells[2];
@@ -1408,7 +1328,6 @@
         });
     }
 
-
     // --- Alert Actions ---
     async function deleteAlert(event, alertId) {
         console.log('Delete alert:', alertId);
@@ -1416,20 +1335,16 @@
         if (!deleteButton) return;
         const row = deleteButton.closest('tr');
         const originalContent = deleteButton.innerHTML;
-
         if (confirm(`Are you sure you want to delete Alert ID: ${alertId}? This action cannot be undone.`)) {
             deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             deleteButton.disabled = true;
             if (row) row.style.opacity = '0.5';
-
             try {
                 const response = await fetch(`/api/alerts/${alertId}`, { method: 'DELETE' });
-
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
                     throw new Error(errorData.message || `Failed to delete alert (Status: ${response.status})`);
                 }
-
                 // Success: Remove row visually and show toast
                 if (row) {
                     row.style.transition = 'opacity 0.5s ease';
@@ -1440,7 +1355,6 @@
                 }
                 showToast('Alert deleted successfully', 'success');
                 populateStatCards(); // Refresh stats which include pending alerts count
-
             } catch (error) {
                 console.error('Error deleting alert:', error);
                 showToast(`Error: ${error.message}`, 'error');
@@ -1483,6 +1397,18 @@
          // 3. Handle response, show toast, refresh table
      }
 
+    // Toggle Activity Log visibility
+    function toggleActivityLog() {
+        const tableContainer = document.getElementById('activityLogTableContainer');
+        const toggleButton = document.getElementById('toggleActivityLogBtn');
+        if (tableContainer.style.display === 'none') {
+            tableContainer.style.display = 'block';
+            toggleButton.textContent = 'Hide Activity Log';
+        } else {
+            tableContainer.style.display = 'none';
+            toggleButton.textContent = 'Show Activity Log';
+        }
+    }
 
     // --- Initial Load ---
     document.addEventListener('DOMContentLoaded', () => {
@@ -1491,6 +1417,17 @@
         populateTables();
     });
 
+    function toggleTable(containerId, buttonId) {
+        const tableContainer = document.getElementById(containerId);
+        const toggleButton = document.getElementById(buttonId);
+        if (tableContainer.style.display === 'none') {
+            tableContainer.style.display = 'block';
+            toggleButton.textContent = 'Hide Table';
+        } else {
+            tableContainer.style.display = 'none';
+            toggleButton.textContent = 'Show Table';
+        }
+    }
     </script>
 </body>
 </html>
