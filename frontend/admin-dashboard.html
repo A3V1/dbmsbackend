@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Include Chart.js for analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/alerts.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -344,6 +345,28 @@
         .common-features .feature-link:hover i {
             transform: scale(1.05); /* Slight icon grow on hover */
         }
+
+        .form-status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+        .form-status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .form-status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .mr-2 {
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
@@ -426,48 +449,6 @@
                 </div>
             </div>
 
-            <!-- Main Dashboard Grid -->
-            <div class="dashboard-grid">
-                <!-- Recent Activity -->
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <h2><i class="fas fa-history"></i> Recent Activity</h2>
-                        <a href="logs.html" class="view-all">View All</a>
-                    </div>
-                    <div class="activity-list scrollable" id="recentActivity">
-                        <!-- Activity items will be populated by JavaScript -->
-                    </div>
-                </div>
-
-                <!-- Department Overview -->
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <h2><i class="fas fa-building"></i> Departments</h2>
-                    </div>
-                    <div class="department-stats" id="departmentStats">
-                        <!-- Department stats will be populated by JavaScript -->
-                    </div>
-                    <canvas id="departmentChart" height="200"></canvas>
-                </div>
-            </div>
-
-            <!-- Emergency Alerts -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h2><i class="fas fa-bell"></i> Emergency Alerts</h2>
-                    <div class="header-actions">
-                        <select id="alertFilter" class="alert-filter">
-                            <option value="all">All Alerts</option>
-                            <option value="pending">Pending</option>
-                            <option value="resolved">Resolved</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="alerts-grid" id="emergencyAlerts">
-                    <!-- Alerts will be populated by JavaScript -->
-                </div>
-            </div>
-
             <!-- Quick Actions -->
             <div class="quick-actions-grid">
                 <button class="action-btn" onclick="location.href='users.html'">
@@ -486,6 +467,65 @@
                     <i class="fas fa-chart-bar"></i>
                     <span>Generate Reports</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Users Table -->
+    <div class="container">
+        <div class="table-container">
+            <h2 class="section-title"><i class="fas fa-users-cog"></i> All Users</h2>
+            <div style="margin-bottom: 16px;">
+                <button class="btn btn-primary" onclick="openModal()">
+                    <i class="fas fa-user-plus"></i> Add New User
+                </button>
+                <select id="roleFilter" class="btn btn-outline" style="margin-left: 10px;" onchange="filterUsersByRole()">
+                    <option value="all">All Roles</option>
+                    <option value="mentor">Mentors</option>
+                    <option value="mentee">Mentees</option>
+                    <option value="admin">Admins</option>
+                </select>
+            </div>
+            <div class="table-responsive">
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>PRN ID</th>
+                            <th>Role</th>
+                            <th>Phone Number</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <!-- User rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Alerts Table -->
+    <div class="container">
+        <div class="table-container">
+            <h2 class="section-title"><i class="fas fa-exclamation-triangle"></i> Emergency Alerts</h2>
+            <div class="table-responsive">
+                <table id="emergencyAlertsTable">
+                    <thead>
+                        <tr>
+                            <th>Alert ID</th>
+                            <th>Communication ID</th>
+                            <th>Alert Reason</th>
+                            <th>Alert Status</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="emergencyAlertsTableBody">
+                        <!-- Emergency alerts will be populated by JavaScript -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -511,6 +551,10 @@
                     <input type="email" class="form-input" id="user-email" required>
                 </div>
                 <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="user-password" required>
+                </div>
+                <div class="form-group">
                     <label class="form-label">PRN ID</label>
                     <input type="text" class="form-input" id="user-prn" required>
                 </div>
@@ -518,9 +562,52 @@
                     <label class="form-label">Phone Number</label>
                     <input type="tel" class="form-input" id="user-phone" required>
                 </div>
+                <div class="form-status" id="form-status" style="margin: 10px 0; display: none;"></div>
                 <div class="form-group text-right">
                     <button type="button" class="btn btn-outline mr-2" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add User</button>
+                    <button type="submit" class="btn btn-primary" id="submit-btn">Add User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="edit-user-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit User</h2>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <form id="edit-user-form" onsubmit="handleEditUser(event)">
+                <input type="hidden" id="edit-user-id">
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select class="form-input" id="edit-user-role" required>
+                        <option value="mentor">Mentor</option>
+                        <option value="mentee">Mentee</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="edit-user-email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="edit-user-password" placeholder="Leave blank to keep current password">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">PRN ID</label>
+                    <input type="text" class="form-input" id="edit-user-prn" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-input" id="edit-user-phone">
+                </div>
+                <div class="form-status" id="edit-form-status" style="margin: 10px 0; display: none;"></div>
+                <div class="form-group text-right">
+                    <button type="button" class="btn btn-outline mr-2" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="edit-submit-btn">Update User</button>
                 </div>
             </form>
         </div>
@@ -582,182 +669,554 @@
     }
     updateAdminInfo();
 
-    // Update statistics
-    function updateStatistics() {
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const mentors = JSON.parse(localStorage.getItem('mentors')) || [];
-        const mentees = JSON.parse(localStorage.getItem('mentees')) || [];
-        const menteeAcademics = JSON.parse(localStorage.getItem('mentee_academics')) || [];
-        const alerts = JSON.parse(localStorage.getItem('emergency_alerts')) || [];
+    
 
-        // Update user stats
-        document.getElementById('totalUsers').textContent = users.length;
-        document.getElementById('activeUsers').textContent = `${users.length} Active`;
-        document.getElementById('inactiveUsers').textContent = '0 Inactive';
-
-        // Update mentor stats
-        document.getElementById('totalMentors').textContent = mentors.length;
-        const departments = [...new Set(mentors.map(m => m.department))];
-        document.getElementById('departmentCount').textContent = `${departments.length} Departments`;
-
-        // Update mentee stats
-        document.getElementById('totalMentees').textContent = mentees.length;
-        const avgAttendance = menteeAcademics.reduce((acc, curr) => acc + curr.attendance, 0) / menteeAcademics.length;
-        document.getElementById('averageAttendance').textContent = `${avgAttendance.toFixed(1)}% Avg. Attendance`;
-
-        // Update alerts stats
-        const pendingAlerts = alerts.filter(a => a.alert_status === 'pending').length;
-        const resolvedAlerts = alerts.filter(a => a.alert_status === 'resolved').length;
-        document.getElementById('pendingAlerts').textContent = pendingAlerts;
-        document.getElementById('resolvedAlerts').textContent = `${resolvedAlerts} Resolved`;
-
-        // Update department stats
-        updateDepartmentStats(departments, mentors, mentees);
-    }
-    updateStatistics();
-
-    // Update recent activity
-    function updateRecentActivity() {
-        const activityLogs = JSON.parse(localStorage.getItem('activity_logs')) || [];
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        
-        const activityList = document.getElementById('recentActivity');
-        activityList.innerHTML = activityLogs.map(log => {
-            const user = users.find(u => u.unique_user_no === log.user_id);
-            return `
-                <div class="activity-item">
-                    <div class="activity-icon">
-                        <i class="fas fa-user-clock"></i>
-                    </div>
-                    <div class="activity-content">
-                        <p><strong>${user ? user.official_mail_id : 'Unknown User'}</strong> ${log.activity}</p>
-                        <div class="activity-meta">
-                            <span class="activity-time">${new Date(log.log_time).toLocaleString()}</span>
-                            <span class="activity-ip">${log.ip_address}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-    updateRecentActivity();
-
-    // Update emergency alerts
-    function updateEmergencyAlerts() {
-        const alerts = JSON.parse(localStorage.getItem('emergency_alerts')) || [];
-        const communications = JSON.parse(localStorage.getItem('communications')) || [];
-        
-        const alertsGrid = document.getElementById('emergencyAlerts');
-        alertsGrid.innerHTML = alerts.map(alert => {
-            const comm = communications.find(c => c.communication_id === alert.comm_id);
-            return `
-                <div class="alert-card ${alert.alert_status}">
-                    <div class="alert-icon">
-                        <i class="fas fa-exclamation-circle"></i>
-                    </div>
-                    <div class="alert-content">
-                        <h3>${alert.alert_reason}</h3>
-                        <p>${comm ? comm.message_content : 'No message content'}</p>
-                        <div class="alert-meta">
-                            <span class="alert-status">${alert.alert_status}</span>
-                            <button class="btn-resolve" onclick="resolveAlert(${alert.alert_id})">
-                                ${alert.alert_status === 'pending' ? 'Resolve' : 'Resolved'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-    updateEmergencyAlerts();
-
-    // Update department statistics
-    function updateDepartmentStats(departments, mentors, mentees) {
-        const departmentStats = document.getElementById('departmentStats');
-        const stats = departments.map(dept => {
-            const deptMentors = mentors.filter(m => m.department === dept);
-            const deptMentees = mentees.filter(m => 
-                deptMentors.some(dm => dm.mentor_id === m.mentor_id)
-            );
-            
-            return {
-                department: dept,
-                mentors: deptMentors.length,
-                mentees: deptMentees.length
-            };
-        });
-
-        departmentStats.innerHTML = stats.map(stat => `
-            <div class="dept-stat-item">
-                <h4>${stat.department}</h4>
-                <div class="dept-stat-numbers">
-                    <span>${stat.mentors} Mentors</span>
-                    <span>${stat.mentees} Mentees</span>
-                </div>
-            </div>
-        `).join('');
-
-        // Update department chart
-        const ctx = document.getElementById('departmentChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: stats.map(s => s.department),
-                datasets: [
-                    {
-                        label: 'Mentors',
-                        data: stats.map(s => s.mentors),
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgb(54, 162, 235)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Mentees',
-                        data: stats.map(s => s.mentees),
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                        borderColor: 'rgb(255, 99, 132)',
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
-
-    // Alert filter handler
-    document.getElementById('alertFilter').addEventListener('change', function(e) {
-        const status = e.target.value;
-        const alerts = document.querySelectorAll('.alert-card');
-        
-        alerts.forEach(alert => {
-            if (status === 'all' || alert.classList.contains(status)) {
-                alert.style.display = 'flex';
-            } else {
-                alert.style.display = 'none';
-            }
-        });
+    
+    // Explicitly call updateUsersTable when the page loads 
+    // and add debug logging
+    console.log('Attempting to fetch and update user table data...');
+    updateUsersTable().catch(error => {
+        console.error('Error in updateUsersTable:', error);
     });
 
-    // Resolve alert function
-    function resolveAlert(alertId) {
-        const alerts = JSON.parse(localStorage.getItem('emergency_alerts'));
-        const updatedAlerts = alerts.map(alert => {
-            if (alert.alert_id === alertId) {
-                return { ...alert, alert_status: 'resolved' };
-            }
-            return alert;
-        });
+    // Add function to update the users table
+    async function updateUsersTable() {
+        console.log('updateUsersTable function called');
+        const tableBody = document.getElementById('usersTableBody');
         
-        localStorage.setItem('emergency_alerts', JSON.stringify(updatedAlerts));
-        updateEmergencyAlerts();
-        updateStatistics();
+        if (!tableBody) {
+            console.error("Users table body not found!");
+            return;
+        }
+
+        tableBody.innerHTML = '<tr><td colspan="6">Loading users...</td></tr>';
+
+        try {
+            console.log('Fetching data from /api/users endpoint...');
+            // Try with explicit URL including http and port
+            const apiUrl = window.location.origin + '/api/users';
+            console.log('Full API URL:', apiUrl);
+            
+            const response = await fetch(apiUrl);
+            console.log('Fetch response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const users = await response.json();
+            console.log('Received user data:', users);
+
+            if (!users || users.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6">No users found.</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${user.official_mail_id}</td>
+                    <td>${user.prn_id}</td>
+                    <td>${user.role}</td>
+                    <td>${user.phone_num || 'N/A'}</td>
+                    <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline mr-1" onclick="editUser(${user.unique_user_no})"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.unique_user_no})"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            tableBody.innerHTML = '<tr><td colspan="6">Error loading users. Please try again later.</td></tr>';
+        }
+    }
+
+    // Edit User Functions
+    async function editUser(userId) {
+        console.log('Edit user:', userId);
+        try {
+            // Show loading spinner instead of alert
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'form-status';
+            loadingDiv.style.position = 'fixed';
+            loadingDiv.style.top = '20px';
+            loadingDiv.style.right = '20px';
+            loadingDiv.style.zIndex = '9999';
+            loadingDiv.style.padding = '15px 25px';
+            loadingDiv.style.borderRadius = '5px';
+            loadingDiv.style.backgroundColor = '#e2f3ff';
+            loadingDiv.style.color = '#0066cc';
+            loadingDiv.style.border = '1px solid #99ccff';
+            loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading user data...';
+            document.body.appendChild(loadingDiv);
+            
+            // Fetch user data from API
+            console.log(`Fetching user data for ID ${userId}...`);
+            const response = await fetch(`/api/users/${userId}`);
+            console.log('Response status:', response.status);
+            
+            // Remove loading message
+            document.body.removeChild(loadingDiv);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error response:', errorData);
+                throw new Error(errorData.message || 'Failed to fetch user data');
+            }
+            
+            const userData = await response.json();
+            console.log('User data received:', userData);
+            
+            // Populate the edit form with user data
+            document.getElementById('edit-user-id').value = userData.unique_user_no;
+            document.getElementById('edit-user-email').value = userData.official_mail_id;
+            document.getElementById('edit-user-prn').value = userData.prn_id;
+            document.getElementById('edit-user-role').value = userData.role;
+            document.getElementById('edit-user-phone').value = userData.phone_num || '';
+            document.getElementById('edit-user-password').value = ''; // Don't populate the password field
+            
+            // Show the edit modal
+            openEditModal();
+            
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+            alert(`Error: ${error.message}`);
+        }
+    }
+
+    async function deleteUser(userId) {
+        console.log('Delete user:', userId);
+        
+        if (confirm(`Are you sure you want to delete user ID: ${userId}?`)) {
+            try {
+                // Show loading indicator in the table
+                const tableBody = document.getElementById('usersTableBody');
+                const rows = tableBody.getElementsByTagName('tr');
+                
+                // Find the row with this user ID and add a visual indication
+                for (let i = 0; i < rows.length; i++) {
+                    const actionCell = rows[i].querySelector(`td:last-child`);
+                    if (actionCell && actionCell.innerHTML.includes(`deleteUser(${userId})`)) {
+                        rows[i].style.backgroundColor = "#ffeaea";
+                        actionCell.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+                        break;
+                    }
+                }
+                
+                // Send delete request to the server
+                const response = await fetch(`/api/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to delete user');
+                }
+                
+                // If successful, update the table
+                updateUsersTable();
+                
+                // Show a temporary success message
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'form-status success';
+                messageDiv.style.position = 'fixed';
+                messageDiv.style.top = '20px';
+                messageDiv.style.right = '20px';
+                messageDiv.style.zIndex = '9999';
+                messageDiv.style.padding = '15px 25px';
+                messageDiv.style.borderRadius = '5px';
+                messageDiv.innerHTML = '<i class="fas fa-check-circle"></i> User deleted successfully';
+                
+                document.body.appendChild(messageDiv);
+                
+                // Remove the message after 3 seconds
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.parentNode.removeChild(messageDiv);
+                    }
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                
+                // Show error message
+                alert(`Error: ${error.message}`);
+                
+                // Refresh table to revert the visual change
+                updateUsersTable();
+            }
+        }
+    }
+
+    // Add User Modal Functions
+    function openModal() {
+        document.getElementById('add-user-modal').style.display = 'block';
+        document.getElementById('form-status').style.display = 'none';
+        document.getElementById('add-user-form').reset();
+    }
+
+    function closeModal() {
+        document.getElementById('add-user-modal').style.display = 'none';
+    }
+
+    // Edit User Modal Functions
+    function openEditModal() {
+        document.getElementById('edit-user-modal').style.display = 'block';
+        document.getElementById('edit-form-status').style.display = 'none';
+    }
+
+    function closeEditModal() {
+        document.getElementById('edit-user-modal').style.display = 'none';
+    }
+
+    // Handle user form submission
+    async function handleAddUser(event) {
+        event.preventDefault();
+        
+        const submitBtn = document.getElementById('submit-btn');
+        const statusDiv = document.getElementById('form-status');
+        
+        // Disable submit button and show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        statusDiv.style.display = 'none';
+        
+        try {
+            const userData = {
+                official_mail_id: document.getElementById('user-email').value,
+                password: document.getElementById('user-password').value,
+                role: document.getElementById('user-role').value,
+                prn_id: document.getElementById('user-prn').value,
+                phone_num: document.getElementById('user-phone').value,
+                // Generate a simple calendar ID
+                calendar_id: `calendar${Date.now()}`
+            };
+            
+            // Send request to API
+            const response = await fetch('/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.message || 'Failed to add user');
+            }
+            
+            // Show success message
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'form-status success';
+            statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> User added successfully!`;
+            
+            // Close modal after a delay
+            setTimeout(() => {
+                closeModal();
+                updateUsersTable(); // Refresh the table
+            }, 1500);
+            
+        } catch (error) {
+            // Show error message
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'form-status error';
+            statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
+        } finally {
+            // Re-enable submit button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Add User';
+        }
+    }
+
+    // Edit User Functions
+    async function handleEditUser(event) {
+        event.preventDefault();
+        
+        const submitBtn = document.getElementById('edit-submit-btn');
+        const statusDiv = document.getElementById('edit-form-status');
+        const userId = document.getElementById('edit-user-id').value;
+        
+        // Validation
+        if (!userId) {
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'form-status error';
+            statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> User ID is missing`;
+            return;
+        }
+        
+        // Disable submit button and show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+        statusDiv.style.display = 'none';
+        
+        try {
+            // Get values from the form
+            const email = document.getElementById('edit-user-email').value;
+            const password = document.getElementById('edit-user-password').value;
+            const prn_id = document.getElementById('edit-user-prn').value;
+            const role = document.getElementById('edit-user-role').value;
+            const phone_num = document.getElementById('edit-user-phone').value || null;
+            
+            // Track which fields were successfully updated
+            const updatedFields = [];
+            
+            // Update each field individually using dedicated endpoints
+            
+            // 1. Update email
+            if (email) {
+                try {
+                    const emailResponse = await fetch(`/api/users/email/${userId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    
+                    console.log('Email update response:', await emailResponse.json());
+                    
+                    if (emailResponse.ok) {
+                        updatedFields.push('email');
+                    }
+                } catch (error) {
+                    console.error('Error updating email:', error);
+                }
+            }
+            
+            // 2. Update role
+            if (role) {
+                try {
+                    const roleResponse = await fetch(`/api/users/role/${userId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ role })
+                    });
+                    
+                    console.log('Role update response:', await roleResponse.json());
+                    
+                    if (roleResponse.ok) {
+                        updatedFields.push('role');
+                    }
+                } catch (error) {
+                    console.error('Error updating role:', error);
+                }
+            }
+            
+            // 3. Update PRN ID
+            if (prn_id) {
+                try {
+                    const prnResponse = await fetch(`/api/users/prn/${userId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prn_id })
+                    });
+                    
+                    console.log('PRN update response:', await prnResponse.json());
+                    
+                    if (prnResponse.ok) {
+                        updatedFields.push('PRN ID');
+                    }
+                } catch (error) {
+                    console.error('Error updating PRN ID:', error);
+                }
+            }
+            
+            // 4. Update phone number
+            try {
+                const phoneResponse = await fetch(`/api/users/phone/${userId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone_num })
+                });
+                
+                console.log('Phone update response:', await phoneResponse.json());
+                
+                if (phoneResponse.ok) {
+                    updatedFields.push('phone number');
+                }
+            } catch (error) {
+                console.error('Error updating phone number:', error);
+            }
+            
+            // 5. Update password (using the original PUT endpoint for now)
+            if (password) {
+                try {
+                    const passwordResponse = await fetch(`/api/users/${userId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ password })
+                    });
+                    
+                    console.log('Password update response:', await passwordResponse.json());
+                    
+                    if (passwordResponse.ok) {
+                        updatedFields.push('password');
+                    }
+                } catch (error) {
+                    console.error('Error updating password:', error);
+                }
+            }
+            
+            // Check if any fields were updated successfully
+            if (updatedFields.length > 0) {
+                // Show success message
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'form-status success';
+                statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> Updated: ${updatedFields.join(', ')}`;
+                
+                // Close modal after a delay and refresh the table
+                setTimeout(() => {
+                    closeEditModal();
+                    updateUsersTable();
+                }, 1500);
+            } else {
+                throw new Error('No fields were updated successfully');
+            }
+            
+        } catch (error) {
+            console.error('Error in handleEditUser:', error);
+            // Show error message
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'form-status error';
+            statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
+        } finally {
+            // Re-enable submit button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Update User';
+        }
+    }
+
+    function filterUsersByRole() {
+        const roleFilter = document.getElementById('roleFilter').value;
+        const users = document.querySelectorAll('#usersTable tbody tr');
+        users.forEach(row => {
+            const role = row.cells[2].textContent.toLowerCase();
+            if (roleFilter === 'all' || role.includes(roleFilter.toLowerCase())) {
+                row.style.display = 'table-row';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Add function to update the emergency alerts table
+    async function updateEmergencyAlertsTable() {
+        console.log('updateEmergencyAlertsTable function called');
+        const tableBody = document.getElementById('emergencyAlertsTableBody');
+        
+        if (!tableBody) {
+            console.error("Emergency alerts table body not found!");
+            return;
+        }
+
+        tableBody.innerHTML = '<tr><td colspan="6">Loading emergency alerts...</td></tr>';
+
+        try {
+            console.log('Fetching data from /api/emergency-alerts endpoint...');
+            const apiUrl = window.location.origin + '/api/emergency-alerts';
+            console.log('Full API URL:', apiUrl);
+            
+            // Add authorization header
+            const response = await fetch(apiUrl, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            console.log('Fetch response status:', response.status);
+            
+            if (!response.ok) {
+                if (response.status === 403) {
+                    throw new Error('Access denied. Please check your authentication.');
+                }
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const alerts = await response.json();
+            console.log('Received emergency alerts data:', alerts);
+
+            if (!alerts || alerts.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6">No emergency alerts found.</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = alerts.map(alert => `
+                <tr>
+                    <td>${alert.alert_id}</td>
+                    <td>${alert.comm_id}</td>
+                    <td>${alert.alert_reason}</td>
+                    <td>
+                        <span class="alert-status ${alert.alert_status}">
+                            ${alert.alert_status}
+                        </span>
+                    </td>
+                    <td>${new Date(alert.created_at).toLocaleString()}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline mr-1" onclick="resolveEmergencyAlert(${alert.alert_id})">
+                            <i class="fas fa-check"></i> Resolve
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+        } catch (error) {
+            console.error('Error fetching emergency alerts:', error);
+            tableBody.innerHTML = `<tr><td colspan="6">Error: ${error.message}</td></tr>`;
+        }
+    }
+
+    // Function to resolve an emergency alert
+    async function resolveEmergencyAlert(alertId) {
+        if (confirm(`Are you sure you want to resolve alert ID: ${alertId}?`)) {
+            try {
+                const response = await fetch(`/api/emergency-alerts/${alertId}/resolve`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        throw new Error('Access denied. Please check your authentication.');
+                    }
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to resolve alert');
+                }
+                
+                // Show success message
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'form-status success';
+                messageDiv.style.position = 'fixed';
+                messageDiv.style.top = '20px';
+                messageDiv.style.right = '20px';
+                messageDiv.style.zIndex = '9999';
+                messageDiv.style.padding = '15px 25px';
+                messageDiv.style.borderRadius = '5px';
+                messageDiv.innerHTML = '<i class="fas fa-check-circle"></i> Alert resolved successfully';
+                
+                document.body.appendChild(messageDiv);
+                
+                // Remove the message after 3 seconds
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.parentNode.removeChild(messageDiv);
+                    }
+                }, 3000);
+                
+                // Refresh the table
+                updateEmergencyAlertsTable();
+                
+            } catch (error) {
+                console.error('Error resolving alert:', error);
+                alert(`Error: ${error.message}`);
+            }
+        }
     }
     </script>
 </body>

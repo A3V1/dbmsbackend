@@ -2,7 +2,10 @@
 require('dotenv').config(); // Load .env variables first
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const genericCrudRouter = require('./routes/genericcrud'); // Import router
+const mentorRouter = require('./routes/mentor'); // Import mentor router
+const usersRouter = require('./routes/users'); // Import the new users router
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,16 +44,32 @@ app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 
 // --- Serve Static Frontend Files ---
-app.use(express.static('frontend')); // Serve static files from the 'frontend' directory
+app.use(express.static(path.join(__dirname, 'frontend'))); // Serve static files from the 'frontend' directory
+app.use('/img', express.static(path.join(__dirname, 'frontend', 'img'))); // Explicitly serve images
+app.use('/js', express.static(path.join(__dirname, 'frontend', 'js'))); // Explicitly serve JavaScript files
+app.use('/css', express.static(path.join(__dirname, 'frontend', 'css'))); // Explicitly serve CSS files
 
 // --- API Routes ---
+
+// Test route to check if API is working
+app.get('/api/test', (req, res) => {
+  console.log('Test API endpoint hit!');
+  res.json({ message: 'API is working' });
+});
+
+// Mount the new users router *before* the generic one
+app.use('/api/users', usersRouter);
+
+// Mount the mentor-specific router
+app.use('/api/mentor', mentorRouter);
+
 // Mount the generic router under /api/:tableName
 // validateTableName middleware runs first for these routes
 app.use('/api/:tableName', validateTableName, genericCrudRouter);
 
 // --- Basic Root Route ---
 app.get('/', (req, res) => {
-    res.status(200).send('Backend API for 12 tables is running!');
+    res.sendFile(path.join(__dirname, 'frontend', 'mentor-dashboard.html'));
 });
 
 // --- Basic Not Found Handler (should be last route) ---

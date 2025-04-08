@@ -1,31 +1,500 @@
 class MentorDashboard {
     constructor() {
-        // Get current user data immediately. Redirect if not a mentor.
-        // Note: Assumes UserManager is globally available or imported.
-        this.currentUser = UserManager.getCurrentUser();
-        if (!this.currentUser || this.currentUser.role !== 'mentor') {
-            console.error("User is not a mentor or not logged in. Redirecting...");
-            // Assuming getBaseUrl is available or defined elsewhere
-            window.location.href = getBaseUrl() + 'mit-wpu-login.html';
-            return; // Stop initialization if redirecting
-        }
-        console.log("Current Mentor User:", this.currentUser); // Log mentor data
+        this.api = new MentorAPI();
+        this.currentUser = null;
+        this.mentees = [];
+        this.currentMenteeId = null;
+        this.meetings = [];
+        this.messages = [];
+        this.broadcastMessages = [];
+        this.achievements = [];
+        this.activityLogs = [];
+        this.alerts = [];
+        this.selectedMenteeId = null;
+        
+        // Initialize the dashboard
         this.init();
     }
 
-    init() {
-        this.updateDateTime();
-        this.renderMenteeList();
-        this.renderTaskList();
-        this.setupEventListeners();
-        this.setupModalEventListeners(); // Add this line
+    async init() {
+        try {
+            // Get current user info
+            const userInfo = await this.getUserInfo();
+            if (!userInfo || !userInfo.mentor_id) {
+                this.showNotification('Error: User information not found or you are not a mentor', 'error');
+                return;
+            }
+            
+            this.currentUser = userInfo;
+            
+            // Initialize components
+            this.initNavigation();
+            this.initModals();
+            this.setupEventListeners();
+            
+            // Load dashboard data
+            await this.loadDashboardData();
+        } catch (error) {
+            console.error('Error initializing dashboard:', error);
+            this.showNotification('Failed to initialize dashboard', 'error');
+        }
+    }
+    
+    async loadDashboardData() {
+        try {
+            // Load all required data
+            await Promise.all([
+                this.loadMentees(),
+                this.loadMessages(),
+                this.loadBroadcastMessages(),
+                this.loadAchievements(),
+                this.loadActivityLogs()
+            ]);
+            
+            // Update UI
+            this.updateDashboardStats();
+        } catch (error) {
+            console.error('Error loading dashboard data:', error);
+            this.showNotification('Failed to load dashboard data', 'error');
+        }
     }
 
-    // --- Modal Helper Functions ---
+    async getUserInfo() {
+        // This is a placeholder - in a real app, you would get this from a session or API
+        // For demo purposes, we'll use a hardcoded mentor ID
+        return {
+            mentor_id: 1,
+            name: 'Demo Mentor'
+        };
+    }
+    
+    async loadMentees() {
+        try {
+            this.mentees = await this.api.getMentees(this.currentUser.mentor_id);
+            this.renderMentees();
+            return this.mentees;
+        } catch (error) {
+            console.error('Error loading mentees:', error);
+            this.showNotification('Error loading mentees. Please try again.', 'error');
+            return [];
+        }
+    }
+
+    renderMentees() {
+        const menteesList = document.getElementById('mentees-list');
+        if (!menteesList) return;
+
+        if (!this.mentees.length) {
+            menteesList.innerHTML = '<p>No mentees assigned yet.</p>';
+            return;
+        }
+
+        menteesList.innerHTML = this.mentees.map(mentee => `
+            <div class="mentee-card" data-mentee-id="${mentee.mentee_id}">
+                <img src="${mentee.avatar_url || 'img/default-profile.svg'}" alt="${mentee.first_name}" class="mentee-avatar">
+                <div class="mentee-info">
+                    <h3 class="mentee-name">${mentee.first_name} ${mentee.last_name || ''}</h3>
+                    <p class="mentee-program">${mentee.program || mentee.course || 'Program not specified'}</p>
+                    <div class="mentee-academic-details">
+                        <p><strong>Year:</strong> ${mentee.year || 'N/A'}</p>
+                        <p><strong>Attendance:</strong> ${mentee.attendance || 'N/A'}%</p>
+                        <p><strong>Academic Status:</strong> <span class="${this.getAcademicStatusClass(mentee.academic_context)}">${mentee.academic_context || 'N/A'}</span></p>
+                    </div>
+                </div>
+                <div class="mentee-actions">
+                    <button class="action-btn view-mentee" data-mentee-id="${mentee.mentee_id}">
+                        <i class="fas fa-eye"></i> View Profile
+                    </button>
+                    <button class="action-btn message-mentee" data-mentee-id="${mentee.mentee_id}">
+                        <i class="fas fa-envelope"></i> Message
+                    </button>
+                    <button class="action-btn schedule-meeting" data-mentee-id="${mentee.mentee_id}">
+                        <i class="fas fa-calendar-alt"></i> Schedule Meeting
+                    </button>
+                    <button class="action-btn remove-mentee" data-mentee-id="${mentee.mentee_id}">
+                        <i class="fas fa-user-minus"></i> Remove Mentee
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+        // Add event listeners for the action buttons
+        this.addMenteeActionListeners();
+    }
+
+    // Helper method to determine the CSS class for academic status
+    getAcademicStatusClass(status) {
+        if (!status) return '';
+        
+        status = status.toLowerCase();
+        if (status.includes('good') || status.includes('excellent')) {
+            return 'status-good';
+        } else if (status.includes('average') || status.includes('satisfactory')) {
+            return 'status-average';
+        } else if (status.includes('poor') || status.includes('concern') || status.includes('risk')) {
+            return 'status-poor';
+        }
+        return '';
+    }
+
+    addMenteeActionListeners() {
+        // View Profile buttons
+        document.querySelectorAll('.view-mentee').forEach(button => {
+            button.addEventListener('click', () => {
+                const menteeId = button.getAttribute('data-mentee-id');
+                this.viewMenteeProfile(menteeId);
+            });
+        });
+
+        // Message buttons
+        document.querySelectorAll('.message-mentee').forEach(button => {
+            button.addEventListener('click', () => {
+                const menteeId = button.getAttribute('data-mentee-id');
+                this.openMessageDialog(menteeId);
+            });
+        });
+
+        // Schedule Meeting buttons
+        document.querySelectorAll('.schedule-meeting').forEach(button => {
+            button.addEventListener('click', () => {
+                const menteeId = button.getAttribute('data-mentee-id');
+                this.openScheduleMeetingDialog(menteeId);
+            });
+        });
+
+        // Remove Mentee buttons
+        document.querySelectorAll('.remove-mentee').forEach(button => {
+            button.addEventListener('click', () => {
+                const menteeId = button.getAttribute('data-mentee-id');
+                this.openRemoveMenteeModal(menteeId);
+            });
+        });
+    }
+
+    filterMentees(searchTerm) {
+        if (!searchTerm) {
+            this.renderMentees();
+            return;
+        }
+        
+        searchTerm = searchTerm.toLowerCase();
+        const filteredMentees = this.mentees.filter(mentee => {
+            return (
+                (mentee.first_name && mentee.first_name.toLowerCase().includes(searchTerm)) ||
+                (mentee.last_name && mentee.last_name.toLowerCase().includes(searchTerm)) ||
+                (mentee.email && mentee.email.toLowerCase().includes(searchTerm)) ||
+                (mentee.course && mentee.course.toLowerCase().includes(searchTerm)) ||
+                (mentee.year && mentee.year.toString().includes(searchTerm))
+            );
+        });
+        
+        const menteesList = document.getElementById('mentees-list');
+        if (!menteesList) return;
+
+        if (filteredMentees.length === 0) {
+            menteesList.innerHTML = '<p>No mentees match your search.</p>';
+            return;
+        }
+
+        menteesList.innerHTML = filteredMentees.map(mentee => `
+            <div class="mentee-card" data-mentee-id="${mentee.mentee_id}">
+                <img src="${mentee.avatar_url || 'img/default-profile.svg'}" alt="${mentee.first_name}" class="mentee-avatar">
+                <div class="mentee-info">
+                    <h3 class="mentee-name">${mentee.first_name} ${mentee.last_name || ''}</h3>
+                    <p class="mentee-program">${mentee.program || mentee.course || 'Program not specified'}</p>
+                    <div class="mentee-academic-details">
+                        <p><strong>Year:</strong> ${mentee.year || 'N/A'}</p>
+                        <p><strong>Attendance:</strong> ${mentee.attendance || 'N/A'}%</p>
+                        <p><strong>Academic Status:</strong> <span class="${this.getAcademicStatusClass(mentee.academic_context)}">${mentee.academic_context || 'N/A'}</span></p>
+                    </div>
+                </div>
+                <div class="mentee-actions">
+                    <button class="action-btn view-mentee" data-mentee-id="${mentee.mentee_id}">
+                        <i class="fas fa-eye"></i> View Profile
+                    </button>
+                    <button class="action-btn message-mentee" data-mentee-id="${mentee.mentee_id}">
+                        <i class="fas fa-envelope"></i> Message
+                    </button>
+                    <button class="action-btn schedule-meeting" data-mentee-id="${mentee.mentee_id}">
+                        <i class="fas fa-calendar-alt"></i> Schedule Meeting
+                    </button>
+                    <button class="action-btn remove-mentee" data-mentee-id="${mentee.mentee_id}">
+                        <i class="fas fa-user-minus"></i> Remove Mentee
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+        this.addMenteeActionListeners();
+    }
+
+    async viewMenteeProfile(menteeId) {
+        try {
+            const menteeProfile = await this.api.getMenteeProfile(menteeId);
+            
+            // Update the profile modal with mentee data
+            const modal = document.getElementById('mentee-profile-modal');
+            if (modal) {
+                // Update profile details
+                const nameElement = document.getElementById('mentee-profile-name');
+                const emailElement = document.getElementById('mentee-profile-email');
+                const phoneElement = document.getElementById('mentee-profile-phone');
+                
+                if (nameElement) {
+                    nameElement.textContent = `${menteeProfile.first_name || ''} ${menteeProfile.last_name || ''}`;
+                }
+                
+                if (emailElement) {
+                    emailElement.textContent = menteeProfile.email || 'No email available';
+                }
+                
+                if (phoneElement) {
+                    phoneElement.textContent = menteeProfile.phone_num || 'No phone available';
+                }
+                
+                // Add academic details if they exist
+                const academicDetailsContainer = document.getElementById('mentee-profile-academic-details');
+                if (academicDetailsContainer) {
+                    academicDetailsContainer.innerHTML = `
+                        <h4>Academic Information</h4>
+                        <div class="profile-detail-item">
+                            <span class="detail-label">Program:</span>
+                            <span class="detail-value">${menteeProfile.course || 'N/A'}</span>
+                        </div>
+                        <div class="profile-detail-item">
+                            <span class="detail-label">Year:</span>
+                            <span class="detail-value">${menteeProfile.year || 'N/A'}</span>
+                        </div>
+                        <div class="profile-detail-item">
+                            <span class="detail-label">Attendance:</span>
+                            <span class="detail-value">${menteeProfile.attendance || 'N/A'}%</span>
+                        </div>
+                        <div class="profile-detail-item">
+                            <span class="detail-label">Academic Status:</span>
+                            <span class="detail-value ${this.getAcademicStatusClass(menteeProfile.academic_context)}">${menteeProfile.academic_context || 'N/A'}</span>
+                        </div>
+                        <div class="profile-detail-item">
+                            <span class="detail-label">Background:</span>
+                            <span class="detail-value">${menteeProfile.academic_background || 'No background information available'}</span>
+                        </div>
+                    `;
+                }
+                
+                // Display the modal
+                modal.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error viewing mentee profile:', error);
+            this.showNotification('Failed to load mentee profile', 'error');
+        }
+    }
+
+    async openAddMenteeModal() {
+        try {
+            // Get available mentees
+            const availableMentees = await this.api.getAvailableMentees();
+            
+            // Populate select dropdown
+            const selectElement = document.getElementById('available-mentees-select');
+            if (selectElement) {
+                // Clear previous options except the first one
+                while (selectElement.options.length > 1) {
+                    selectElement.remove(1);
+                }
+                
+                // Add available mentees
+                availableMentees.forEach(mentee => {
+                    const option = document.createElement('option');
+                    option.value = mentee.email;
+                    option.textContent = mentee.email;
+                    selectElement.appendChild(option);
+                });
+            }
+            
+            // Clear input field
+            const inputElement = document.getElementById('mentee-email-input');
+            if (inputElement) {
+                inputElement.value = '';
+            }
+            
+            // Open modal
+            this.openModal('add-mentee-modal');
+        } catch (error) {
+            console.error('Error loading available mentees:', error);
+            this.showNotification('Failed to load available mentees', 'error');
+        }
+    }
+
+    async handleAddMentee() {
+        try {
+            // Get mentee email from input or select
+            let menteeEmail = '';
+            
+            const inputElement = document.getElementById('mentee-email-input');
+            const selectElement = document.getElementById('available-mentees-select');
+            
+            if (selectElement && selectElement.value) {
+                menteeEmail = selectElement.value;
+            } else if (inputElement && inputElement.value) {
+                menteeEmail = inputElement.value;
+            }
+            
+            if (!menteeEmail) {
+                this.showNotification('Please select or enter a mentee email', 'warning');
+                return;
+            }
+            
+            // Assign mentee to mentor
+            const result = await this.api.addMentee(this.currentUser.mentor_id, menteeEmail);
+            
+            // Close modal
+            this.closeModal('add-mentee-modal');
+            
+            // Show success notification
+            this.showNotification(result.message || 'Mentee added successfully', 'success');
+            
+            // Reload mentees
+            await this.loadMentees();
+        } catch (error) {
+            console.error('Error adding mentee:', error);
+            this.showNotification(error.message || 'Failed to add mentee', 'error');
+        }
+    }
+
+    openRemoveMenteeModal(menteeId) {
+        // Set current mentee ID
+        this.currentMenteeId = menteeId;
+        
+        // Open modal
+        this.openModal('remove-mentee-modal');
+    }
+
+    async handleRemoveMentee() {
+        if (!this.currentMenteeId) {
+            this.showNotification('Mentee ID not found', 'error');
+            return;
+        }
+        
+        try {
+            // Remove mentee
+            const result = await this.api.removeMentee(this.currentMenteeId, this.currentUser.mentor_id);
+            
+            // Close modal
+            this.closeModal('remove-mentee-modal');
+            
+            // Show success notification
+            this.showNotification(result.message || 'Mentee removed successfully', 'success');
+            
+            // Reload mentees
+            await this.loadMentees();
+        } catch (error) {
+            console.error('Error removing mentee:', error);
+            this.showNotification(error.message || 'Failed to remove mentee', 'error');
+        } finally {
+            // Reset current mentee ID
+            this.currentMenteeId = null;
+        }
+    }
+
+    openMessageDialog(menteeId) {
+        this.selectedMenteeId = menteeId;
+        const mentee = this.mentees.find(m => m.mentee_id == menteeId);
+        
+        // Show the messaging modal
+        const modal = document.getElementById('message-modal');
+        if (modal) {
+            document.getElementById('message-recipient').textContent = mentee ? `${mentee.first_name} ${mentee.last_name || ''}` : 'Mentee';
+            modal.style.display = 'block';
+        }
+        
+        // Focus on the message input
+        const messageInput = document.getElementById('message-input');
+        if (messageInput) {
+            messageInput.focus();
+        }
+    }
+
+    openScheduleMeetingDialog(menteeId) {
+        this.selectedMenteeId = menteeId;
+        const mentee = this.mentees.find(m => m.mentee_id == menteeId);
+        
+        // Show the meeting scheduling modal
+        const modal = document.getElementById('schedule-meeting-modal');
+        if (modal) {
+            document.getElementById('meeting-mentee-name').textContent = mentee ? `${mentee.first_name} ${mentee.last_name || ''}` : 'Mentee';
+            modal.style.display = 'block';
+        }
+    }
+
+    updateDashboardStats() {
+        const menteeCountElement = document.getElementById('mentee-count');
+        if (menteeCountElement) {
+            menteeCountElement.textContent = this.mentees.length;
+        }
+        
+        // Other stats would be updated here if we had the data
+    }
+
+    showNotification(message, type = 'info') {
+        const notificationContainer = document.getElementById('notification-container');
+        if (!notificationContainer) return;
+        
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        
+        const icon = document.createElement('i');
+        icon.className = `fas ${this.getNotificationIcon(type)}`;
+        
+        const textSpan = document.createElement('span');
+        textSpan.textContent = message;
+        
+        notification.appendChild(icon);
+        notification.appendChild(textSpan);
+        
+        notificationContainer.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            setTimeout(() => {
+                notification.remove();
+            }, 500);
+        }, 5000);
+    }
+    
+    getNotificationIcon(type) {
+        const icons = {
+            success: 'fa-check-circle',
+            error: 'fa-exclamation-circle',
+            warning: 'fa-exclamation-triangle',
+            info: 'fa-info-circle'
+        };
+        return icons[type] || icons.info;
+    }
+
+    initModals() {
+        // Close modal when clicking on close button or outside the modal
+        document.querySelectorAll('.close-modal').forEach(closeBtn => {
+            closeBtn.addEventListener('click', () => {
+                const modalId = closeBtn.getAttribute('data-modal');
+                this.closeModal(modalId);
+            });
+        });
+
+        // Close modal when clicking outside of it
+        window.addEventListener('click', (event) => {
+            document.querySelectorAll('.modal').forEach(modal => {
+                if (event.target === modal) {
+                    this.closeModal(modal.id);
+                }
+            });
+        });
+    }
+
     openModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
-            modal.style.display = 'flex'; // Use flex to center content
+            modal.style.display = 'block';
         }
     }
 
@@ -34,695 +503,282 @@ class MentorDashboard {
         if (modal) {
             modal.style.display = 'none';
         }
-        // Also hide the achievement form when closing the main modal
-        this.hideAchievementForm();
     }
 
-    hideAchievementForm() {
-        const form = document.getElementById('addAchievementForm');
-        const achievementIdToEdit = document.getElementById('achievementIdToEdit');
-        if (form) form.style.display = 'none';
-        if (achievementIdToEdit) achievementIdToEdit.value = ''; // Clear edit state
-        // Optionally clear form fields here
-        document.getElementById('achievementTitle').value = '';
-        document.getElementById('achievementDescription').value = '';
-        document.getElementById('achievementDate').value = '';
-        document.getElementById('achievementBadgeIcon').value = '';
-        document.getElementById('achievementMenteeId').value = '';
-    }
-    // --- End Modal Helper Functions ---
-
-
-    updateDateTime() {
-        const updateTime = () => {
-            const now = new Date();
-            document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+    initNavigation() {
+        const navItems = document.querySelectorAll('.sidebar-nav li');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const tabId = item.getAttribute('data-tab');
+                this.switchTab(tabId);
             });
-            document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true
-            });
-        };
-        updateTime();
-        setInterval(updateTime, 1000);
-    }
-
-    async renderMenteeList() { // Make the function async to use await
-        const menteeList = document.getElementById('mentee-list');
-        menteeList.innerHTML = '<p>Loading mentees...</p>'; // Show loading state
-
-        try {
-            // Fetch all necessary data in parallel
-            const [viewRes, usersRes, menteeRes, achievementRes] = await Promise.all([
-                fetch('/api/mentee_academic_view'), // Core academic info
-                fetch('/api/users'),                 // For PRN and potentially name
-                fetch('/api/mentee'),                 // To link mentee_id to unique_user_no
-                fetch('/api/achievement')              // For achievement count
-            ]);
-
-            // Check all responses
-            if (!viewRes.ok) throw new Error(`Mentee View fetch failed: ${viewRes.status}`);
-            if (!usersRes.ok) throw new Error(`Users fetch failed: ${usersRes.status}`);
-            if (!menteeRes.ok) throw new Error(`Mentee fetch failed: ${menteeRes.status}`);
-            if (!achievementRes.ok) throw new Error(`Achievement fetch failed: ${achievementRes.status}`);
-
-            const menteeViews = await viewRes.json();
-            const users = await usersRes.json();
-            const mentees = await menteeRes.json();
-            const achievements = await achievementRes.json();
-
-            if (!menteeViews || menteeViews.length === 0) {
-                menteeList.innerHTML = '<p>No mentees found.</p>';
-                return;
-            }
-
-            // --- Data Processing ---
-            // Create lookup maps for efficient data combination
-            const userMap = new Map(users.map(u => [u.unique_user_no, u])); // Map unique_user_no to user object
-            // Combine mentee info (including mentor_id) with user info
-            const menteeDataMap = new Map(mentees.map(m => [m.mentee_id, { ...m, user: userMap.get(m.unique_user_no) }]));
-            const achievementCounts = achievements.reduce((acc, ach) => {
-                acc[ach.mentee_id] = (acc[ach.mentee_id] || 0) + 1;
-                return acc;
-            }, {}); // Map mentee_id to achievement count
-
-
-            // --- Filtering based on logged-in mentor ---
-            const mentorId = this.currentUser.mentor_id; // Get mentor_id from logged-in user
-            if (mentorId === undefined) {
-                 console.error("Mentor ID not found in currentUser object:", this.currentUser);
-                 menteeList.innerHTML = '<p class="text-danger">Could not identify the current mentor. Unable to load mentees.</p>';
-                 return;
-            }
-
-            const filteredMenteeViews = menteeViews.filter(menteeView => {
-                const menteeData = menteeDataMap.get(menteeView.mentee_id);
-                return menteeData && menteeData.mentor_id === mentorId;
-            });
-
-             if (filteredMenteeViews.length === 0) {
-                menteeList.innerHTML = '<p>You currently have no assigned mentees.</p>';
-                return;
-            }
-
-            // --- Rendering ---
-            menteeList.innerHTML = filteredMenteeViews.map(menteeView => {
-                const menteeData = menteeDataMap.get(menteeView.mentee_id); // Includes user info now
-                const user = menteeData ? menteeData.user : null;
-                const achievementCount = achievementCounts[menteeView.mentee_id] || 0;
-                const prn = user ? user.prn_id : 'N/A';
-                // Prefer official_mail_id for name if available, fallback to mentee_email from view
-                const displayName = user ? user.official_mail_id.split('@')[0] : menteeView.mentee_email.split('@')[0];
-
-                return `
-                    <div class="mentee-card card" data-mentee-id="${menteeView.mentee_id}" data-user-no="${uniqueUserNo || ''}">
-                        <div class="mentee-header">
-                            <div class="mentee-avatar"><i class="fas fa-user-graduate fa-2x"></i></div>
-                            <div class="mentee-info">
-                                {/* Display name derived from user data */}
-                                <h3>${displayName}</h3>
-                                {/* Using columns from mentee_academic_view */}
-                                <p>${menteeView.course || 'N/A'} - Year ${menteeView.year || 'N/A'}</p>
-                                <div class="mentee-badges">
-                                    {/* Using attendance from mentee_academic_view */}
-                                    <span class="badge ${this.getStatusClass(menteeView.attendance || 0)}">
-                                        ${this.getAttendanceStatus(menteeView.attendance || 0)}
-                                    </span>
-                                    {/* Displaying PRN from user data */}
-                                    <span class="badge badge-info">PRN: ${prn}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mentee-body">
-                            <div class="mentee-stat">
-                                <span>Attendance</span>
-                                <div class="progress-bar-container">
-                                    {/* Using attendance from mentee_academic_view */}
-                                    <div class="progress-bar" style="width: ${menteeView.attendance || 0}%"></div>
-                                </div>
-                                <span>${menteeView.attendance || 0}%</span>
-                            </div>
-                            {/* Displaying achievement count */}
-                            <div class="mentee-achievements">Achievements: ${achievementCount}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            // Add event listeners AFTER rendering the list
-            this.addMenteeCardListeners();
-
-        } catch (error) {
-            console.error('Error fetching mentee list:', error);
-            menteeList.innerHTML = '<p class="text-danger">Could not load mentee list. Please try again later.</p>';
-        }
-    }
-
-    addMenteeCardListeners() {
-        const menteeCards = document.querySelectorAll('#mentee-list .mentee-card');
-        menteeCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const menteeId = card.dataset.menteeId;
-                if (menteeId) {
-                    this.showMenteeDetails(menteeId);
-                } else {
-                    console.error("Mentee ID not found on card:", card);
-                }
-            });
-            // Add hover effect or cursor pointer if needed via CSS or JS
-            card.style.cursor = 'pointer';
         });
     }
 
-    async showMenteeDetails(menteeId) {
-        console.log(`Showing details for mentee ID: ${menteeId}`);
-        const modalBody = document.getElementById('modalMenteeBody');
-        const modalName = document.getElementById('modalMenteeName');
-        const modalAchievements = document.getElementById('modalMenteeAchievements');
-        const addAchievementBtn = document.getElementById('addAchievementBtn');
-        const achievementMenteeIdField = document.getElementById('achievementMenteeId'); // Get hidden field
+    switchTab(tabId) {
+        // Update active nav item
+        document.querySelectorAll('.sidebar-nav li').forEach(item => {
+            item.classList.toggle('active', item.getAttribute('data-tab') === tabId);
+        });
 
-        // Set loading states
-        modalName.textContent = 'Loading...';
-        modalBody.innerHTML = '<p>Loading details...</p>';
-        modalAchievements.innerHTML = '<p>Loading achievements...</p>';
-        addAchievementBtn.onclick = null; // Clear previous listener
-        achievementMenteeIdField.value = menteeId; // Store menteeId for the achievement form
-
-        try {
-            // Fetch mentee academic details, user details, and mentee record in parallel
-            // Assuming API endpoints like /api/mentee_academics/:id and /api/mentee/:id exist
-            // If not, adjust fetch URLs or fetch all and filter client-side (less efficient)
-            const [academicRes, userRes, menteeRes] = await Promise.all([
-                fetch(`/api/mentee_academics/${menteeId}`), // Fetch specific academic record
-                fetch(`/api/users`), // Fetch all users to find the specific one
-                fetch(`/api/mentee/${menteeId}`) // Fetch specific mentee record
-            ]);
-
-            // Check responses carefully
-            if (!academicRes.ok && academicRes.status !== 404) throw new Error(`Academic details fetch failed: ${academicRes.status}`);
-            if (!userRes.ok) throw new Error(`Users fetch failed: ${userRes.status}`);
-            if (!menteeRes.ok && menteeRes.status !== 404) throw new Error(`Mentee record fetch failed: ${menteeRes.status}`);
-
-            const academicData = academicRes.status !== 404 ? await academicRes.json() : null; // Handle potential 404
-            const users = await userRes.json();
-            const menteeData = menteeRes.status !== 404 ? await menteeRes.json() : null; // Handle potential 404
-
-            if (!menteeData) throw new Error(`Mentee record not found for ID: ${menteeId}`);
-
-            // Find the specific user associated with this mentee
-            const user = users.find(u => u.unique_user_no === menteeData.unique_user_no);
-
-            if (!user) throw new Error(`User not found for mentee ID: ${menteeId} (unique_user_no: ${menteeData.unique_user_no})`);
-
-            const displayName = user.official_mail_id.split('@')[0];
-            modalName.textContent = `Details for ${displayName}`;
-
-            // Populate modal body - Use data safely, checking if academicData exists
-            modalBody.innerHTML = `
-                <p><strong>Email:</strong> ${user.official_mail_id}</p>
-                <p><strong>PRN ID:</strong> ${user.prn_id}</p>
-                <p><strong>Phone:</strong> ${user.phone_num || 'N/A'}</p>
-                <hr>
-                <h4>Academic Information</h4>
-                ${academicData ? `
-                    <p><strong>Course:</strong> ${academicData.course || 'N/A'}</p>
-                    <p><strong>Year:</strong> ${academicData.year || 'N/A'}</p>
-                    <p><strong>Attendance:</strong> ${academicData.attendance !== null ? academicData.attendance + '%' : 'N/A'}</p>
-                    <p><strong>Academic Context:</strong> ${academicData.academic_context || 'N/A'}</p>
-                    <p><strong>Academic Background:</strong></p>
-                    <p>${academicData.academic_background || 'N/A'}</p>
-                ` : '<p>No academic details found.</p>'}
-            `;
-
-            // Setup "Add Achievement" button listener for this specific mentee
-            addAchievementBtn.onclick = () => this.showAddAchievementForm(menteeId);
-
-            // Load achievements
-            this.loadAchievements(menteeId);
-
-            // Open the modal
-            this.openModal('menteeDetailModal');
-
-        } catch (error) {
-            console.error('Error fetching mentee details:', error);
-            modalName.textContent = 'Error';
-            modalBody.innerHTML = `<p class="text-danger">Could not load mentee details: ${error.message}</p>`;
-            modalAchievements.innerHTML = ''; // Clear achievements section on error
-            this.openModal('menteeDetailModal'); // Still open modal to show error
-        }
+        // Update active section
+        document.querySelectorAll('.dashboard-section').forEach(section => {
+            section.classList.toggle('active', section.id === tabId);
+        });
     }
-
-    async loadAchievements(menteeId) {
-        const achievementsContainer = document.getElementById('modalMenteeAchievements');
-        achievementsContainer.innerHTML = '<p>Loading achievements...</p>';
-
-        try {
-            // Assuming the backend API supports filtering achievements by mentee_id
-            const response = await fetch(`/api/achievement?mentee_id=${menteeId}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const achievements = await response.json();
-
-            if (!achievements || achievements.length === 0) {
-                achievementsContainer.innerHTML = '<p>No achievements recorded yet.</p>';
-                return;
-            }
-
-            // Render achievements with Edit and Delete buttons
-            achievementsContainer.innerHTML = achievements.map(ach => `
-                <div class="achievement-item" data-achievement-id="${ach.achvmt_id}">
-                    <div class="achievement-details">
-                        <strong>${ach.title || 'N/A'}</strong> (${ach.date_awarded ? new Date(ach.date_awarded).toLocaleDateString() : 'N/A'})
-                        <p>${ach.description || 'No description'}</p>
-                        ${ach.badge_icon ? `<p><small>Badge: ${ach.badge_icon}</small></p>` : ''}
-                    </div>
-                    <div class="achievement-actions">
-                        <button class="btn-secondary btn-sm edit-achievement">Edit</button>
-                        <button class="btn-danger btn-sm delete-achievement">Delete</button>
-                    </div>
-                </div>
-            `).join('');
-
-        } catch (error) {
-            console.error('Error fetching achievements:', error);
-            achievementsContainer.innerHTML = '<p class="text-danger">Could not load achievements.</p>';
-        }
-    }
-
-    showAddAchievementForm(menteeId, achievementToEdit = null) {
-        const form = document.getElementById('addAchievementForm');
-        const menteeIdField = document.getElementById('achievementMenteeId');
-        const achievementIdField = document.getElementById('achievementIdToEdit');
-        const titleField = document.getElementById('achievementTitle');
-        const descriptionField = document.getElementById('achievementDescription');
-        const dateField = document.getElementById('achievementDate');
-        const badgeIconField = document.getElementById('achievementBadgeIcon');
-
-        menteeIdField.value = menteeId; // Ensure mentee ID is set
-
-        if (achievementToEdit) {
-            // Populate form for editing
-            achievementIdField.value = achievementToEdit.achvmt_id;
-            titleField.value = achievementToEdit.title || '';
-            descriptionField.value = achievementToEdit.description || '';
-            // Format date correctly for input type="date" (YYYY-MM-DD)
-            dateField.value = achievementToEdit.date_awarded ? new Date(achievementToEdit.date_awarded).toISOString().split('T')[0] : '';
-            badgeIconField.value = achievementToEdit.badge_icon || '';
-            form.querySelector('h4').textContent = 'Edit Achievement'; // Change form title
-        } else {
-            // Clear form for adding new
-            achievementIdField.value = '';
-            titleField.value = '';
-            descriptionField.value = '';
-            dateField.value = '';
-            badgeIconField.value = '';
-            form.querySelector('h4').textContent = 'New Achievement'; // Reset form title
-        }
-
-        form.style.display = 'block'; // Show the form
-    }
-
-    async saveAchievement() {
-        const menteeId = document.getElementById('achievementMenteeId').value;
-        const achievementId = document.getElementById('achievementIdToEdit').value;
-        const title = document.getElementById('achievementTitle').value;
-        const description = document.getElementById('achievementDescription').value;
-        const date_awarded = document.getElementById('achievementDate').value;
-        const badge_icon = document.getElementById('achievementBadgeIcon').value;
-        const mentorId = this.currentUser.mentor_id; // Get mentor ID from logged-in user
-
-        if (!title || !description || !date_awarded || !menteeId) {
-            alert('Mentee ID, Title, Description, and Date Awarded are required.');
-            return;
-        }
-         if (mentorId === undefined) {
-             alert('Error: Could not identify the current mentor. Cannot save achievement.');
-             return;
-         }
-
-
-        const achievementData = {
-            mentor_id: mentorId, // Associate with the current mentor
-            mentee_id: parseInt(menteeId, 10),
-            title,
-            description,
-            date_awarded,
-            badge_icon: badge_icon || null // Send null if empty
-        };
-
-        const isEditing = !!achievementId;
-        // Assuming backend routes like /api/achievement/:id for PUT/DELETE
-        const url = isEditing ? `/api/achievement/${achievementId}` : '/api/achievement';
-        const method = isEditing ? 'PUT' : 'POST';
-
-        try {
-            const response = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(achievementData)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ message: 'Unknown error saving achievement.' }));
-                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-            }
-
-            alert(`Achievement ${isEditing ? 'updated' : 'added'} successfully!`);
-            this.hideAchievementForm(); // Hide form on success
-            this.loadAchievements(menteeId); // Reload achievements in the modal
-            this.renderMenteeList(); // Also refresh the main mentee list to update counts
-
-        } catch (error) {
-            console.error('Error saving achievement:', error);
-            alert(`Error saving achievement: ${error.message}`);
-        }
-    }
-
-    async deleteAchievement(achievementId, menteeId) {
-        if (!confirm('Are you sure you want to delete this achievement?')) {
-            return;
-        }
-
-        try {
-            // Assuming backend route /api/achievement/:id for DELETE
-            const response = await fetch(`/api/achievement/${achievementId}`, {
-                method: 'DELETE'
-            });
-
-            if (!response.ok) {
-                 const errorData = await response.json().catch(() => ({ message: 'Unknown error deleting achievement.' }));
-                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-            }
-
-            alert('Achievement deleted successfully!');
-            this.loadAchievements(menteeId); // Reload achievements in the modal
-            this.renderMenteeList(); // Refresh main list to update counts
-
-        } catch (error) {
-            console.error('Error deleting achievement:', error);
-            alert(`Error deleting achievement: ${error.message}`);
-        }
-    }
-
-    async renderTaskList() { // Make the function async
-        const taskList = document.getElementById('task-list');
-        taskList.innerHTML = '<p>Loading tasks...</p>'; // Show loading state
-
-        try {
-            // Fetch data from the communication table
-            const response = await fetch('/api/communication');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            let communications = await response.json();
-
-            // --- Filtering based on logged-in mentor ---
-            const mentorUserId = this.currentUser.id; // Get user ID (unique_user_no) from logged-in user
-             if (mentorUserId === undefined) {
-                 console.error("Mentor User ID not found in currentUser object:", this.currentUser);
-                 taskList.innerHTML = '<p class="text-danger">Could not identify the current mentor. Unable to load tasks.</p>';
-                 return;
-            }
-
-            // Filter communications where the mentor is either the sender or receiver
-            communications = communications.filter(comm =>
-                comm.sender_id === mentorUserId || comm.receiver_id === mentorUserId
-            );
-
-
-            if (!communications || communications.length === 0) {
-                taskList.innerHTML = '<p>No relevant communications found.</p>'; // Updated message
-                return;
-            }
-
-            // Map over the filtered communication data
-            // NOTE: Mapping communication status ('sent', 'delivered', 'read') to task status ('Pending', 'In Progress', 'Completed') is an approximation.
-            taskList.innerHTML = communications.map(comm => {
-                // Simple status mapping: 'read' -> 'Completed', others -> 'Pending'
-                // A more complex mapping or a dedicated status field might be needed.
-                const taskStatus = comm.message_status === 'read' ? 'Completed' : 'Pending';
-
-                return `
-                    <div class="task-card" data-comm-id="${comm.comm_id}">
-                        {/* Using message_content from communication table */}
-                        <h4>${comm.message_content || 'N/A'}</h4>
-                        {/* Using timestamp from communication table */}
-                        <p>Time: ${new Date(comm.timestamp).toLocaleString() || 'N/A'}</p>
-                        {/* Using mapped status */}
-                        <span class="badge ${this.getTaskStatusClass(taskStatus)}">${taskStatus}</span>
-                    </div>
-                `;
-            }).join('');
-
-        } catch (error) {
-            console.error('Error fetching communication list:', error); // Updated error message
-            taskList.innerHTML = '<p class="text-danger">Could not load communications. Please try again later.</p>'; // Updated error message
-        }
-    }
-
-    // Separate listener setup for modal elements
-    setupModalEventListeners() {
-        const modal = document.getElementById('menteeDetailModal');
-        if (!modal) return;
-
-        // Close button inside modal
-        const closeBtn = modal.querySelector('.close-button');
-        if (closeBtn) {
-            // Check if listener already exists to avoid duplicates if init runs multiple times
-            if (!closeBtn.dataset.listenerAttached) {
-                closeBtn.addEventListener('click', () => this.closeModal('menteeDetailModal'));
-                closeBtn.dataset.listenerAttached = 'true';
-            }
-        }
-
-        // Add Achievement button (listener added dynamically in showMenteeDetails)
-
-        // Save Achievement button
-        const saveBtn = document.getElementById('saveAchievementBtn');
-        if (saveBtn && !saveBtn.dataset.listenerAttached) {
-            saveBtn.addEventListener('click', () => this.saveAchievement());
-            saveBtn.dataset.listenerAttached = 'true';
-        }
-
-        // Cancel Achievement button (in the form)
-        const cancelBtn = document.getElementById('addAchievementForm').querySelector('.btn-secondary');
-         if (cancelBtn && !cancelBtn.dataset.listenerAttached) {
-            cancelBtn.addEventListener('click', () => this.hideAchievementForm());
-            cancelBtn.dataset.listenerAttached = 'true';
-        }
-
-
-        // Event delegation for Edit/Delete achievement buttons
-        const achievementsContainer = document.getElementById('modalMenteeAchievements');
-        if (achievementsContainer && !achievementsContainer.dataset.listenerAttached) {
-            achievementsContainer.addEventListener('click', async (event) => {
-                const target = event.target;
-                const achievementItem = target.closest('.achievement-item');
-                if (!achievementItem) return;
-
-                const achievementId = achievementItem.dataset.achievementId;
-                // Get current mentee ID from the hidden field within the modal
-                const menteeId = document.getElementById('achievementMenteeId').value;
-
-                if (!menteeId) {
-                    console.error("Mentee ID not found in modal context for achievement action.");
-                    return;
-                }
-
-
-                if (target.classList.contains('edit-achievement')) {
-                    // Fetch the specific achievement data again to ensure freshness
-                    try {
-                        // Assuming an endpoint like /api/achievement/:id exists
-                        const res = await fetch(`/api/achievement/${achievementId}`);
-                        if (!res.ok) throw new Error(`Could not fetch achievement details for editing. Status: ${res.status}`);
-                        const achievementData = await res.json();
-                        // Pass the menteeId along with the achievement data
-                        this.showAddAchievementForm(menteeId, achievementData);
-                    } catch (error) {
-                        console.error("Error fetching achievement for edit:", error);
-                        alert(`Could not load achievement details for editing: ${error.message}`);
-                    }
-                } else if (target.classList.contains('delete-achievement')) {
-                    this.deleteAchievement(achievementId, menteeId);
-                }
-            });
-             achievementsContainer.dataset.listenerAttached = 'true';
-        }
-
-
-        // Close modal if clicking outside the content (on the backdrop)
-        // Ensure this listener is added only once
-        if (!modal.dataset.backdropListenerAttached) {
-            modal.addEventListener('click', (event) => {
-                // Check if the click is directly on the modal backdrop itself
-                if (event.target === modal) {
-                    this.closeModal('menteeDetailModal');
-                }
-            });
-            modal.dataset.backdropListenerAttached = 'true';
-        }
-    }
-
 
     setupEventListeners() {
-        // Existing listeners...
-        const menteeFilter = document.getElementById('mentee-filter');
-        if (menteeFilter) {
-            menteeFilter.addEventListener('change', () => {
-                // Future implementation for filtering
-                console.log('Mentee filter changed');
-            });
-        }
-
-        const addMenteeBtn = document.getElementById('add-mentee');
+        // Add mentee button
+        const addMenteeBtn = document.getElementById('add-mentee-btn');
         if (addMenteeBtn) {
-            addMenteeBtn.addEventListener('click', async () => {
-                const uniqueUserNo = prompt("Enter unique user number:");
-                const mentorId = prompt("Enter mentor ID:");
-                if (!uniqueUserNo || !mentorId) return; // Handle cancel or empty input
-
-                try {
-                    const response = await fetch('/api/mentee', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ unique_user_no: uniqueUserNo, mentor_id: mentorId })
-                }); // Added semicolon
-
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(`Error creating mentee: ${errorData.message}`);
-                    }
-
-                    const data = await response.json();
-                    alert(`Mentee created successfully! ID: ${data.insertId}`);
-                    this.renderMenteeList(); // Refresh the mentee list
-
-                } catch (error) {
-                    alert(`Error creating mentee: ${error.message}`);
+            addMenteeBtn.addEventListener('click', () => this.openAddMenteeModal());
+        }
+        
+        // Confirm add mentee button
+        const confirmAddMenteeBtn = document.getElementById('confirm-add-mentee-btn');
+        if (confirmAddMenteeBtn) {
+            confirmAddMenteeBtn.addEventListener('click', () => this.handleAddMentee());
+        }
+        
+        // Cancel remove mentee button
+        const cancelRemoveMenteeBtn = document.getElementById('cancel-remove-mentee-btn');
+        if (cancelRemoveMenteeBtn) {
+            cancelRemoveMenteeBtn.addEventListener('click', () => this.closeModal('remove-mentee-modal'));
+        }
+        
+        // Confirm remove mentee button
+        const confirmRemoveMenteeBtn = document.getElementById('confirm-remove-mentee-btn');
+        if (confirmRemoveMenteeBtn) {
+            confirmRemoveMenteeBtn.addEventListener('click', () => this.handleRemoveMentee());
+        }
+        
+        // Mentee search input
+        const menteeSearchInput = document.getElementById('mentee-search');
+        if (menteeSearchInput) {
+            menteeSearchInput.addEventListener('input', (e) => this.filterMentees(e.target.value));
+        }
+        
+        // Send message button
+        const sendMessageBtn = document.getElementById('send-message-btn');
+        if (sendMessageBtn) {
+            sendMessageBtn.addEventListener('click', () => {
+                const messageInput = document.getElementById('message-input');
+                if (messageInput && messageInput.value.trim()) {
+                    this.sendMessage(messageInput.value.trim());
+                    this.closeModal('message-modal');
                 }
             });
         }
-
-        const createTaskBtn = document.getElementById('create-task');
-        if (createTaskBtn) {
-            createTaskBtn.addEventListener('click', async () => { // Make async
-                const menteeUserNo = prompt("Enter the unique user number of the mentee to assign the task:");
-                const taskContent = prompt("Enter the task description:");
-
-                if (!menteeUserNo || !taskContent) {
-                    alert("Mentee user number and task description are required.");
-                    return; // Exit if user cancels or provides no input
-                }
-
-                const senderId = this.currentUser.id; // Mentor's user ID
-
-                // Basic validation (can be improved)
-                if (!senderId) {
-                    alert("Error: Could not identify the sender (mentor). Please log in again.");
-                    return;
-                }
-
-                // Find the receiver's user ID (mentee's user ID) - assuming menteeUserNo is the unique_user_no
-                // In a real app, you'd likely fetch users or have them cached to validate menteeUserNo exists
-                const receiverId = parseInt(menteeUserNo, 10); // Assuming the input is the user ID directly
-                if (isNaN(receiverId)) {
-                    alert("Invalid mentee user number provided.");
-                    return;
-                }
-
-
-                try {
-                    const response = await fetch('/api/communication', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            sender_id: senderId,
-                            receiver_id: receiverId,
-                            message_content: taskContent,
-                            message_status: 'sent', // Or 'delivered' depending on logic
-                            type: 'task' // Indicate this is a task assignment
-                        })
+        
+        // Schedule meeting button
+        const scheduleBtn = document.getElementById('schedule-meeting-btn');
+        if (scheduleBtn) {
+            scheduleBtn.addEventListener('click', () => {
+                const dateInput = document.getElementById('meeting-date');
+                const timeInput = document.getElementById('meeting-time');
+                
+                if (dateInput && timeInput && dateInput.value && timeInput.value) {
+                    this.scheduleMeeting({
+                        menteeId: this.selectedMenteeId,
+                        date: dateInput.value,
+                        time: timeInput.value
                     });
-
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({ message: 'Unknown error' })); // Handle non-JSON error response
-                        throw new Error(`Error creating task: ${errorData.message || response.statusText}`);
-                    }
-
-                    const data = await response.json();
-                    alert(`Task created successfully! Communication ID: ${data.insertId}`);
-                    this.renderTaskList(); // Refresh the task list
-
-                } catch (error) {
-                    console.error('Error creating task:', error);
-                    alert(`Error creating task: ${error.message}`);
+                    this.closeModal('schedule-meeting-modal');
+                } else {
+                    this.showNotification('Please fill in all required fields', 'warning');
                 }
             });
         }
     }
-
-    getStatusClass(attendance) {
-        if (attendance >= 90) return 'badge-success';
-        if (attendance >= 80) return 'badge-info';
-        if (attendance >= 70) return 'badge-warning';
-        return 'badge-danger';
+    
+    sendMessage(message) {
+        if (!message || !this.selectedMenteeId) {
+            this.showNotification('Cannot send message: Missing message or recipient', 'error');
+            return;
+        }
+        
+        try {
+            // In a real implementation, this would send the message to the server
+            console.log(`Sending message to mentee ${this.selectedMenteeId}: ${message}`);
+            this.showNotification('Message sent successfully', 'success');
+            
+            // Clear message input
+            const messageInput = document.getElementById('message-input');
+            if (messageInput) {
+                messageInput.value = '';
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+            this.showNotification('Failed to send message', 'error');
+        }
     }
-
-    getAttendanceStatus(attendance) {
-        if (attendance >= 90) return 'Excellent';
-        if (attendance >= 80) return 'Good';
-        if (attendance >= 70) return 'Average';
-        return 'Needs Improvement';
-    }
-
-    getTaskStatusClass(status) {
-        switch (status) {
-            case 'Completed': return 'badge-success';
-            case 'In Progress': return 'badge-info';
-            case 'Pending': return 'badge-warning';
-            default: return 'badge-secondary';
+    
+    scheduleMeeting(meetingData) {
+        if (!meetingData || !meetingData.menteeId) {
+            this.showNotification('Cannot schedule meeting: Missing mentee information', 'error');
+            return;
+        }
+        
+        try {
+            // In a real implementation, this would send the data to the server
+            console.log('Scheduling meeting:', meetingData);
+            this.showNotification(`Meeting scheduled with mentee on ${meetingData.date} at ${meetingData.time}`, 'success');
+        } catch (error) {
+            console.error('Error scheduling meeting:', error);
+            this.showNotification('Failed to schedule meeting', 'error');
         }
     }
 
-    // Removed static init method
+    async loadMessages() {
+        try {
+            this.messages = await this.api.getMessages(this.currentUser.mentor_id);
+            this.renderMessages();
+        } catch (error) {
+            console.error('Error loading messages:', error);
+            this.showNotification('Failed to load messages', 'error');
+        }
+    }
+
+    async loadBroadcastMessages() {
+        try {
+            this.broadcastMessages = await this.api.getBroadcastMessages(this.currentUser.mentor_id);
+            this.renderBroadcastMessages();
+        } catch (error) {
+            console.error('Error loading broadcast messages:', error);
+            this.showNotification('Failed to load broadcast messages', 'error');
+        }
+    }
+
+    async loadAchievements() {
+        try {
+            this.achievements = await this.api.getAchievements(this.currentUser.mentor_id);
+            this.renderAchievements();
+        } catch (error) {
+            console.error('Error loading achievements:', error);
+            this.showNotification('Failed to load achievements', 'error');
+        }
+    }
+
+    async loadActivityLogs() {
+        try {
+            this.activityLogs = await this.api.getActivityLogs(this.currentUser.mentor_id);
+            this.renderActivityLogs();
+        } catch (error) {
+            console.error('Error loading activity logs:', error);
+            this.showNotification('Failed to load activity logs', 'error');
+        }
+    }
+
+    renderMessages() {
+        const messagesContainer = document.getElementById('messages-list');
+        if (!messagesContainer) return;
+
+        messagesContainer.innerHTML = this.messages.map(message => `
+            <div class="message-card ${message.sender_id === this.currentUser.mentor_id ? 'sent' : 'received'}">
+                <div class="message-header">
+                    <span class="sender-name">${message.sender_name}</span>
+                    <span class="timestamp">${new Date(message.timestamp).toLocaleString()}</span>
+                </div>
+                <div class="message-content">${message.message}</div>
+            </div>
+        `).join('');
+    }
+
+    renderBroadcastMessages() {
+        const broadcastContainer = document.getElementById('broadcast-messages-list');
+        if (!broadcastContainer) return;
+
+        broadcastContainer.innerHTML = this.broadcastMessages.map(message => `
+            <div class="broadcast-message-card">
+                <div class="message-header">
+                    <span class="timestamp">${new Date(message.timestamp).toLocaleString()}</span>
+                </div>
+                <div class="message-content">${message.message}</div>
+            </div>
+        `).join('');
+    }
+
+    renderAchievements() {
+        const achievementsContainer = document.getElementById('achievements-list');
+        if (!achievementsContainer) return;
+
+        achievementsContainer.innerHTML = this.achievements.map(achievement => `
+            <div class="achievement-card">
+                <div class="achievement-header">
+                    <h3>${achievement.title}</h3>
+                    <span class="mentee-name">${achievement.mentee_name}</span>
+                </div>
+                <div class="achievement-content">
+                    <p>${achievement.description}</p>
+                    <p class="date">Submitted: ${new Date(achievement.date_submitted).toLocaleDateString()}</p>
+                    <p class="status ${achievement.status}">Status: ${achievement.status}</p>
+                </div>
+                ${achievement.status === 'pending' ? `
+                    <div class="achievement-actions">
+                        <button class="action-btn approve-achievement" data-achievement-id="${achievement.achievement_id}">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                        <button class="action-btn reject-achievement" data-achievement-id="${achievement.achievement_id}">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                ` : ''}
+            </div>
+        `).join('');
+
+        this.addAchievementActionListeners();
+    }
+
+    renderActivityLogs() {
+        const logsContainer = document.getElementById('activity-logs-list');
+        if (!logsContainer) return;
+
+        logsContainer.innerHTML = this.activityLogs.map(log => `
+            <div class="activity-log-card">
+                <div class="log-header">
+                    <span class="mentee-name">${log.mentee_name}</span>
+                    <span class="timestamp">${new Date(log.timestamp).toLocaleString()}</span>
+                </div>
+                <div class="log-content">
+                    <p class="activity-type">${log.activity_type}</p>
+                    <p>${log.description}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async approveAchievement(achievementId) {
+        try {
+            const remarks = prompt('Enter your remarks for this achievement:');
+            if (!remarks) return;
+
+            await this.api.approveAchievement(achievementId, remarks);
+            this.showNotification('Achievement approved successfully', 'success');
+            await this.loadAchievements();
+        } catch (error) {
+            console.error('Error approving achievement:', error);
+            this.showNotification('Failed to approve achievement', 'error');
+        }
+    }
+
+    addAchievementActionListeners() {
+        document.querySelectorAll('.approve-achievement').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const achievementId = e.target.closest('.approve-achievement').dataset.achievementId;
+                this.approveAchievement(achievementId);
+            });
+        });
+
+        document.querySelectorAll('.reject-achievement').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const achievementId = e.target.closest('.reject-achievement').dataset.achievementId;
+                this.rejectAchievement(achievementId);
+            });
+        });
+    }
 }
 
-// Make modal close/hide functions globally accessible if called directly from HTML onclick
-// Need to ensure the instance is available
-let mentorDashboardInstance = null;
-
-window.closeModal = (modalId) => {
-    if (mentorDashboardInstance) {
-        mentorDashboardInstance.closeModal(modalId);
-    } else {
-        console.error("MentorDashboard instance not available for closeModal");
-    }
-};
-window.hideAchievementForm = () => {
-     if (mentorDashboardInstance) {
-        mentorDashboardInstance.hideAchievementForm();
-    } else {
-         console.error("MentorDashboard instance not available for hideAchievementForm");
-     }
-};
-
-
+// Initialize the dashboard when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Create and store the instance
-    mentorDashboardInstance = new MentorDashboard();
-    // Ensure UserManager is loaded and available if needed by constructor
-    if (typeof UserManager === 'undefined') {
-         console.error("UserManager is not defined. Cannot initialize MentorDashboard correctly.");
-         // Optionally display an error to the user on the page
-    }
+    const dashboard = new MentorDashboard();
 });
