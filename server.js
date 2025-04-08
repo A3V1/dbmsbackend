@@ -6,6 +6,10 @@ const path = require('path');
 const genericCrudRouter = require('./routes/genericcrud'); // Import router
 const mentorRouter = require('./routes/mentor'); // Import mentor router
 const usersRouter = require('./routes/users'); // Import the new users router
+const alertsRouter = require('./routes/alerts'); // Import the alerts router
+const commviewRouter = require('./routes/commview'); // Import the communication view router
+const activityRouter = require('./routes/activity');
+const achievementRouter = require('./routes/achievement');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -62,6 +66,17 @@ app.use('/api/users', usersRouter);
 
 // Mount the mentor-specific router
 app.use('/api/mentor', mentorRouter);
+
+// Mount the alerts router specifically
+app.use('/api/alerts', alertsRouter);
+
+app.use('/api/commview', commviewRouter);
+
+app.use('/api/activity', activityRouter);
+
+app.use('/api/achievement', achievementRouter);
+
+
 
 // Mount the generic router under /api/:tableName
 // validateTableName middleware runs first for these routes

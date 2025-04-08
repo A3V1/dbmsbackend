@@ -679,6 +679,44 @@ router.patch('/phone/:id', async (req, res) => {
     }
 });
 
+// --- Count Endpoints ---
+
+// GET /api/users/count/total - Get total user count
+router.get('/count/total', async (req, res) => {
+    try {
+        const [result] = await db.query('SELECT COUNT(*) as count FROM users');
+        res.status(200).json(result[0]); // { count: N }
+    } catch (error) {
+        console.error('Error fetching total user count:', error);
+        res.status(500).json({ message: 'Error fetching total user count' });
+    }
+});
+
+// GET /api/users/count/mentors - Get mentor count
+router.get('/count/mentors', async (req, res) => {
+    try {
+        const [result] = await db.query("SELECT COUNT(*) as count FROM users WHERE role = 'mentor'");
+        res.status(200).json(result[0]); // { count: N }
+    } catch (error) {
+        console.error('Error fetching mentor count:', error);
+        res.status(500).json({ message: 'Error fetching mentor count' });
+    }
+});
+
+// GET /api/users/count/mentees - Get mentee count
+router.get('/count/mentees', async (req, res) => {
+    try {
+        const [result] = await db.query("SELECT COUNT(*) as count FROM users WHERE role = 'mentee'");
+        res.status(200).json(result[0]); // { count: N }
+    } catch (error) {
+        console.error('Error fetching mentee count:', error);
+        res.status(500).json({ message: 'Error fetching mentee count' });
+    }
+});
+
+// --- End Count Endpoints ---
+
+
 // GET /api/users/debug/triggers - Check and fix database triggers
 router.get('/debug/triggers', async (req, res) => {
     let connection;
@@ -755,4 +793,4 @@ router.get('/debug/triggers', async (req, res) => {
 
 // Add other user-specific routes here (e.g., GET /:id, POST /, PUT /:id, DELETE /:id) if needed
 
-module.exports = router; 
+module.exports = router;

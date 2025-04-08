@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Include Chart.js for analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/alerts.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -367,6 +366,42 @@
         .mr-2 {
             margin-right: 8px;
         }
+
+        /* Prevent background scroll when modal is open */
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        /* Basic Toast Styling */
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            color: white;
+            font-size: 0.9rem;
+            z-index: 10000; /* Ensure it's above other elements */
+            opacity: 0;
+            transition: opacity 0.3s ease, bottom 0.3s ease;
+            pointer-events: none; /* Allow clicks through */
+        }
+        .toast-notification.show {
+            opacity: 1;
+            bottom: 30px; /* Slide up */
+            pointer-events: auto; /* Enable interaction */
+        }
+        .toast-notification.success {
+            background-color: #28a745; /* Green */
+        }
+        .toast-notification.error {
+            background-color: #dc3545; /* Red */
+        }
+        .toast-notification.info {
+            background-color: #17a2b8; /* Blue */
+        }
     </style>
 </head>
 <body>
@@ -404,10 +439,10 @@
                     </div>
                     <div class="stat-content">
                         <h3>Total Users</h3>
-                        <p id="totalUsers">0</p>
-                        <div class="stat-breakdown">
-                            <span id="activeUsers">0 Active</span>
-                            <span id="inactiveUsers">0 Inactive</span>
+                        <p id="totalUsers">0</p>   
+                        <div class="stat-breakdown">                              
+                            <span id="activeUsers">15 Active</span>
+                            <span id="inactiveUsers">10 Inactive</span>
                         </div>
                     </div>
                 </div>
@@ -417,7 +452,7 @@
                     </div>
                     <div class="stat-content">
                         <h3>Mentors</h3>
-                        <p id="totalMentors">0</p>
+                        <p id="totalMentors">0</p> 
                         <div class="stat-breakdown">
                             <span id="departmentCount">0 Departments</span>
                         </div>
@@ -429,9 +464,9 @@
                     </div>
                     <div class="stat-content">
                         <h3>Mentees</h3>
-                        <p id="totalMentees">0</p>
+                        <p id="totalMentees">0</p> 
                         <div class="stat-breakdown">
-                            <span id="averageAttendance">0% Avg. Attendance</span>
+                            <span id="averageAttendance">78% Avg. Attendance</span>
                         </div>
                     </div>
                 </div>
@@ -440,36 +475,16 @@
                         <i class="fas fa-exclamation-triangle"></i>
                     </div>
                     <div class="stat-content">
-                        <h3>Alerts</h3>
-                        <p id="pendingAlerts">0</p>
+                        <h3>Alerts Pending</h3>
+                        <p id="pendingAlerts">0</p>     
                         <div class="stat-breakdown">
-                            <span id="resolvedAlerts">0 Resolved</span>
+                            <span id="resolvedAlerts">2 Resolved</span>  
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="quick-actions-grid">
-                <button class="action-btn" onclick="location.href='users.html'">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Add New User</span>
-                </button>
-                <button class="action-btn" onclick="location.href='departments.html'">
-                    <i class="fas fa-building"></i>
-                    <span>Manage Departments</span>
-                </button>
-                <button class="action-btn" onclick="location.href='announcements.html'">
-                    <i class="fas fa-bullhorn"></i>
-                    <span>Send Announcement</span>
-                </button>
-                <button class="action-btn" onclick="location.href='reports.html'">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Generate Reports</span>
-                </button>
-            </div>
-        </div>
-    </div>
+        
 
     <!-- All Users Table -->
     <div class="container">
@@ -509,7 +524,10 @@
     <!-- Emergency Alerts Table -->
     <div class="container">
         <div class="table-container">
-            <h2 class="section-title"><i class="fas fa-exclamation-triangle"></i> Emergency Alerts</h2>
+             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                 <h2 class="section-title" style="margin: 0;"><i class="fas fa-exclamation-triangle"></i> Emergency Alerts</h2>
+                 <button class="btn btn-primary" onclick="addAlert()"><i class="fas fa-plus"></i> Add Alert</button>
+            </div>
             <div class="table-responsive">
                 <table id="emergencyAlertsTable">
                     <thead>
@@ -524,6 +542,105 @@
                     </thead>
                     <tbody id="emergencyAlertsTableBody">
                         <!-- Emergency alerts will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Communication View Table -->
+    <div class="container">
+        <div class="table-container">
+            <h2 class="section-title"><i class="fas fa-envelope"></i> Communication View</h2>
+            <div class="table-responsive">
+                <table id="communicationViewTable">
+                    <thead>
+                        <tr>
+                            <th>Sender Email</th>
+                            <th>Receiver Email</th>
+                            <th>Message Content</th>
+                            <th>Message Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="communicationViewTableBody">
+                        <!-- Communication rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Log Table -->
+    <div class="container">
+        <div class="table-container">
+            <h2 class="section-title"><i class="fas fa-history"></i> Activity Log</h2>
+            <div class="table-responsive">
+                <table id="activityLogTable">
+                    <thead>
+                        <tr>
+                            <th>Log ID</th>
+                            <th>User ID</th>
+                            <th>Log Time</th>
+                            <th>Activity</th>
+                            <th>IP Address</th>
+                            <th>Last Login</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activityLogTableBody">
+                        <!-- Activity log rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Table -->
+    <div class="container">
+        <div class="table-container">
+             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                 <h2 class="section-title" style="margin: 0;"><i class="fas fa-trophy"></i> Achievements</h2>
+                 <button class="btn btn-primary" onclick="addAchievement()"><i class="fas fa-plus"></i> Add Achievement</button>
+            </div>
+            <div class="table-responsive">
+                <table id="achievementsTable">
+                    <thead>
+                        <tr>
+                            <th>Achievement ID</th>
+                            <th>Mentor ID</th>
+                            <th>Mentee ID</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Date Awarded</th>
+                            <th>Badge Icon</th>
+                        </tr>
+                    </thead>
+                    <tbody id="achievementsTableBody">
+                        <!-- Achievements rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mentors Table -->
+    <div class="container">
+        <div class="table-container">
+            <h2 class="section-title"><i class="fas fa-chalkboard-teacher"></i> Mentors</h2>
+            <div class="table-responsive">
+                <table id="mentorsTable">
+                    <thead>
+                        <tr>
+                            <th>Mentor ID</th>
+                            <th>Unique User No</th>
+                            <th>Room No</th>
+                            <th>Timetable</th>
+                            <th>Department</th>
+                            <th>Academic Background</th>
+                            <th>Actions</th> {/* Added Actions Header */}
+                        </tr>
+                    </thead>
+                    <tbody id="mentorsTableBody">
+                        {/* Mentors rows will be populated by JavaScript */}
                     </tbody>
                 </table>
             </div>
@@ -669,555 +786,711 @@
     }
     updateAdminInfo();
 
-    
 
-    
-    // Explicitly call updateUsersTable when the page loads 
-    // and add debug logging
-    console.log('Attempting to fetch and update user table data...');
-    updateUsersTable().catch(error => {
-        console.error('Error in updateUsersTable:', error);
-    });
+    // --- Toast Notification Functions ---
+    let toastTimeout;
+    function showToast(message, type = 'info') { // types: info, success, error
+        const existingToast = document.getElementById('toast-notification');
+        if (existingToast) {
+            document.body.removeChild(existingToast);
+            clearTimeout(toastTimeout);
+        }
 
-    // Add function to update the users table
-    async function updateUsersTable() {
-        console.log('updateUsersTable function called');
+        const toast = document.createElement('div');
+        toast.id = 'toast-notification';
+        toast.className = `toast-notification ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        // Trigger reflow to enable transition
+        toast.offsetHeight; 
+
+        toast.classList.add('show');
+
+        // Auto-hide after 3 seconds
+        toastTimeout = setTimeout(() => {
+            hideToast();
+        }, 3000);
+    }
+
+    function hideToast() {
+        const toast = document.getElementById('toast-notification');
+        if (toast) {
+            toast.classList.remove('show');
+            // Remove from DOM after transition ends
+            toast.addEventListener('transitionend', () => {
+                 if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                 }
+            }, { once: true });
+        }
+        clearTimeout(toastTimeout);
+    }
+
+
+    // --- Helper Function for Fetching Data ---
+    async function fetchData(url, elementId, processDataFunc, errorMsg) {
+        const element = document.getElementById(elementId);
+        if (!element) {
+            console.error(`${errorMsg}: Element with ID '${elementId}' not found.`);
+            return;
+        }
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                 const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
+                 throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            processDataFunc(element, data);
+        } catch (error) {
+            console.error(`${errorMsg}:`, error);
+            if (element.tagName === 'TBODY') {
+                const colSpan = element.previousElementSibling?.rows?.[0]?.cells?.length || 1;
+                element.innerHTML = `<tr><td colspan="${colSpan}">${errorMsg}. ${error.message}</td></tr>`;
+            } else {
+                 element.textContent = 'Error'; // For stat cards
+            }
+        }
+    }
+
+    // --- Populate Stat Cards ---
+    function populateStatCards() {
+        console.log('Populating stat cards...');
+        // Total Users
+        fetchData('/api/users/count/total', 'totalUsers', (el, data) => el.textContent = data.count ?? 'N/A', 'Error fetching total users');
+        // Total Mentors
+        fetchData('/api/users/count/mentors', 'totalMentors', (el, data) => el.textContent = data.count ?? 'N/A', 'Error fetching mentors');
+        // Total Mentees
+        fetchData('/api/users/count/mentees', 'totalMentees', (el, data) => el.textContent = data.count ?? 'N/A', 'Error fetching mentees');
+        // Pending Alerts
+        fetchData('/api/alerts/count/pending', 'pendingAlerts', (el, data) => el.textContent = data.count ?? 'N/A', 'Error fetching pending alerts');
+        // TODO: Add fetches for other stats if needed (Active/Inactive Users, Departments, Avg Attendance, Resolved Alerts)
+        // These might require more specific backend endpoints. For now, keeping the static values.
+    }
+
+    // --- Populate Tables ---
+    function populateTables() {
+        console.log('Populating tables...');
+        // Users Table
+        populateUsersTable();
+        // Alerts Table
+        populateAlertsTable();
+        // Communication View Table - Enable Delete (assuming ID is comm_id and targets 'communication' table)
+        // NOTE: Deleting from a view might require specific backend logic if the generic handler doesn't suffice.
+        populateGenericTable('/api/communication_view', 'communicationViewTableBody', 4, ['sender_email', 'receiver_email', 'message_content', 'message_status'], 'Error fetching communication view', undefined, { delete: true, idColumn: 'comm_id', tableName: 'communication' });
+        // Activity Log Table - No actions
+        populateGenericTable('/api/activity_log', 'activityLogTableBody', 6, ['log_id', 'user_id', 'log_time', 'activity', 'ip_address', 'last_login'], 'Error fetching activity log', (log) => ({
+             ...log,
+             log_time: log.log_time ? new Date(log.log_time).toLocaleString() : 'N/A',
+             last_login: log.last_login ? new Date(log.last_login).toLocaleString() : 'N/A'
+        }), { delete: false }); // Explicitly disable delete for activity log
+        // Achievements Table - Enable Delete
+        populateGenericTable('/api/achievement', 'achievementsTableBody', 7, ['achvmt_id', 'mentor_id', 'mentee_id', 'title', 'description', 'date_awarded', 'badge_icon'], 'Error fetching achievements', (ach) => ({
+             ...ach,
+              date_awarded: ach.date_awarded ? new Date(ach.date_awarded).toLocaleDateString() : 'N/A',
+              badge_icon: `<img src="${ach.badge_icon || 'img/default-badge.svg'}" alt="Badge" style="width: 30px; height: 30px;">`
+         }), { delete: true, idColumn: 'achvmt_id', tableName: 'achievement' });
+        // Mentors Table - Enable Delete
+        populateGenericTable('/api/mentor', 'mentorsTableBody', 6, ['mentor_id', 'unique_user_no', 'room_no', 'timetable', 'department', 'academic_background'], 'Error fetching mentors', undefined, { delete: true, idColumn: 'mentor_id', tableName: 'mentor' });
+    }
+
+     // Generic Table Population Function (Updated with actions)
+    async function populateGenericTable(url, tableBodyId, colSpan, columns, errorMsg, dataFormatter = (d) => d, actions = { delete: false, idColumn: null, tableName: null }) {
+        const tableBody = document.getElementById(tableBodyId);
+        const tableHead = tableBody.previousElementSibling; // Get the thead
+        if (!tableBody || !tableHead) {
+            console.error(`${errorMsg}: Table body '${tableBodyId}' or head not found.`);
+             return;
+        }
+
+        // Adjust colspan based on whether actions are enabled
+        const actualColSpan = actions.delete ? colSpan + 1 : colSpan; // Add 1 for actions column if delete is true
+
+        // Add "Actions" header if delete is enabled and header doesn't already exist
+        const headerRow = tableHead.rows[0];
+        let actionsHeaderExists = false;
+        for (let i = 0; i < headerRow.cells.length; i++) {
+            if (headerRow.cells[i].textContent === 'Actions') {
+                actionsHeaderExists = true;
+                break;
+            }
+        }
+        if (actions.delete && !actionsHeaderExists) {
+             const th = document.createElement('th');
+             th.textContent = 'Actions';
+             headerRow.appendChild(th);
+        }
+
+        tableBody.innerHTML = `<tr><td colspan="${actualColSpan}"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>`; // Use adjusted colspan
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                 const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
+                 if (errorData.message && (errorData.message.includes('forbidden') || errorData.message.includes('not found'))) {
+                     throw new Error(`Endpoint ${url} not found or access forbidden.`);
+                 } else {
+                     tableBody.innerHTML = `<tr><td colspan="${actualColSpan}">No records found or error loading data.</td></tr>`;
+                     console.warn(`${errorMsg}: Response not OK (Status: ${response.status}), but not 403/404. Message: ${errorData.message}`);
+                     return;
+                 }
+            }
+            const data = await response.json();
+
+            if (!Array.isArray(data) || data.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="${actualColSpan}">No records found.</td></tr>`;
+                return;
+            }
+
+            tableBody.innerHTML = data.map(item => {
+                const formattedItem = dataFormatter(item);
+                let cells = columns.map(col => `<td>${formattedItem[col] !== null && formattedItem[col] !== undefined ? formattedItem[col] : 'N/A'}</td>`).join('');
+                // Add action cell if delete is enabled
+                if (actions.delete && actions.idColumn && actions.tableName) {
+                    const itemId = formattedItem[actions.idColumn];
+                    if (itemId === null || itemId === undefined) {
+                         console.warn(`Missing ID (${actions.idColumn}) for item in ${actions.tableName}`, formattedItem);
+                         cells += `<td><button class="btn btn-sm btn-danger" disabled><i class="fas fa-trash"></i> Delete</button></td>`; // Disable if no ID
+                    } else {
+                        cells += `<td><button class="btn btn-sm btn-danger" onclick="deleteItem(event, '${actions.tableName}', ${itemId}, '${actions.idColumn}')"><i class="fas fa-trash"></i> Delete</button></td>`;
+                    }
+                } else if (actions.delete) {
+                    // Add an empty cell if delete is true but params are missing, to keep column count consistent
+                    cells += '<td></td>';
+                }
+                return `<tr>${cells}</tr>`;
+            }).join('');
+
+        } catch (error) {
+            console.error(`${errorMsg}:`, error);
+            tableBody.innerHTML = `<tr><td colspan="${actualColSpan}">${errorMsg}. ${error.message}</td></tr>`;
+        }
+    }
+
+
+    // --- Generic Delete Function ---
+    async function deleteItem(event, tableName, itemId, idColumnName) {
+        console.log(`Delete item from ${tableName}: ID ${itemId}`);
+        const deleteButton = event.target.closest('button');
+        if (!deleteButton) return;
+        const row = deleteButton.closest('tr');
+        const originalContent = deleteButton.innerHTML;
+
+        // Use a more specific confirmation message
+        const itemType = tableName.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase()); // Format table name nicely
+        if (confirm(`Are you sure you want to delete this ${itemType} (ID: ${itemId})? This action cannot be undone.`)) {
+            deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            deleteButton.disabled = true;
+            if (row) row.style.opacity = '0.5';
+
+            try {
+                // Construct the API URL using the generic endpoint structure
+                // Assumes the generic router handles DELETE /api/:tableName/:id
+                const apiUrl = `/api/${tableName}/${itemId}`;
+                console.log(`Sending DELETE request to: ${apiUrl}`);
+
+                const response = await fetch(apiUrl, { method: 'DELETE' });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
+                    throw new Error(errorData.message || `Failed to delete item (Status: ${response.status})`);
+                }
+
+                // Success: Remove row visually and show toast
+                if (row) {
+                    row.style.transition = 'opacity 0.5s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => { if (row.parentNode) row.remove(); }, 500); // Check parentNode before removing
+                } else {
+                    // If row couldn't be found, attempt to refresh the specific table
+                    // This requires mapping tableName back to its populate function call - might be complex
+                    console.warn(`Row not found for deleted item ${itemId} in ${tableName}. Consider refreshing table manually.`);
+                    // Example fallback (if needed, expand for other tables):
+                    if (tableName === 'communication') populateGenericTable('/api/communication_view', 'communicationViewTableBody', 4, ['sender_email', 'receiver_email', 'message_content', 'message_status'], 'Error fetching communication view', undefined, { delete: true, idColumn: 'comm_id', tableName: 'communication' });
+                    else if (tableName === 'achievement') populateGenericTable('/api/achievement', 'achievementsTableBody', 7, ['achvmt_id', 'mentor_id', 'mentee_id', 'title', 'description', 'date_awarded', 'badge_icon'], 'Error fetching achievements', (ach) => ({...ach, date_awarded: ach.date_awarded ? new Date(ach.date_awarded).toLocaleDateString() : 'N/A', badge_icon: `<img src="${ach.badge_icon || 'img/default-badge.svg'}" alt="Badge" style="width: 30px; height: 30px;">` }), { delete: true, idColumn: 'achvmt_id', tableName: 'achievement' });
+                }
+                showToast(`${itemType} deleted successfully`, 'success');
+
+            } catch (error) {
+                console.error(`Error deleting ${tableName} item:`, error);
+                showToast(`Error: ${error.message}`, 'error');
+                // Restore button/row on error
+                deleteButton.innerHTML = originalContent;
+                deleteButton.disabled = false;
+                if (row) row.style.opacity = '1';
+            }
+        } else {
+            console.log(`User cancelled deletion of ${tableName} item.`);
+        }
+    }
+
+
+    // --- Specific Table Functions (Users & Alerts due to actions) ---
+    // Note: populateUsersTable and populateAlertsTable are kept separate
+    // because they might have more complex actions (like Edit) than just Delete.
+    // [Functions populateUsersTable and populateAlertsTable remain unchanged from previous step]
+    async function populateUsersTable() { // Renamed for clarity
+        console.log('populateUsersTable function called');
         const tableBody = document.getElementById('usersTableBody');
-        
         if (!tableBody) {
             console.error("Users table body not found!");
             return;
         }
-
-        tableBody.innerHTML = '<tr><td colspan="6">Loading users...</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="6"><i class="fas fa-spinner fa-spin"></i> Loading users...</td></tr>'; // Added loading icon
 
         try {
             console.log('Fetching data from /api/users endpoint...');
-            // Try with explicit URL including http and port
-            const apiUrl = window.location.origin + '/api/users';
-            console.log('Full API URL:', apiUrl);
-            
-            const response = await fetch(apiUrl);
+            const response = await fetch('/api/users'); // Use relative path
             console.log('Fetch response status:', response.status);
-            
+
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                 const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
+                 throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
-            
+
             const users = await response.json();
             console.log('Received user data:', users);
 
-            if (!users || users.length === 0) {
+            if (!Array.isArray(users) || users.length === 0) { // Check if array
                 tableBody.innerHTML = '<tr><td colspan="6">No users found.</td></tr>';
                 return;
             }
 
             tableBody.innerHTML = users.map(user => `
-                <tr>
-                    <td>${user.official_mail_id}</td>
-                    <td>${user.prn_id}</td>
-                    <td>${user.role}</td>
+                 <tr>
+                    <td>${user.official_mail_id || 'N/A'}</td>
+                    <td>${user.prn_id || 'N/A'}</td>
+                    <td>${user.role || 'N/A'}</td>
                     <td>${user.phone_num || 'N/A'}</td>
-                    <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                    <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline mr-1" onclick="editUser(${user.unique_user_no})"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.unique_user_no})"><i class="fas fa-trash"></i></button>
+                        <button class="btn btn-sm btn-outline mr-1" onclick="editUser(event, ${user.unique_user_no})"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteUser(event, ${user.unique_user_no})"><i class="fas fa-trash"></i> Delete</button>
                     </td>
                 </tr>
             `).join('');
         } catch (error) {
             console.error('Error fetching users:', error);
-            tableBody.innerHTML = '<tr><td colspan="6">Error loading users. Please try again later.</td></tr>';
+            tableBody.innerHTML = `<tr><td colspan="6">Error loading users: ${error.message}. Please try again later.</td></tr>`; // Show error message
         }
     }
 
-    // Edit User Functions
-    async function editUser(userId) {
-        console.log('Edit user:', userId);
-        try {
-            // Show loading spinner instead of alert
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'form-status';
-            loadingDiv.style.position = 'fixed';
-            loadingDiv.style.top = '20px';
-            loadingDiv.style.right = '20px';
-            loadingDiv.style.zIndex = '9999';
-            loadingDiv.style.padding = '15px 25px';
-            loadingDiv.style.borderRadius = '5px';
-            loadingDiv.style.backgroundColor = '#e2f3ff';
-            loadingDiv.style.color = '#0066cc';
-            loadingDiv.style.border = '1px solid #99ccff';
-            loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading user data...';
-            document.body.appendChild(loadingDiv);
-            
-            // Fetch user data from API
-            console.log(`Fetching user data for ID ${userId}...`);
-            const response = await fetch(`/api/users/${userId}`);
-            console.log('Response status:', response.status);
-            
-            // Remove loading message
-            document.body.removeChild(loadingDiv);
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error('Error response:', errorData);
-                throw new Error(errorData.message || 'Failed to fetch user data');
-            }
-            
-            const userData = await response.json();
-            console.log('User data received:', userData);
-            
-            // Populate the edit form with user data
-            document.getElementById('edit-user-id').value = userData.unique_user_no;
-            document.getElementById('edit-user-email').value = userData.official_mail_id;
-            document.getElementById('edit-user-prn').value = userData.prn_id;
-            document.getElementById('edit-user-role').value = userData.role;
-            document.getElementById('edit-user-phone').value = userData.phone_num || '';
-            document.getElementById('edit-user-password').value = ''; // Don't populate the password field
-            
-            // Show the edit modal
-            openEditModal();
-            
-        } catch (error) {
-            console.error('Error fetching user details:', error);
-            alert(`Error: ${error.message}`);
-        }
-    }
-
-    async function deleteUser(userId) {
-        console.log('Delete user:', userId);
-        
-        if (confirm(`Are you sure you want to delete user ID: ${userId}?`)) {
-            try {
-                // Show loading indicator in the table
-                const tableBody = document.getElementById('usersTableBody');
-                const rows = tableBody.getElementsByTagName('tr');
-                
-                // Find the row with this user ID and add a visual indication
-                for (let i = 0; i < rows.length; i++) {
-                    const actionCell = rows[i].querySelector(`td:last-child`);
-                    if (actionCell && actionCell.innerHTML.includes(`deleteUser(${userId})`)) {
-                        rows[i].style.backgroundColor = "#ffeaea";
-                        actionCell.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
-                        break;
-                    }
-                }
-                
-                // Send delete request to the server
-                const response = await fetch(`/api/users/${userId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to delete user');
-                }
-                
-                // If successful, update the table
-                updateUsersTable();
-                
-                // Show a temporary success message
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'form-status success';
-                messageDiv.style.position = 'fixed';
-                messageDiv.style.top = '20px';
-                messageDiv.style.right = '20px';
-                messageDiv.style.zIndex = '9999';
-                messageDiv.style.padding = '15px 25px';
-                messageDiv.style.borderRadius = '5px';
-                messageDiv.innerHTML = '<i class="fas fa-check-circle"></i> User deleted successfully';
-                
-                document.body.appendChild(messageDiv);
-                
-                // Remove the message after 3 seconds
-                setTimeout(() => {
-                    if (messageDiv.parentNode) {
-                        messageDiv.parentNode.removeChild(messageDiv);
-                    }
-                }, 3000);
-                
-            } catch (error) {
-                console.error('Error deleting user:', error);
-                
-                // Show error message
-                alert(`Error: ${error.message}`);
-                
-                // Refresh table to revert the visual change
-                updateUsersTable();
-            }
-        }
-    }
-
-    // Add User Modal Functions
-    function openModal() {
-        document.getElementById('add-user-modal').style.display = 'block';
-        document.getElementById('form-status').style.display = 'none';
-        document.getElementById('add-user-form').reset();
-    }
-
-    function closeModal() {
-        document.getElementById('add-user-modal').style.display = 'none';
-    }
-
-    // Edit User Modal Functions
-    function openEditModal() {
-        document.getElementById('edit-user-modal').style.display = 'block';
-        document.getElementById('edit-form-status').style.display = 'none';
-    }
-
-    function closeEditModal() {
-        document.getElementById('edit-user-modal').style.display = 'none';
-    }
-
-    // Handle user form submission
-    async function handleAddUser(event) {
-        event.preventDefault();
-        
-        const submitBtn = document.getElementById('submit-btn');
-        const statusDiv = document.getElementById('form-status');
-        
-        // Disable submit button and show loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-        statusDiv.style.display = 'none';
-        
-        try {
-            const userData = {
-                official_mail_id: document.getElementById('user-email').value,
-                password: document.getElementById('user-password').value,
-                role: document.getElementById('user-role').value,
-                prn_id: document.getElementById('user-prn').value,
-                phone_num: document.getElementById('user-phone').value,
-                // Generate a simple calendar ID
-                calendar_id: `calendar${Date.now()}`
-            };
-            
-            // Send request to API
-            const response = await fetch('/api/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(userData)
-            });
-            
-            const result = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(result.message || 'Failed to add user');
-            }
-            
-            // Show success message
-            statusDiv.style.display = 'block';
-            statusDiv.className = 'form-status success';
-            statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> User added successfully!`;
-            
-            // Close modal after a delay
-            setTimeout(() => {
-                closeModal();
-                updateUsersTable(); // Refresh the table
-            }, 1500);
-            
-        } catch (error) {
-            // Show error message
-            statusDiv.style.display = 'block';
-            statusDiv.className = 'form-status error';
-            statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
-        } finally {
-            // Re-enable submit button
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = 'Add User';
-        }
-    }
-
-    // Edit User Functions
-    async function handleEditUser(event) {
-        event.preventDefault();
-        
-        const submitBtn = document.getElementById('edit-submit-btn');
-        const statusDiv = document.getElementById('edit-form-status');
-        const userId = document.getElementById('edit-user-id').value;
-        
-        // Validation
-        if (!userId) {
-            statusDiv.style.display = 'block';
-            statusDiv.className = 'form-status error';
-            statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> User ID is missing`;
-            return;
-        }
-        
-        // Disable submit button and show loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-        statusDiv.style.display = 'none';
-        
-        try {
-            // Get values from the form
-            const email = document.getElementById('edit-user-email').value;
-            const password = document.getElementById('edit-user-password').value;
-            const prn_id = document.getElementById('edit-user-prn').value;
-            const role = document.getElementById('edit-user-role').value;
-            const phone_num = document.getElementById('edit-user-phone').value || null;
-            
-            // Track which fields were successfully updated
-            const updatedFields = [];
-            
-            // Update each field individually using dedicated endpoints
-            
-            // 1. Update email
-            if (email) {
-                try {
-                    const emailResponse = await fetch(`/api/users/email/${userId}`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email })
-                    });
-                    
-                    console.log('Email update response:', await emailResponse.json());
-                    
-                    if (emailResponse.ok) {
-                        updatedFields.push('email');
-                    }
-                } catch (error) {
-                    console.error('Error updating email:', error);
-                }
-            }
-            
-            // 2. Update role
-            if (role) {
-                try {
-                    const roleResponse = await fetch(`/api/users/role/${userId}`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ role })
-                    });
-                    
-                    console.log('Role update response:', await roleResponse.json());
-                    
-                    if (roleResponse.ok) {
-                        updatedFields.push('role');
-                    }
-                } catch (error) {
-                    console.error('Error updating role:', error);
-                }
-            }
-            
-            // 3. Update PRN ID
-            if (prn_id) {
-                try {
-                    const prnResponse = await fetch(`/api/users/prn/${userId}`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ prn_id })
-                    });
-                    
-                    console.log('PRN update response:', await prnResponse.json());
-                    
-                    if (prnResponse.ok) {
-                        updatedFields.push('PRN ID');
-                    }
-                } catch (error) {
-                    console.error('Error updating PRN ID:', error);
-                }
-            }
-            
-            // 4. Update phone number
-            try {
-                const phoneResponse = await fetch(`/api/users/phone/${userId}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone_num })
-                });
-                
-                console.log('Phone update response:', await phoneResponse.json());
-                
-                if (phoneResponse.ok) {
-                    updatedFields.push('phone number');
-                }
-            } catch (error) {
-                console.error('Error updating phone number:', error);
-            }
-            
-            // 5. Update password (using the original PUT endpoint for now)
-            if (password) {
-                try {
-                    const passwordResponse = await fetch(`/api/users/${userId}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ password })
-                    });
-                    
-                    console.log('Password update response:', await passwordResponse.json());
-                    
-                    if (passwordResponse.ok) {
-                        updatedFields.push('password');
-                    }
-                } catch (error) {
-                    console.error('Error updating password:', error);
-                }
-            }
-            
-            // Check if any fields were updated successfully
-            if (updatedFields.length > 0) {
-                // Show success message
-                statusDiv.style.display = 'block';
-                statusDiv.className = 'form-status success';
-                statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> Updated: ${updatedFields.join(', ')}`;
-                
-                // Close modal after a delay and refresh the table
-                setTimeout(() => {
-                    closeEditModal();
-                    updateUsersTable();
-                }, 1500);
-            } else {
-                throw new Error('No fields were updated successfully');
-            }
-            
-        } catch (error) {
-            console.error('Error in handleEditUser:', error);
-            // Show error message
-            statusDiv.style.display = 'block';
-            statusDiv.className = 'form-status error';
-            statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
-        } finally {
-            // Re-enable submit button
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = 'Update User';
-        }
-    }
-
-    function filterUsersByRole() {
-        const roleFilter = document.getElementById('roleFilter').value;
-        const users = document.querySelectorAll('#usersTable tbody tr');
-        users.forEach(row => {
-            const role = row.cells[2].textContent.toLowerCase();
-            if (roleFilter === 'all' || role.includes(roleFilter.toLowerCase())) {
-                row.style.display = 'table-row';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    }
-
-    // Add function to update the emergency alerts table
-    async function updateEmergencyAlertsTable() {
-        console.log('updateEmergencyAlertsTable function called');
+     // Update the alerts table
+     async function populateAlertsTable() { // Renamed for clarity
+        console.log('populateAlertsTable function called');
         const tableBody = document.getElementById('emergencyAlertsTableBody');
-        
         if (!tableBody) {
-            console.error("Emergency alerts table body not found!");
+            console.error("Alerts table body not found!");
             return;
         }
-
-        tableBody.innerHTML = '<tr><td colspan="6">Loading emergency alerts...</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="6"><i class="fas fa-spinner fa-spin"></i> Loading alerts...</td></tr>'; // Added loading icon
 
         try {
-            console.log('Fetching data from /api/emergency-alerts endpoint...');
-            const apiUrl = window.location.origin + '/api/emergency-alerts';
-            console.log('Full API URL:', apiUrl);
-            
-            // Add authorization header
-            const response = await fetch(apiUrl, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            
+            console.log('Fetching data from /api/alerts endpoint...');
+            const response = await fetch('/api/alerts'); // Use relative path
             console.log('Fetch response status:', response.status);
-            
-            if (!response.ok) {
-                if (response.status === 403) {
-                    throw new Error('Access denied. Please check your authentication.');
-                }
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const alerts = await response.json();
-            console.log('Received emergency alerts data:', alerts);
 
-            if (!alerts || alerts.length === 0) {
+            if (!response.ok) {
+                 // Handle 404 specifically as "no alerts found"
+                 if (response.status === 404) {
+                     tableBody.innerHTML = '<tr><td colspan="6">No emergency alerts found.</td></tr>';
+                     return;
+                 }
+                 const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
+                 throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+
+            const alerts = await response.json();
+            console.log('Received alerts data:', alerts);
+
+            if (!Array.isArray(alerts) || alerts.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="6">No emergency alerts found.</td></tr>';
                 return;
             }
 
             tableBody.innerHTML = alerts.map(alert => `
                 <tr>
-                    <td>${alert.alert_id}</td>
-                    <td>${alert.comm_id}</td>
-                    <td>${alert.alert_reason}</td>
+                    <td>${alert.emergency_alert_id || 'N/A'}</td>
+                    <td>${alert.comm_id || 'N/A'}</td>
+                    <td>${alert.alert_reason || 'N/A'}</td>
+                    <td>${alert.alert_status || 'N/A'}</td>
+                     <td>${alert.created_at ? new Date(alert.created_at).toLocaleDateString() : 'N/A'}</td>
                     <td>
-                        <span class="alert-status ${alert.alert_status}">
-                            ${alert.alert_status}
-                        </span>
-                    </td>
-                    <td>${new Date(alert.created_at).toLocaleString()}</td>
-                    <td>
-                        <button class="btn btn-sm btn-outline mr-1" onclick="resolveEmergencyAlert(${alert.alert_id})">
-                            <i class="fas fa-check"></i> Resolve
-                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteAlert(event, ${alert.emergency_alert_id})"><i class="fas fa-trash"></i> Delete</button>
+                        <button class="btn btn-sm btn-secondary" onclick="updateAlert(event, ${alert.emergency_alert_id})"><i class="fas fa-edit"></i> Update</button>
                     </td>
                 </tr>
             `).join('');
+        } catch (error) {
+            console.error('Error fetching alerts:', error);
+            tableBody.innerHTML = `<tr><td colspan="6">Error loading alerts: ${error.message}. Please try again later.</td></tr>`; // Show error message
+        }
+    }
+
+
+    // --- Edit/Delete/Add User Functions (Refactored) ---
+
+     // Edit User: Fetch data and populate modal
+     async function editUser(event, userId) {
+        console.log('Edit user:', userId);
+        const editButton = event.target.closest('button');
+        if (!editButton) return; // Should not happen if called from button click
+        const originalContent = editButton.innerHTML;
+        editButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        editButton.disabled = true;
+
+        try {
+            showToast('Loading user data...', 'info');
+            const response = await fetch(`/api/users/${userId}`);
+            hideToast(); // Hide loading toast regardless of outcome
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
+                throw new Error(errorData.message || `Failed to fetch user data (Status: ${response.status})`);
+            }
+
+            const userData = await response.json();
+            console.log('User data received:', userData);
+
+            // Populate the edit form
+            document.getElementById('edit-user-id').value = userData.unique_user_no || '';
+            document.getElementById('edit-user-email').value = userData.official_mail_id || '';
+            document.getElementById('edit-user-prn').value = userData.prn_id || '';
+            document.getElementById('edit-user-role').value = userData.role || 'mentee';
+            document.getElementById('edit-user-phone').value = userData.phone_num || '';
+            document.getElementById('edit-user-password').value = ''; // Clear password field
+
+            openEditModal(); // Show the modal
 
         } catch (error) {
-            console.error('Error fetching emergency alerts:', error);
-            tableBody.innerHTML = `<tr><td colspan="6">Error: ${error.message}</td></tr>`;
+            console.error('Error fetching user details:', error);
+            showToast(`Error: ${error.message}`, 'error');
+        } finally {
+             // Restore button state
+             editButton.innerHTML = originalContent;
+             editButton.disabled = false;
         }
     }
 
-    // Function to resolve an emergency alert
-    async function resolveEmergencyAlert(alertId) {
-        if (confirm(`Are you sure you want to resolve alert ID: ${alertId}?`)) {
+    // Delete User: Confirm and send DELETE request
+    async function deleteUser(event, userId) {
+        console.log('Delete user:', userId);
+        const deleteButton = event.target.closest('button');
+        if (!deleteButton) return;
+        const row = deleteButton.closest('tr');
+        const originalContent = deleteButton.innerHTML;
+
+        if (confirm(`Are you sure you want to delete user ID: ${userId}? This action cannot be undone.`)) {
+            deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            deleteButton.disabled = true;
+            if (row) row.style.opacity = '0.5';
+
             try {
-                const response = await fetch(`/api/emergency-alerts/${alertId}/resolve`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
+                const response = await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+
                 if (!response.ok) {
-                    if (response.status === 403) {
-                        throw new Error('Access denied. Please check your authentication.');
-                    }
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to resolve alert');
+                    const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
+                    throw new Error(errorData.message || `Failed to delete user (Status: ${response.status})`);
                 }
-                
-                // Show success message
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'form-status success';
-                messageDiv.style.position = 'fixed';
-                messageDiv.style.top = '20px';
-                messageDiv.style.right = '20px';
-                messageDiv.style.zIndex = '9999';
-                messageDiv.style.padding = '15px 25px';
-                messageDiv.style.borderRadius = '5px';
-                messageDiv.innerHTML = '<i class="fas fa-check-circle"></i> Alert resolved successfully';
-                
-                document.body.appendChild(messageDiv);
-                
-                // Remove the message after 3 seconds
-                setTimeout(() => {
-                    if (messageDiv.parentNode) {
-                        messageDiv.parentNode.removeChild(messageDiv);
-                    }
-                }, 3000);
-                
-                // Refresh the table
-                updateEmergencyAlertsTable();
-                
+
+                // Success: Remove row visually and show toast
+                if (row) {
+                    row.style.transition = 'opacity 0.5s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 500);
+                } else {
+                    populateUsersTable(); // Fallback refresh
+                }
+                showToast('User deleted successfully', 'success');
+
             } catch (error) {
-                console.error('Error resolving alert:', error);
-                alert(`Error: ${error.message}`);
+                console.error('Error deleting user:', error);
+                showToast(`Error: ${error.message}`, 'error');
+                // Restore button/row on error
+                deleteButton.innerHTML = originalContent;
+                deleteButton.disabled = false;
+                if (row) row.style.opacity = '1';
             }
+        } else {
+            // User cancelled confirmation - do nothing, button state is implicitly restored
+            console.log('User cancelled deletion.');
         }
     }
+
+
+    // --- Modal Functions (Refactored) ---
+     function openModal() {
+        const modal = document.getElementById('add-user-modal');
+        modal.style.display = 'block';
+        document.getElementById('form-status').style.display = 'none';
+        document.getElementById('add-user-form').reset();
+        document.body.classList.add('modal-open'); // Prevent background scroll
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('add-user-modal');
+        modal.style.display = 'none';
+        document.body.classList.remove('modal-open');
+    }
+
+    function openEditModal() {
+        const modal = document.getElementById('edit-user-modal');
+        modal.style.display = 'block';
+        document.getElementById('edit-form-status').style.display = 'none';
+        document.body.classList.add('modal-open');
+    }
+
+    function closeEditModal() {
+        const modal = document.getElementById('edit-user-modal');
+        modal.style.display = 'none';
+        document.body.classList.remove('modal-open');
+    }
+
+     // Close modal if clicking outside the content area
+     window.addEventListener('click', function(event) {
+        const addUserModal = document.getElementById('add-user-modal');
+        const editUserModal = document.getElementById('edit-user-modal');
+        if (event.target == addUserModal) {
+            closeModal();
+        }
+        if (event.target == editUserModal) {
+            closeEditModal();
+        }
+     });
+
+
+    // --- Form Handlers (Refactored) ---
+     async function handleAddUser(event) {
+        event.preventDefault();
+        const submitBtn = document.getElementById('submit-btn');
+        const statusDiv = document.getElementById('form-status');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        statusDiv.style.display = 'none';
+
+        try {
+            const userData = {
+                official_mail_id: document.getElementById('user-email').value.trim(),
+                password: document.getElementById('user-password').value,
+                role: document.getElementById('user-role').value,
+                prn_id: document.getElementById('user-prn').value.trim(),
+                phone_num: document.getElementById('user-phone').value.trim() || null,
+            };
+
+             // Client-side validation
+             if (!userData.official_mail_id || !userData.password || !userData.prn_id || !userData.role) {
+                 throw new Error('Please fill in all required fields (Email, Password, PRN ID, Role).');
+             }
+             if (!/\S+@\S+\.\S+/.test(userData.official_mail_id)) {
+                 throw new Error('Please enter a valid email address.');
+             }
+
+            const response = await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || `Failed to add user (Status: ${response.status})`);
+            }
+
+            // Show success message in modal
+            statusDiv.className = 'form-status success';
+            statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> User added successfully!`;
+            statusDiv.style.display = 'block';
+
+            populateUsersTable(); // Refresh table in background
+
+            setTimeout(closeModal, 1500); // Close modal after delay
+
+        } catch (error) {
+            // Show error message in modal
+            statusDiv.className = 'form-status error';
+            statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
+            statusDiv.style.display = 'block';
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Add User';
+        }
+    }
+
+     async function handleEditUser(event) {
+        event.preventDefault();
+        const submitBtn = document.getElementById('edit-submit-btn');
+        const statusDiv = document.getElementById('edit-form-status');
+        const userId = document.getElementById('edit-user-id').value;
+
+        if (!userId) {
+            statusDiv.className = 'form-status error';
+            statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> User ID is missing. Cannot update.`;
+            statusDiv.style.display = 'block';
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+        statusDiv.style.display = 'none';
+
+        try {
+            const email = document.getElementById('edit-user-email').value.trim();
+            const password = document.getElementById('edit-user-password').value;
+            const prn_id = document.getElementById('edit-user-prn').value.trim();
+            const role = document.getElementById('edit-user-role').value;
+            const phone_num = document.getElementById('edit-user-phone').value.trim() || null;
+
+             // Client-side validation
+             if (!email || !prn_id || !role) {
+                 throw new Error('Please fill in required fields (Email, PRN ID, Role).');
+             }
+             if (!/\S+@\S+\.\S+/.test(email)) {
+                 throw new Error('Please enter a valid email address.');
+             }
+
+            const updateData = { official_mail_id: email, prn_id, role, phone_num };
+            if (password) { // Only include password if a new one is entered
+                updateData.password = password;
+            }
+
+            const response = await fetch(`/api/users/${userId}`, {
+                method: 'PUT', // Using PUT as per original code, assumes backend handles partial updates or expects all fields
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updateData)
+            });
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || `Failed to update user (Status: ${response.status})`);
+            }
+
+            // Show success message in modal
+            statusDiv.className = 'form-status success';
+            statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> User updated successfully!`;
+            statusDiv.style.display = 'block';
+
+            populateUsersTable(); // Refresh table
+
+            setTimeout(closeEditModal, 1500); // Close modal
+
+        } catch (error) {
+            console.error('Error updating user:', error);
+            // Show error message in modal
+            statusDiv.className = 'form-status error';
+            statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
+            statusDiv.style.display = 'block';
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Update User';
+        }
+    }
+
+
+    // --- Filtering ---
+     function filterUsersByRole() {
+         const roleFilter = document.getElementById('roleFilter').value;
+        const tableBody = document.getElementById('usersTableBody');
+        const rows = tableBody.querySelectorAll('tr');
+
+        rows.forEach(row => {
+            // Assuming role is in the 3rd cell (index 2)
+            const roleCell = row.cells[2];
+            if (roleCell) {
+                const role = roleCell.textContent.toLowerCase();
+                if (roleFilter === 'all' || role === roleFilter.toLowerCase()) {
+                    row.style.display = ''; // Show row
+                } else {
+                    row.style.display = 'none'; // Hide row
+                }
+            }
+        });
+    }
+
+
+    // --- Alert Actions ---
+    async function deleteAlert(event, alertId) {
+        console.log('Delete alert:', alertId);
+        const deleteButton = event.target.closest('button');
+        if (!deleteButton) return;
+        const row = deleteButton.closest('tr');
+        const originalContent = deleteButton.innerHTML;
+
+        if (confirm(`Are you sure you want to delete Alert ID: ${alertId}? This action cannot be undone.`)) {
+            deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            deleteButton.disabled = true;
+            if (row) row.style.opacity = '0.5';
+
+            try {
+                const response = await fetch(`/api/alerts/${alertId}`, { method: 'DELETE' });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
+                    throw new Error(errorData.message || `Failed to delete alert (Status: ${response.status})`);
+                }
+
+                // Success: Remove row visually and show toast
+                if (row) {
+                    row.style.transition = 'opacity 0.5s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 500);
+                } else {
+                    populateAlertsTable(); // Fallback refresh
+                }
+                showToast('Alert deleted successfully', 'success');
+                populateStatCards(); // Refresh stats which include pending alerts count
+
+            } catch (error) {
+                console.error('Error deleting alert:', error);
+                showToast(`Error: ${error.message}`, 'error');
+                // Restore button/row on error
+                deleteButton.innerHTML = originalContent;
+                deleteButton.disabled = false;
+                if (row) row.style.opacity = '1';
+            }
+        } else {
+            console.log('User cancelled alert deletion.');
+        }
+    }
+
+     // Placeholder for Update Alert - requires modal/form and backend PUT/PATCH endpoint
+     async function updateAlert(event, alertId) {
+        console.log('Update alert:', alertId);
+         showToast(`Update functionality for alert ${alertId} not implemented yet.`, 'info');
+        // TODO: Implement update alert functionality (e.g., change status)
+        // 1. Open a modal or directly send PATCH request to /api/alerts/:id
+        // 2. Handle response, show toast, update row or refresh table
+    }
+
+     // Placeholder for Add Alert - requires modal/form and backend POST endpoint
+     function addAlert() {
+         console.log('Add Alert button clicked');
+         showToast('Add Alert functionality not implemented yet.', 'info');
+         // TODO: Implement add alert functionality
+         // 1. Open a modal with form fields (comm_id, reason, status)
+         // 2. Send POST request to /api/alerts (Need to create this endpoint)
+         // 3. Handle response, show toast, refresh table
+     }
+
+     // Placeholder for Add Achievement - requires modal/form and backend POST endpoint
+     function addAchievement() {
+         console.log('Add Achievement button clicked');
+         showToast('Add Achievement functionality not implemented yet.', 'info');
+         // TODO: Implement add achievement functionality
+         // 1. Open a modal with form fields (mentor_id, mentee_id, title, etc.)
+         // 2. Send POST request to /api/achievement (Uses generic router)
+         // 3. Handle response, show toast, refresh table
+     }
+
+
+    // --- Initial Load ---
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM fully loaded and parsed');
+        populateStatCards();
+        populateTables();
+    });
+
     </script>
 </body>
 </html>
