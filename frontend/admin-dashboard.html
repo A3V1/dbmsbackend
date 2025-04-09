@@ -286,9 +286,9 @@
             padding: 32px; /* More breathing room */
             border-radius: 16px; /* Softer, modern rounded corners */
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Deeper shadow for depth */
-            position: absolute;
-            right: 32px; /* Pushed further from the edge */
-            top: 140px; /* Slightly lower for better alignment */
+            position: relative;
+            top: 20px;
+            left: 20px;
             z-index: 20; /* Higher z-index to ensure prominence */
             border: 1px solid rgba(0, 0, 0, 0.05); /* Subtle border for definition */
         }
@@ -484,272 +484,295 @@
                 </div>
             </div>
 
-        
-
     <!-- Tables Section -->
-    <div class="container">
-        <div class="tables-grid">
-            <!-- All Users Table -->
-            <div class="table-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h2 class="section-title" style="margin: 0;"><i class="fas fa-users-cog"></i> All Users</h2>
-                    <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Add User</button>
-                </div>
-                <div class="table-responsive">
-                    <table id="usersTable">
-                        <thead>
-                            <tr>
-                                <th>Email</th>
-                                <th>PRN ID</th>
-                                <th>Role</th>
-                                <th>Phone Number</th>
-                                <th>Created At</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody">
-                            <!-- User rows will be populated by JavaScript -->
-                        </tbody>
-                    </table>
+            <div class="container">
+                <div class="tables-grid">
+                    <!-- All Users Table -->
+                    <div class="table-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h2 class="section-title" style="margin: 0;"><i class="fas fa-users-cog"></i> All Users</h2>
+                            <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Add User</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="usersTable">
+                                <thead>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>PRN ID</th>
+                                        <th>Role</th>
+                                        <th>Phone Number</th>
+                                        <th>Created At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <!-- User rows will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Mentors Table -->
+                    <div class="table-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h2 class="section-title" style="margin: 0;"><i class="fas fa-chalkboard-teacher"></i> Mentors</h2>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="mentorsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Mentor ID</th>
+                                        <th>Unique User No</th>
+                                        <th>Room No</th>
+                                        <th>Timetable</th>
+                                        <th>Department</th>
+                                        <th>Academic Background</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mentorsTableBody">
+                                    <!-- Mentor rows will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Alerts Table -->
+                    <div class="table-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h2 class="section-title" style="margin: 0;"><i class="fas fa-exclamation-triangle"></i> Emergency Alerts</h2>
+                            <button class="btn btn-primary" id="toggleAlertsTableBtn" onclick="toggleTable('alertsTableContainer', 'toggleAlertsTableBtn')">Show Table</button>
+                        </div>
+                        <div class="table-responsive" id="alertsTableContainer" style="display: none;">
+                            <table id="emergencyAlertsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Alert ID</th>
+                                        <th>Communication ID</th>
+                                        <th>Alert Reason</th>
+                                        <th>Alert Status</th>
+                                        <th>Created At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="emergencyAlertsTableBody">
+                                    <!-- Emergency alerts will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Communication View Table -->
+                    <div class="table-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h2 class="section-title" style="margin: 0;"><i class="fas fa-envelope"></i> Communication View</h2>
+                            <button class="btn btn-primary" id="toggleCommunicationTableBtn" onclick="toggleTable('communicationTableContainer', 'toggleCommunicationTableBtn')">Show Table</button>
+                        </div>
+                        <div class="table-responsive" id="communicationTableContainer" style="display: none;">
+                            <table id="communicationViewTable">
+                                <thead>
+                                    <tr>
+                                        <th>Sender Email</th>
+                                        <th>Receiver Email</th>
+                                        <th>Message Content</th>
+                                        <th>Message Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="communicationViewTableBody">
+                                    <!-- Communication rows will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Achievements Table -->
+                    <div class="table-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h2 class="section-title" style="margin: 0;"><i class="fas fa-trophy"></i> Achievements</h2>
+                            <button class="btn btn-primary" id="toggleAchievementsTableBtn" onclick="toggleTable('achievementsTableContainer', 'toggleAchievementsTableBtn')">Show Table</button>
+                        </div>
+                        <div class="table-responsive" id="achievementsTableContainer" style="display: none;">
+                            <table id="achievementsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Achievement ID</th>
+                                        <th>Mentor ID</th>
+                                        <th>Mentee ID</th>
+                                        <th>Title</th>
+                                        <th>Description</th>
+                                        <th>Date Awarded</th>
+                                        <th>Badge Icon</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="achievementsTableBody">
+                                    <!-- Achievements rows will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Activity Log Table -->
+                    <div class="table-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h2 class="section-title" style="margin: 0;"><i class="fas fa-history"></i> Activity Log</h2>
+                            <button class="btn btn-primary" id="toggleActivityLogBtn" onclick="toggleTable('activityLogTableContainer', 'toggleActivityLogBtn')">Show Table</button>
+                        </div>
+                        <div class="table-responsive" id="activityLogTableContainer" style="display: none;">
+                            <table id="activityLogTable">
+                                <thead>
+                                    <tr>
+                                        <th>Log ID</th>
+                                        <th>User ID</th>
+                                        <th>Log Time</th>
+                                        <th>Activity</th>
+                                        <th>IP Address</th>
+                                        <th>Last Login</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activityLogTableBody">
+                                    <!-- Activity log rows will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Mentor-Mentee Relationship Table -->
+                    <div class="table-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h2 class="section-title" style="margin: 0;"><i class="fas fa-link"></i> Mentor-Mentee Relationships</h2>
+                            <button class="btn btn-primary" id="toggleMentorMenteeTableBtn" onclick="toggleTable('mentorMenteeTableContainer', 'toggleMentorMenteeTableBtn')">Show Table</button>
+                        </div>
+                        <div class="table-responsive" id="mentorMenteeTableContainer" style="display: none;">
+                            <table id="mentorMenteeTable">
+                                <thead>
+                                    <tr>
+                                        <th>Mentor ID</th>
+                                        <th>Mentor Email</th>
+                                        <th>Mentee ID</th>
+                                        <th>Mentee Email</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mentorMenteeTableBody">
+                                    <!-- Mentor-Mentee rows will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
-            <!-- Mentors Table -->
-            <div class="table-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h2 class="section-title" style="margin: 0;"><i class="fas fa-chalkboard-teacher"></i> Mentors</h2>
-                </div>
-                <div class="table-responsive">
-                    <table id="mentorsTable">
-                        <thead>
-                            <tr>
-                                <th>Mentor ID</th>
-                                <th>Unique User No</th>
-                                <th>Room No</th>
-                                <th>Timetable</th>
-                                <th>Department</th>
-                                <th>Academic Background</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="mentorsTableBody">
-                            <!-- Mentor rows will be populated by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Emergency Alerts Table -->
-            <div class="table-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h2 class="section-title" style="margin: 0;"><i class="fas fa-exclamation-triangle"></i> Emergency Alerts</h2>
-                    <button class="btn btn-primary" id="toggleAlertsTableBtn" onclick="toggleTable('alertsTableContainer', 'toggleAlertsTableBtn')">Show Table</button>
-                </div>
-                <div class="table-responsive" id="alertsTableContainer" style="display: none;">
-                    <table id="emergencyAlertsTable">
-                        <thead>
-                            <tr>
-                                <th>Alert ID</th>
-                                <th>Communication ID</th>
-                                <th>Alert Reason</th>
-                                <th>Alert Status</th>
-                                <th>Created At</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="emergencyAlertsTableBody">
-                            <!-- Emergency alerts will be populated by JavaScript -->
-                        </tbody>
-                    </table>
+            <!-- Add User Modal -->
+            <div id="add-user-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Add New User</h2>
+                        <span class="close" onclick="closeModal()">&times;</span>
+                    </div>
+                    <form id="add-user-form" onsubmit="handleAddUser(event)">
+                        <div class="form-group">
+                            <label class="form-label">Role</label>
+                            <select class="form-input" id="user-role" required>
+                                <option value="mentor">Mentor</option>
+                                <option value="mentee">Mentee</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" id="user-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-input" id="user-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">PRN ID</label>
+                            <input type="text" class="form-input" id="user-prn" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-input" id="user-phone" required>
+                        </div>
+                        <div class="form-status" id="form-status" style="margin: 10px 0; display: none;"></div>
+                        <div class="form-group text-right">
+                            <button type="button" class="btn btn-outline mr-2" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="submit-btn">Add User</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
-            <!-- Communication View Table -->
-            <div class="table-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h2 class="section-title" style="margin: 0;"><i class="fas fa-envelope"></i> Communication View</h2>
-                    <button class="btn btn-primary" id="toggleCommunicationTableBtn" onclick="toggleTable('communicationTableContainer', 'toggleCommunicationTableBtn')">Show Table</button>
-                </div>
-                <div class="table-responsive" id="communicationTableContainer" style="display: none;">
-                    <table id="communicationViewTable">
-                        <thead>
-                            <tr>
-                                <th>Sender Email</th>
-                                <th>Receiver Email</th>
-                                <th>Message Content</th>
-                                <th>Message Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="communicationViewTableBody">
-                            <!-- Communication rows will be populated by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Achievements Table -->
-            <div class="table-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h2 class="section-title" style="margin: 0;"><i class="fas fa-trophy"></i> Achievements</h2>
-                    <button class="btn btn-primary" id="toggleAchievementsTableBtn" onclick="toggleTable('achievementsTableContainer', 'toggleAchievementsTableBtn')">Show Table</button>
-                </div>
-                <div class="table-responsive" id="achievementsTableContainer" style="display: none;">
-                    <table id="achievementsTable">
-                        <thead>
-                            <tr>
-                                <th>Achievement ID</th>
-                                <th>Mentor ID</th>
-                                <th>Mentee ID</th>
-                                <th>Title</th>
-                                <th>Description</th>
-                                <th>Date Awarded</th>
-                                <th>Badge Icon</th>
-                            </tr>
-                        </thead>
-                        <tbody id="achievementsTableBody">
-                            <!-- Achievements rows will be populated by JavaScript -->
-                        </tbody>
-                    </table>
+            <!-- Edit User Modal -->
+            <div id="edit-user-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Edit User</h2>
+                        <span class="close" onclick="closeEditModal()">&times;</span>
+                    </div>
+                    <form id="edit-user-form" onsubmit="handleEditUser(event)">
+                        <input type="hidden" id="edit-user-id">
+                        <div class="form-group">
+                            <label class="form-label">Role</label>
+                            <select class="form-input" id="edit-user-role" required>
+                                <option value="mentor">Mentor</option>
+                                <option value="mentee">Mentee</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" id="edit-user-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-input" id="edit-user-password" placeholder="Leave blank to keep current password">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">PRN ID</label>
+                            <input type="text" class="form-input" id="edit-user-prn" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-input" id="edit-user-phone">
+                        </div>
+                        <div class="form-status" id="edit-form-status" style="margin: 10px 0; display: none;"></div>
+                        <div class="form-group text-right">
+                            <button type="button" class="btn btn-outline mr-2" onclick="closeEditModal()">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="edit-submit-btn">Update User</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            <!-- Activity Log Table -->
-            <div class="table-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h2 class="section-title" style="margin: 0;"><i class="fas fa-history"></i> Activity Log</h2>
-                    <button class="btn btn-primary" id="toggleActivityLogBtn" onclick="toggleTable('activityLogTableContainer', 'toggleActivityLogBtn')">Show Table</button>
-                </div>
-                <div class="table-responsive" id="activityLogTableContainer" style="display: none;">
-                    <table id="activityLogTable">
-                        <thead>
-                            <tr>
-                                <th>Log ID</th>
-                                <th>User ID</th>
-                                <th>Log Time</th>
-                                <th>Activity</th>
-                                <th>IP Address</th>
-                                <th>Last Login</th>
-                            </tr>
-                        </thead>
-                        <tbody id="activityLogTableBody">
-                            <!-- Activity log rows will be populated by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
+            <div class="common-features">
+                <h2>Common Features</h2>
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <a href="meeting-schedule.html" class="feature-link">
+                            <i class="fas fa-calendar-alt"></i> Meeting Schedule
+                        </a>
+                    </li>
+                    <li class="feature-item">
+                        <a href="student-profile.html" class="feature-link">
+                            <i class="fas fa-user-graduate"></i> Student Profiles
+                        </a>
+                    </li>
+                    <li class="feature-item">
+                        <a href="communication-hub.html" class="feature-link">
+                            <i class="fas fa-comments"></i> Communication Hub
+                        </a>
+                    </li>
+                    <li class="feature-item">
+                        <a href="reports.html" class="feature-link">
+                            <i class="fas fa-chart-bar"></i> Reports & Achievements
+                        </a>
+                    </li>
+                </ul>
             </div>
-
         </div>
+        
     </div>
-
-    <!-- Add User Modal -->
-    <div id="add-user-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Add New User</h2>
-                <span class="close" onclick="closeModal()">&times;</span>
-            </div>
-            <form id="add-user-form" onsubmit="handleAddUser(event)">
-                <div class="form-group">
-                    <label class="form-label">Role</label>
-                    <select class="form-input" id="user-role" required>
-                        <option value="mentor">Mentor</option>
-                        <option value="mentee">Mentee</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-input" id="user-email" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-input" id="user-password" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">PRN ID</label>
-                    <input type="text" class="form-input" id="user-prn" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Phone Number</label>
-                    <input type="tel" class="form-input" id="user-phone" required>
-                </div>
-                <div class="form-status" id="form-status" style="margin: 10px 0; display: none;"></div>
-                <div class="form-group text-right">
-                    <button type="button" class="btn btn-outline mr-2" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="submit-btn">Add User</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Edit User Modal -->
-    <div id="edit-user-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Edit User</h2>
-                <span class="close" onclick="closeEditModal()">&times;</span>
-            </div>
-            <form id="edit-user-form" onsubmit="handleEditUser(event)">
-                <input type="hidden" id="edit-user-id">
-                <div class="form-group">
-                    <label class="form-label">Role</label>
-                    <select class="form-input" id="edit-user-role" required>
-                        <option value="mentor">Mentor</option>
-                        <option value="mentee">Mentee</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-input" id="edit-user-email" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-input" id="edit-user-password" placeholder="Leave blank to keep current password">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">PRN ID</label>
-                    <input type="text" class="form-input" id="edit-user-prn" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Phone Number</label>
-                    <input type="tel" class="form-input" id="edit-user-phone">
-                </div>
-                <div class="form-status" id="edit-form-status" style="margin: 10px 0; display: none;"></div>
-                <div class="form-group text-right">
-                    <button type="button" class="btn btn-outline mr-2" onclick="closeEditModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="edit-submit-btn">Update User</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="common-features">
-        <h2>Common Features</h2>
-        <ul class="feature-list">
-            <li class="feature-item">
-                <a href="meeting-schedule.html" class="feature-link">
-                    <i class="fas fa-calendar-alt"></i> Meeting Schedule
-                </a>
-            </li>
-            <li class="feature-item">
-                <a href="student-profile.html" class="feature-link">
-                    <i class="fas fa-user-graduate"></i> Student Profiles
-                </a>
-            </li>
-            <li class="feature-item">
-                <a href="communication-hub.html" class="feature-link">
-                    <i class="fas fa-comments"></i> Communication Hub
-                </a>
-            </li>
-            <li class="feature-item">
-                <a href="reports.html" class="feature-link">
-                    <i class="fas fa-chart-bar"></i> Reports & Achievements
-                </a>
-            </li>
-        </ul>
-    </div>
-
+    
     <script>
     // Load navigation
     fetch('components/navigation.html')
@@ -880,6 +903,8 @@
          }), { delete: true, idColumn: 'achvmt_id', tableName: 'achievement' });
         // Mentors Table - Enable Delete
         populateGenericTable('/api/mentor', 'mentorsTableBody', 6, ['mentor_id', 'unique_user_no', 'room_no', 'timetable', 'department', 'academic_background'], 'Error fetching mentors', undefined, { delete: true, idColumn: 'mentor_id', tableName: 'mentor' });
+        // Mentor-Mentee Relationship Table - No actions
+        populateGenericTable('/api/mentor-mentee', 'mentorMenteeTableBody', 4, ['mentor_id', 'mentor_email', 'mentee_id', 'mentee_email'], 'Error fetching mentor-mentee relationships', undefined, { delete: false });
     }
 
     // Generic Table Population Function (Updated with actions)

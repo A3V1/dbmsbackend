@@ -44,7 +44,7 @@ html {
 
 /* Layout Components */
 .container {
-    max-width: 1200px;
+    max-width: 100%;
     margin: 0 auto;
     padding: 0 2rem;
 }
@@ -1193,26 +1193,7 @@ html {
     cursor: pointer;
 }
 
-.search-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: var(--background-color);
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    width: 300px;
-}
 
-.search-bar input {
-    border: none;
-    background: none;
-    outline: none;
-    width: 100%;
-}
-
-.search-bar i {
-    color: var(--light-text);
-}
 
 .top-nav-right {
     display: flex;

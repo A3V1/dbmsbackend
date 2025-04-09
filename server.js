@@ -10,6 +10,7 @@ const alertsRouter = require('./routes/alerts'); // Import the alerts router
 const commviewRouter = require('./routes/commview'); // Import the communication view router
 const activityRouter = require('./routes/activity');
 const achievementRouter = require('./routes/achievement');
+const mentorview=require('./routes/mentor-mentee'); // Import the mentor-mentee router
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -76,6 +77,7 @@ app.use('/api/activity', activityRouter);
 
 app.use('/api/achievement', achievementRouter);
 
+app.use('/api/mentor-mentee', mentorview);
 
 
 // Mount the generic router under /api/:tableName
