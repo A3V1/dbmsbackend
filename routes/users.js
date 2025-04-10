@@ -716,6 +716,50 @@ router.get('/count/mentees', async (req, res) => {
 
 // --- End Count Endpoints ---
 
+// --- Login Endpoint ---
+router.post('/login', async (req, res) => {
+    try {
+        const { official_mail_id, password } = req.body;
+
+        if (!official_mail_id || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+
+        // Find user by email
+        const query = 'SELECT unique_user_no, role, password FROM users WHERE official_mail_id = ?';
+        const [users] = await db.query(query, [official_mail_id]);
+
+        if (users.length === 0) {
+            // User not found
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        const user = users[0];
+
+        // --- Direct Password Comparison (INSECURE - Prototype Only!) ---
+        if (password === user.password) {
+            // Passwords match
+            console.log(`User ${user.unique_user_no} (${official_mail_id}) logged in successfully.`);
+            // Send back user ID and role (do not send password)
+            res.status(200).json({
+                message: 'Login successful',
+                userId: user.unique_user_no,
+                role: user.role
+            });
+        } else {
+            // Passwords do not match
+            console.log(`Login failed for ${official_mail_id}: Incorrect password.`);
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+        // --- End Insecure Comparison ---
+
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ message: 'Server error during login', error: error.message });
+    }
+});
+// --- End Login Endpoint ---
+
 
 // GET /api/users/debug/triggers - Check and fix database triggers
 router.get('/debug/triggers', async (req, res) => {

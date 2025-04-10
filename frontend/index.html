@@ -18,12 +18,18 @@
             font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #1e3c72, #2a5298);
             min-height: 100vh;
+            display: flex; /* Use flexbox to center content */
+            flex-direction: column; /* Stack navbar and main content */
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            flex-grow: 1; /* Allow container to grow and push footer down */
+            display: flex; /* Use flexbox for centering login section */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
         }
 
         /* Header */
@@ -31,6 +37,7 @@
             background: rgba(255, 255, 255, 0.1);
             padding: 1rem;
             backdrop-filter: blur(10px);
+            width: 100%; /* Ensure navbar spans full width */
         }
 
         .navbar-content {
@@ -42,29 +49,42 @@
         }
 
         .logo img {
-            height: 50px;
+            height: 50px; /* Adjusted logo size */
         }
 
-        /* Main Content */
+        /* Main Content - Adjusted for centering */
         .main-content {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: calc(100vh - 80px);
-            padding: 20px;
+             flex-grow: 1; /* Take remaining vertical space */
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             width: 100%;
+             padding: 20px; /* Add padding */
         }
+
 
         .login-section {
             background: white;
-            padding: 30px;
-            border-radius: 10px;
+            padding: 40px; /* Adjusted padding */
+            border-radius: 15px; /* Slightly smaller radius */
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 400px;
+            width: 100%; /* Responsive width */
+            max-width: 450px; /* Max width for the box */
             text-align: center;
         }
 
-        /* Form Styles */
+        .login-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .login-section p {
+            color: var(--text-muted);
+            margin-bottom: 30px; /* Increased space */
+        }
+
+
+        /* Form Styles - Kept for potential future use, but not strictly needed now */
         .form-group {
             margin-bottom: 15px;
         }
@@ -75,62 +95,40 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             margin-top: 5px;
+            box-sizing: border-box; /* Include padding in width */
         }
 
         .btn {
-            background: #0d47a1;
+            background: var(--primary-color); /* Use primary color */
             color: white;
-            padding: 10px 20px;
+            padding: 12px 20px; /* Slightly larger padding */
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            width: 100%;
+            width: calc(100% - 0px); /* Adjusted width calculation */
             margin-top: 10px;
+            text-decoration: none; /* Remove underline from link */
+            display: inline-block; /* Ensure proper block behavior */
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
         }
 
-        /* Role Selection */
-        .role-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
+        .btn:hover {
+             background: var(--accent-color); /* Darken on hover */
         }
 
-        .role-card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
 
-        .role-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .role-icon {
-            font-size: 2rem;
-            color: #1e3c72;
-            margin-bottom: 10px;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .role-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Add this to your existing styles */
+        /* Signup Link */
         .signup-link {
-            margin-top: 15px;
+            margin-top: 20px; /* Increased space */
             padding-top: 15px;
             border-top: 1px solid #eee;
             font-size: 0.9rem;
+            color: var(--text-muted);
         }
 
         .signup-link a {
-            color: #0d47a1;
+            color: var(--primary-color);
             text-decoration: none;
             font-weight: bold;
         }
@@ -138,6 +136,25 @@
         .signup-link a:hover {
             text-decoration: underline;
         }
+
+         /* Responsive */
+        @media (max-width: 768px) {
+             .login-section {
+                 padding: 30px;
+             }
+             .logo img {
+                 height: 40px;
+             }
+        }
+         @media (max-width: 480px) {
+             .login-section {
+                 padding: 20px;
+             }
+              .btn {
+                 padding: 10px 15px;
+             }
+         }
+
     </style>
 </head>
 <body>
@@ -146,69 +163,31 @@
             <div class="logo">
                 <img src="assets/mit-wpu_logo.png" alt="MIT WPU Logo">
             </div>
+            <!-- Optional: Add nav links back if needed -->
         </div>
     </nav>
 
     <div class="main-content">
-        <div class="container">
-            <div class="login-section">
-                <h2>Welcome to MIT WPU</h2>
-                <form id="loginForm">
-                    <div class="form-group">
-                        <input type="text" placeholder="Username" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="password" placeholder="Password" required>
-                    </div>
-                    <button type="submit" class="btn">Login</button>
-                </form>
+        <!-- Container is removed from here as main-content now handles centering -->
+        <div class="login-section">
+            <h2>Welcome to the MIT WPU Mentor-Mentee System</h2>
+            <p>Please log in or sign up to continue.</p>
 
-                <div class="signup-link">
-                    Don't have an account? <a href="signup.html">Sign Up</a>
-                </div>
+            <a href="mit-wpu-login.html" class="btn" style="margin-bottom: 15px;">Login</a>
+            <a href="signup.html" class="btn">Sign Up</a>
 
-                <h3 style="margin-top: 30px;">Select Your Role</h3>
-                <div class="role-grid">
-                    <div class="role-card" onclick="selectRole('admin')">
-                        <div class="role-icon"><i class="fas fa-user-shield"></i></div>
-                        <div>Admin</div>
-                    </div>
-                    <div class="role-card" onclick="selectRole('mentor')">
-                        <div class="role-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-                        <div>Mentor</div>
-                    </div>
-                    <div class="role-card" onclick="selectRole('mentee')">
-                        <div class="role-icon"><i class="fas fa-user-graduate"></i></div>
-                        <div>Mentee</div>
-                    </div>
-                </div>
+            <!-- Removed the role selection section -->
+            <!--
+            <div class="signup-link">
+                Don't have an account? <a href="signup.html">Sign Up</a>
             </div>
+            -->
         </div>
     </div>
 
+    <!-- Minimal script section -->
     <script>
-        function selectRole(role) {
-            // Store selected role
-            localStorage.setItem('selectedRole', role);
-            
-            // Redirect to appropriate dashboard (you'll need to create these)
-            switch(role) {
-                case 'admin':
-                    window.location.href = 'admin-dashboard.html';
-                    break;
-                case 'mentor':
-                    window.location.href = 'mentor-dashboard.html';
-                    break;
-                case 'mentee':
-                    window.location.href = 'mentee-dashboard.html';
-                    break;
-            }
-        }
-
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Add your login logic here
-        });
+        // Basic scripts can go here if needed in the future.
     </script>
 </body>
 </html>

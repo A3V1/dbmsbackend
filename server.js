@@ -10,8 +10,9 @@ const alertsRouter = require('./routes/alerts'); // Import the alerts router
 const commviewRouter = require('./routes/commview'); // Import the communication view router
 const activityRouter = require('./routes/activity');
 const achievementRouter = require('./routes/achievement');
-const mentorview=require('./routes/mentor-mentee'); // Import the mentor-mentee router
-
+const mentorview = require('./routes/mentor-mentee'); // Import the mentor-mentee router
+const mentorDashboardRouter = require('./routes/mentor-dashboard'); // Import the mentor dashboard router
+const mentee=require('./routes/mentee'); // Import the mentee router
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -79,6 +80,10 @@ app.use('/api/achievement', achievementRouter);
 
 app.use('/api/mentor-mentee', mentorview);
 
+// Mount the mentor dashboard router (needs mentorId handled within the router)
+app.use('/api/mentor-dashboard', mentorDashboardRouter);
+
+app.use('/api/mentee', mentee);
 
 // Mount the generic router under /api/:tableName
 // validateTableName middleware runs first for these routes

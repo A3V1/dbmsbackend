@@ -91,9 +91,9 @@
         <div class="login-box">
             <img src="assets/mit-wpu_logo.png" alt="MIT WPU Logo" class="logo">
             <h2>Welcome to My MIT WPU</h2>
-            <form>
-                <label for="username">User Name</label>
-                <input type="text" id="username" placeholder="Enter a valid user name">
+            <form id="login-form"> {/* Added form ID */}
+                <label for="email">Official Email ID</label> {/* Changed label */}
+                <input type="email" id="email" name="email" placeholder="Enter your official email ID" required> {/* Changed type, id, name, placeholder */}
                 
                 <label for="password">Password</label>
                 <div class="password-container">
@@ -109,6 +109,7 @@
                 
                 <button type="submit" class="login-btn">LOGIN</button>
             </form>
+            <p id="login-error" style="color: #ffcc80; margin-top: 10px; height: 1em;"></p> {/* Added error message paragraph */}
             <div class="footer-links">
                 <a href="#">Privacy Policy</a>
                 <a href="#">Terms & Conditions</a>
@@ -125,5 +126,6 @@
             }
         });
     </script>
+    <script src="/js/login.js"></script> <!-- Added login script -->
 </body>
 </html>

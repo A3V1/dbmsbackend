@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/dashboard-shared.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/meeting-manager.js" defer></script>
+    <!-- Removed reference to non-existent meeting-manager.js -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -45,7 +45,7 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             border-top: 3px solid var(--primary-color);
         }
-        
+
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
@@ -59,7 +59,7 @@
             padding-bottom: 10px;
             margin-bottom: 15px;
         }
-        
+
         .card-header h2 {
             color: var(--primary-color);
             margin: 0;
@@ -77,7 +77,7 @@
             background-color: var(--primary-color);
             color: white;
         }
-        
+
         .btn:hover {
             background-color: #153e75;
             transform: translateY(-2px);
@@ -88,7 +88,7 @@
             color: var(--primary-color);
             background: transparent;
         }
-        
+
         .btn-outline:hover {
             background-color: var(--blue-light);
             transform: translateY(-2px);
@@ -100,7 +100,7 @@
             border-radius: 6px;
             margin-top: 8px;
         }
-        
+
         .mentor-info h3 {
             color: var(--primary-color);
             margin-top: 0;
@@ -120,7 +120,7 @@
         .progress-tracker {
             margin-top: 16px;
         }
-        
+
         .progress-tracker h2 {
             color: var(--primary-color);
             border-bottom: 2px solid var(--secondary-color);
@@ -133,7 +133,7 @@
             border-radius: 4px;
             margin: 10px 0;
         }
-        
+
         .progress-bar {
             background-color: var(--secondary-color);
             height: 10px;
@@ -144,7 +144,7 @@
         .achievements {
             margin-top: 24px;
         }
-        
+
         .achievements h2 {
             color: var(--primary-color);
             border-bottom: 2px solid var(--secondary-color);
@@ -159,7 +159,7 @@
             border-left: 4px solid var(--secondary-color);
             transition: transform 0.2s ease;
         }
-        
+
         .achievement-item:hover {
             transform: translateX(5px);
         }
@@ -176,7 +176,7 @@
             border-left: 4px solid var(--primary-color);
             transition: transform 0.2s ease;
         }
-        
+
         .meeting-item:hover, .message-item:hover {
             transform: translateX(5px);
         }
@@ -193,7 +193,7 @@
             margin-top: 16px;
             text-align: right;
         }
-        
+
         .section-title {
             color: var(--primary-color);
             border-bottom: 2px solid var(--secondary-color);
@@ -202,7 +202,7 @@
             margin-bottom: 20px;
             font-weight: 600;
         }
-        
+
         .feature-card {
             text-align: center;
             padding: 24px;
@@ -212,37 +212,37 @@
             flex-direction: column;
             justify-content: space-between;
         }
-        
+
         .feature-card .icon-lg {
             font-size: 3rem;
             margin-bottom: 16px;
             color: var(--secondary-color);
         }
-        
+
         .feature-card h3 {
             color: var(--primary-color);
             margin-bottom: 8px;
         }
-        
+
         .feature-card p {
             color: var(--light-text);
             margin-bottom: 16px;
         }
-        
+
         .feature-card .btn {
             margin-top: auto;
         }
-        
+
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .grid-4 {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
-        
+
         @media (max-width: 480px) {
             .grid-4 {
                 grid-template-columns: 1fr;
@@ -405,20 +405,306 @@
             .form-row {
                 flex-direction: column;
             }
-            
+
             .meeting-meta {
                 flex-direction: column;
                 gap: 8px;
             }
-            
+
             .meeting-details-footer {
                 flex-direction: column;
             }
-            
+
             .meeting-details-footer button {
                 width: 100%;
             }
         }
+
+        /* Mentee Dashboard Specific Enhancements */
+
+        /* Academic Progress Cards Layout */
+        .progress-cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive grid */
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .progress-card {
+            background-color: var(--gray-light);
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid var(--secondary-color);
+        }
+
+        .progress-card.full-width {
+             grid-column: 1 / -1; /* Make background span full width */
+        }
+
+        .progress-card h4 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--primary-color);
+        }
+
+        .progress-card p {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        #academic-background { /* Style for the background text */
+             font-size: 14px;
+             font-weight: normal;
+             color: var(--light-text);
+             line-height: 1.4;
+        }
+
+
+        /* Scrollable Lists */
+        .scrollable {
+            max-height: 250px; /* Adjust as needed */
+            overflow-y: auto;
+            padding-right: 5px; /* Space for scrollbar */
+            margin-top: 10px;
+        }
+
+        /* Styling for list items */
+        .message-list .message-item,
+        .feedback-list .feedback-item,
+        .achievement-list .achievement-item,
+        .alert-list .alert-item,
+        .calendar-items ul li {
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            background-color: var(--gray-light);
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .message-list .message-item.self {
+             background-color: var(--blue-light);
+             border-left-color: var(--primary-color);
+        }
+
+        .achievement-list .achievement-item {
+             background-color: var(--orange-light);
+             border-left-color: var(--secondary-color);
+             display: flex;
+             align-items: center;
+             gap: 10px;
+        }
+
+        .achievement-icon {
+            color: var(--secondary-color);
+            font-size: 1.5em;
+        }
+
+        .alert-list .alert-item {
+             background-color: #ffebee; /* Light red */
+             border-left-color: var(--danger-color);
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+        }
+
+        .alert-status {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            text-transform: capitalize;
+        }
+        .alert-status.pending { background-color: #fff3e0; color: #ff9800; }
+        .alert-status.resolved { background-color: #e8f5e9; color: #4caf50; }
+        .alert-status.unknown { background-color: #f5f5f5; color: #666; }
+
+
+        .message-meta, .feedback-meta {
+            font-size: 11px;
+            color: var(--light-text);
+            display: block;
+            margin-top: 4px;
+        }
+
+        .no-data {
+            color: var(--light-text);
+            font-style: italic;
+            padding: 10px;
+        }
+        .no-data.error { /* Style for error messages */
+            color: var(--danger-color);
+            font-style: normal;
+            font-weight: bold;
+        }
+
+
+        /* Mentor Info Detailed Section */
+        #mentor-info-content p {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        #mentor-info-content p i {
+            color: var(--primary-color);
+            width: 16px; /* Align icons */
+            text-align: center;
+        }
+
+        #mentor-info-content h4 {
+             margin-top: 15px;
+             margin-bottom: 5px;
+             color: var(--primary-color);
+             font-size: 14px;
+        }
+
+        #mentor-info-content pre {
+             background-color: var(--gray-light);
+             padding: 8px;
+             border-radius: 4px;
+             font-family: monospace;
+             white-space: pre-wrap; /* Wrap long lines */
+             word-wrap: break-word;
+             color: var(--text-color);
+             font-size: 13px;
+        }
+
+        /* Quick Links */
+         .addon-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+         }
+         .addon-link {
+             color: var(--primary-color);
+             text-decoration: none;
+             padding: 8px;
+             border-radius: 4px;
+             transition: background-color 0.2s ease;
+         }
+         .addon-link:hover {
+             background-color: var(--blue-light);
+             text-decoration: underline;
+         }
+
+         /* Button Icons */
+         .btn-outline i, .btn-danger i {
+             margin-right: 5px;
+         }
+
+         .btn-danger { /* Define btn-danger if not in shared */
+             padding: 8px 16px;
+             border-radius: 4px;
+             cursor: pointer;
+             border: none;
+             transition: all 0.3s ease;
+             background-color: var(--danger-color);
+             color: white;
+         }
+         .btn-danger:hover {
+             background-color: #d32f2f; /* Darker red */
+             transform: translateY(-2px);
+         }
+
+         /* Header Improvements */
+         .dashboard-header {
+             /* Existing styles */
+             align-items: flex-start;
+             background-color: var(--white); /* Optional: Give header a background */
+             padding: 16px 24px; /* Add padding */
+             border-radius: 8px; /* Optional: Rounded corners */
+             box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Optional: Subtle shadow */
+             margin-bottom: 24px; /* Ensure space below header */
+         }
+
+         .header-left {
+             /* Existing styles */
+             display: flex;
+             align-items: center;
+             gap: 15px;
+             flex-grow: 1;
+             /* Remove the h1 title from this flex container if it exists */
+         }
+
+         .header-left h1 { /* Style the main dashboard title separately */
+             margin: 0 20px 0 0; /* Adjust margin as needed */
+             padding-right: 20px;
+             border-right: 1px solid var(--border-color); /* Separator */
+             font-size: 22px; /* Slightly smaller */
+             color: var(--primary-color);
+             align-self: center; /* Center title vertically if header aligns start */
+         }
+
+         .mentee-info-text {
+             /* Existing styles */
+             display: flex;
+             flex-direction: column;
+         }
+
+         #mentee-greeting {
+             /* Existing styles */
+             font-size: 1.0em;
+             font-weight: 600;
+             color: var(--text-color);
+             word-break: break-all; /* Prevent long emails overflowing */
+         }
+
+         #mentee-course-year {
+             /* Existing styles */
+             font-size: 0.85em;
+             color: var(--light-text);
+         }
+
+         .profile-pic-small {
+             /* Existing styles */
+             width: 45px;
+             height: 45px;
+             border-radius: 50%;
+             object-fit: cover;
+             border: 2px solid var(--border-color);
+             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+         }
+
+         .header-right {
+             /* Existing styles */
+             text-align: right;
+             flex-shrink: 0;
+             padding-top: 0;
+             align-self: center;
+         }
+
+         .date-time {
+             /* Existing styles */
+             display: flex;
+             flex-direction: column;
+             align-items: flex-end;
+             gap: 5px;
+         }
+
+         .date-box, .time-box {
+             /* Existing styles */
+             display: flex;
+             align-items: center;
+             gap: 5px;
+             background-color: var(--gray-light);
+             padding: 4px 8px; /* Slightly smaller padding */
+             border-radius: 4px;
+             font-size: 0.85em; /* Slightly smaller font */
+             color: var(--light-text); /* Match text color */
+         }
+
+         .date-box i, .time-box i {
+             /* Existing styles */
+             color: var(--primary-color);
+         }
+
+
     </style>
 </head>
 <body class="dashboard-layout">
@@ -429,185 +715,173 @@
         <header class="dashboard-header">
             <div class="header-left">
                 <h1>Mentee Dashboard</h1>
-                <div class="mentee-info">
-                    <span id="mentee-name">John Doe</span> <!-- Placeholder for mentee name -->
-                    <span id="mentee-department">Computer Science</span> <!-- Placeholder for department -->
+                <!-- Mentee Selection Dropdown -->
+                <div class="form-group" style="margin-bottom: 10px; margin-top: 10px;">
+                    <label for="mentee-select" style="margin-right: 5px;">Select Mentee:</label>
+                    <select id="mentee-select" name="mentee-select" class="filter-select" style="min-width: 200px;">
+                        <!-- Options will be populated dynamically -->
+                        <option value="">-- Select a Mentee --</option>
+                    </select>
+                </div>
+                <!-- Updated Mentee Info Area -->
+                <img src="img/default-profile.svg" alt="Profile Picture" class="profile-pic-small" id="mentee-profile-pic"> <!-- Corrected default path -->
+                <div class="mentee-info-text">
+                    <span id="mentee-greeting">Hi, [Mentee Name]!</span>
+                    <span id="mentee-course-year">[Course], [Year]</span>
                 </div>
             </div>
             <div class="header-right">
+                <!-- Updated Date/Time Area -->
                 <div class="date-time">
                     <div class="date-box">
                         <i class="fas fa-calendar"></i>
-                        <span id="current-date">01/01/2023</span> <!-- Placeholder for current date -->
+                        <span id="current-date">01/01/2023</span> <!-- Placeholder -->
                     </div>
                     <div class="time-box">
                         <i class="fas fa-clock"></i>
-                        <span id="current-time">12:00 PM</span> <!-- Placeholder for current time -->
+                        <span id="current-time">12:00 PM</span> <!-- Placeholder -->
                     </div>
                 </div>
             </div>
         </header>
 
         <div class="dashboard-content">
-            <!-- Quick Stats -->
-            <section class="stats-section">
-                <div class="stats-grid">
-                    <div class="stat-card primary">
-                        <div class="stat-icon">
-                            <i class="fas fa-trophy"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3>Achievements</h3>
-                            <div class="stat-number" id="total-achievements"></div> <!-- Dynamically populated -->
-                        </div>
-                    </div>
-                    <div class="stat-card success">
-                        <div class="stat-icon">
-                            <i class="fas fa-tasks"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3>Completed Tasks</h3>
-                            <div class="stat-number" id="completed-tasks">2</div>
-                        </div>
-                    </div>
-                    <div class="stat-card info">
-                        <div class="stat-icon">
-                            <i class="fas fa-calendar-check"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3>Upcoming Meetings</h3>
-                            <div class="stat-number" id="upcoming-meetings">3</div>
-                        </div>
-                    </div>
-                    <div class="stat-card warning">
-                        <div class="stat-icon">
-                            <i class="fas fa-exclamation-circle"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3>Pending Tasks</h3>
-                            <div class="stat-number" id="pending-tasks">1</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
             <!-- Main Dashboard Grid -->
             <div class="dashboard-grid">
-                <!-- Mentor Information -->
-                <section class="dashboard-section mentor-info">
-                    <div class="section-header">
-                        <h2>My Mentor</h2>
-                    </div>
-                    <div class="mentor-card" id="mentor-card">
-                        <!-- Placeholder for mentor info -->
-                        <h3>Dr. Alice Johnson</h3>
-                        <p>Department: Computer Science</p>
-                        <div class="mentor-rating">
-                            <span>Rating: 4.8</span>
-                            <i class="fas fa-star star"></i>
+                <!-- Left Column -->
+                <div class="dashboard-column-left">
+                    <!-- Section 1: Welcome Banner (Part 2 - Mentor Info) -->
+                    <section class="card welcome-banner">
+                        <div class="card-header">
+                            <h2>Welcome!</h2>
                         </div>
-                    </div>
-                </section>
-
-                <!-- Task Management -->
-                <section class="dashboard-section task-management">
-                    <div class="section-header">
-                        <h2>My Tasks</h2>
-                        <select id="task-filter" class="filter-select">
-                            <option value="all">All Tasks</option>
-                            <option value="pending">Pending</option>
-                            <option value="in-progress">In Progress</option>
-                            <option value="completed">Completed</option>
-                        </select>
-                    </div>
-                    <div class="task-list scrollable" id="task-list"></div>
-                </section>
-
-                <!-- Progress Tracking -->
-                <section class="dashboard-section progress-tracking">
-                    <div class="section-header">
-                        <h2>My Progress</h2>
-                        <select id="progress-period" class="filter-select">
-                            <option value="week">This Week</option>
-                            <option value="month">This Month</option>
-                            <option value="semester">This Semester</option>
-                        </select>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="progress-chart"></canvas>
-                    </div>
-                </section>
-
-                <!-- Upcoming Meetings -->
-                <section class="dashboard-section meetings">
-                    <div class="section-header">
-                        <h2>Upcoming Meetings</h2>
-                        <div class="meeting-actions">
-                            <button class="btn-primary" id="request-meeting">
-                                <i class="fas fa-calendar-plus"></i> Request Meeting
-                            </button>
-                            <button class="btn-danger" id="request-emergency-meeting">
-                                <i class="fas fa-exclamation-circle"></i> Emergency Meeting
-                            </button>
+                        <div class="mentor-details">
+                            <p>Your assigned mentor:</p>
+                            <h3 id="mentor-name">[Mentor Name]</h3>
+                            <p><i class="fas fa-envelope"></i> <a href="mailto:[Mentor Email]" id="mentor-email">[Mentor Email]</a></p>
                         </div>
-                    </div>
-                    <div class="meeting-list scrollable" id="meeting-list">
-                        <div class="empty-state" id="no-meetings-message" style="display:none;">
-                            <i class="fas fa-calendar-alt"></i>
-                            <p>No upcoming meetings scheduled</p>
-                            <button class="btn-outline" id="request-first-meeting">Request Your First Meeting</button>
-                        </div>
-                    </div>
-                </section>
+                    </section>
 
-                <!-- Achievements -->
-                <section class="dashboard-section achievements">
-                    <div class="section-header">
-                        <h2>My Achievements</h2>
-                    </div>
-                    <div class="achievement-list scrollable" id="achievement-list">
-                        <div class="achievement-card">
-                            <h3>Top Performer</h3>
-                            <p>Awarded for outstanding performance</p>
-                            <span>15/09/2023</span> <!-- Placeholder for achievements -->
+                    <!-- Section 2: My Academic Progress -->
+                    <section class="card academic-progress">
+                        <div class="card-header">
+                            <h2>My Academic Progress</h2>
                         </div>
-                        <div class="achievement-card">
-                            <h3>Hackathon Winner</h3>
-                            <p>Won the annual hackathon</p>
-                            <span>10/08/2023</span> <!-- Placeholder for achievements -->
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Recent Communications -->
-                <section class="dashboard-section communications">
-                    <div class="section-header">
-                        <h2>Communications</h2>
-                        <button class="btn-primary" id="new-message">
-                            <i class="fas fa-paper-plane"></i> New Message
-                        </button>
-                    </div>
-                    <div class="communication-list scrollable" id="communication-list">
-                        <div class="communication-card">
-                            <div class="comm-header">
-                                <span>Message</span>
-                                <span>01/10/2023, 10:00 AM</span> <!-- Placeholder for communication -->
+                        <div class="progress-cards-container">
+                            <div class="progress-card">
+                                <h4>Course</h4>
+                                <p id="academic-course">[B.Sc. Mathematics]</p>
                             </div>
-                            <p>Hello, how are you?</p>
-                        </div>
-                        <div class="communication-card">
-                            <div class="comm-header">
-                                <span>Reply</span>
-                                <span>01/10/2023, 10:05 AM</span> <!-- Placeholder for communication -->
+                            <div class="progress-card">
+                                <h4>Attendance</h4>
+                                <p id="academic-attendance">[75%]</p>
+                                <!-- Optional: Progress Bar -->
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" id="attendance-bar" style="width: 75%;"></div>
+                                </div>
                             </div>
-                            <p>I am good, thank you!</p>
+                            <div class="progress-card">
+                                <h4>Academic Context</h4>
+                                <p id="academic-context">[Good]</p>
+                            </div>
+                            <!-- Removed Academic Background Card -->
                         </div>
-                    </div>
-                </section>
+                        <!-- Optional: Chart Area -->
+                        <!-- <canvas id="academic-progress-chart"></canvas> -->
+                    </section>
+
+                    <!-- Section 4: Communication with Mentor -->
+                    <section class="card communication-mentor">
+                        <div class="card-header">
+                            <h2>Communication with Mentor</h2>
+                            <button class="btn-outline" id="new-message-btn"><i class="fas fa-paper-plane"></i> New Message</button>
+                        </div>
+                        <div class="message-list scrollable" id="message-list">
+                            <!-- Messages will be loaded dynamically here -->
+                            <p>Loading messages...</p>
+                        </div>
+                        <div class="new-message-area" id="new-message-area" style="display: none;">
+                            <textarea id="new-message-text" placeholder="Type your message..."></textarea>
+                            <input type="file" id="message-attachment" style="margin-top: 8px;">
+                            <button class="btn" id="send-message-btn" style="margin-top: 8px;">Send</button>
+                        </div>
+                    </section>
+
+                    <!-- Section 6: My Achievements -->
+                    <section class="card achievements">
+                        <div class="card-header">
+                            <h2>My Achievements</h2>
+                            <select id="achievement-filter" class="filter-select">
+                                <option value="all">All</option>
+                                <option value="recent">Recent</option>
+                                <option value="certificates">Certificates</option>
+                            </select>
+                        </div>
+                        <div class="achievement-list scrollable" id="achievement-list">
+                            <!-- Achievements will be loaded dynamically here -->
+                             <p>Loading achievements...</p>
+                        </div>
+                    </section>
+
+                    <!-- Section 7: Feedback Hub -->
+                    <section class="card feedback-hub">
+                        <div class="card-header">
+                            <h2>Feedback Hub</h2>
+                            <button class="btn-outline" id="submit-feedback-btn">Submit Feedback</button>
+                        </div>
+                        <div class="feedback-list scrollable" id="feedback-list">
+                            <!-- Feedback from mentor will be loaded here -->
+                            <div class="feedback-item"> <!-- Example -->
+                                <p><strong>Mentor:</strong> Great progress on the latest assignment!</p>
+                                <span class="feedback-meta">Received | 1 week ago</span>
+                            </div>
+                        </div>
+                        <div class="submit-feedback-area" id="submit-feedback-area" style="display: none;">
+                            <textarea id="feedback-text" placeholder="Type your feedback..."></textarea>
+                            <button class="btn" id="send-feedback-btn" style="margin-top: 8px;">Submit</button>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Column -->
+                <div class="dashboard-column-right">
+                    <!-- Removed My Calendar Section -->
+                    <!-- Removed Emergency Alerts Section -->
+
+                    <!-- Section 8: Mentor Info -->
+                    <section class="card mentor-info-detailed">
+                        <div class="card-header">
+                            <h2>Mentor Information</h2>
+                        </div>
+                        <div id="mentor-info-content">
+                            <p><i class="fas fa-user"></i> <strong id="mentor-detail-name">[Mentor Name]</strong></p>
+                            <p><i class="fas fa-envelope"></i> <a href="mailto:[Mentor Email]" id="mentor-detail-email">[Mentor Email]</a></p>
+                            <!-- Removed Phone Line -->
+                            <p id="mentor-room-line"><i class="fas fa-door-open"></i> <span id="mentor-detail-room">[Room Number]</span></p>
+                            <p><i class="fas fa-building"></i> <span id="mentor-detail-dept">[Department]</span></p>
+                            <h4>Office Hours / Timetable</h4>
+                            <pre id="mentor-timetable">[Timetable]</pre>
+                        </div>
+                    </section>
+
+                    <!-- Optional Add-ons Placeholder -->
+                    <section class="card optional-addons">
+                        <div class="card-header">
+                            <h2>Quick Links / Tools</h2>
+                        </div>
+                        <div class="addon-links">
+                            <!-- Links to Placement Tracker, Submission Tracker, Notes, Announcements etc. -->
+                            <a href="#" class="addon-link">Placement Tracker</a>
+                            <a href="#" class="addon-link">Submission Tracker</a>
+                            <a href="#" class="addon-link">Announcements</a>
+                        </div>
+                    </section>
+                </div>
             </div>
         </div>
     </main>
 
+    <!-- Modals (Keep existing modals for Meeting Request, New Message, Meeting Details) -->
     <!-- Meeting Request Modal -->
     <div class="modal" id="meeting-modal">
         <div class="modal-content">
@@ -619,7 +893,7 @@
                 <form id="meeting-form">
                     <div class="form-group">
                         <label for="meeting-title">Meeting Title</label>
-                        <input type="text" id="meeting-title" name="meeting-title" required 
+                        <input type="text" id="meeting-title" name="meeting-title" required
                                placeholder="Brief description of meeting purpose">
                     </div>
                     <div class="form-row">
@@ -671,7 +945,7 @@
                     </div>
                     <div class="form-group">
                         <label for="meeting-agenda">Agenda</label>
-                        <textarea id="meeting-agenda" name="meeting-agenda" required rows="4" 
+                        <textarea id="meeting-agenda" name="meeting-agenda" required rows="4"
                                   placeholder="Please provide details about what you'd like to discuss"></textarea>
                     </div>
                     <div class="form-actions">
@@ -776,18 +1050,48 @@
         </div>
     </div>
 
-    <script src="js/navigation.js"></script>
-    <script src="js/dashboard-styles.js"></script>
-   <!--<script src="js/mentee-dashboard.js"></script>--> 
-    
-    <script>
-        // Add emergency meeting button handler
-        document.getElementById('request-emergency-meeting').addEventListener('click', () => {
-            meetingManager.showMeetingModal(true);
-        });
+    <!-- Removed reference to non-existent navigation.js -->
+    <!-- Removed reference to non-existent dashboard-styles.js -->
+    <!-- Removed duplicate reference to non-existent meeting-manager.js -->
+    <script src="/js/mentee-dashboard.js" defer></script> <!-- Corrected path -->
 
-        // Dynamically populate total achievements
-        document.getElementById('total-achievements').textContent = 2; // Replace 2 with dynamic data as needed
+    <script>
+        // Basic interactivity moved to mentee-dashboard.js
+
+        // Add emergency meeting button handler (Keep or move based on meetingManager setup)
+        // This might already be handled if meetingManager initializes itself
+        // const emergencyBtn = document.getElementById('request-emergency-meeting');
+        // if (emergencyBtn && typeof meetingManager !== 'undefined') {
+        //     emergencyBtn.addEventListener('click', () => {
+        //         meetingManager.showMeetingModal(true);
+        //     });
+        // } else if (!emergencyBtn) {
+        //     console.warn("Emergency meeting button not found.");
+        // } else {
+        //     console.warn("meetingManager not ready for emergency button.");
+        // }
+
+        // Remove placeholder dynamic population if handled by JS file
+        // document.getElementById('total-achievements').textContent = 2; // Example placeholder
+        const newMessageBtn = document.getElementById('new-message-btn');
+        const newMessageArea = document.getElementById('new-message-area');
+        if (newMessageBtn) {
+            newMessageBtn.addEventListener('click', () => {
+                newMessageArea.style.display = newMessageArea.style.display === 'none' ? 'block' : 'none';
+            });
+        }
+        // Add similar toggles for feedback and alert forms
+        const submitFeedbackBtn = document.getElementById('submit-feedback-btn');
+        const submitFeedbackArea = document.getElementById('submit-feedback-area');
+         if (submitFeedbackBtn) {
+            submitFeedbackBtn.addEventListener('click', () => {
+                submitFeedbackArea.style.display = submitFeedbackArea.style.display === 'none' ? 'block' : 'none';
+            });
+        }
+
+        // Removed references to non-existent elements 'request-emergency-meeting' and 'total-achievements'
+        // Also removed the newAlertBtn toggle as the section is removed
+
     </script>
 </body>
 </html>

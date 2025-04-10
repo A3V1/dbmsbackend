@@ -19,9 +19,12 @@
 .dashboard-layout {
     display: flex;
     flex-direction: column;
+    height: 100vh;
+    width: 100%;
     min-height: 100vh;
     background-color: var(--gray-light);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    
 }
 
 .dashboard-main {

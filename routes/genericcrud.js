@@ -5,10 +5,33 @@ const pool = require('../dbConfig'); // Adjust path ../ if needed
 // Use { mergeParams: true } to access :tableName from parent route
 const router = express.Router({ mergeParams: true });
 
-// Helper Function: Assumes primary key is 'id'. Modify if needed.
+// Helper Function: Determines the primary key field for a given table.
 function getPrimaryKeyField(tableName) {
-    console.warn(`Assuming primary key for table '${tableName}' is 'id'. Modify if primary keys differ.`);
-    return 'id'; // CHANGE THIS if your primary keys aren't named 'id'
+    // Add more cases as needed based on your database schema
+    switch (tableName) {
+        case 'mentor':
+            return 'mentor_id';
+        case 'mentee':
+            return 'mentee_id';
+        case 'mentee_academics': // Note: mentee_id is PK here, but it's also a FK. Check if this is intended.
+             return 'mentee_id';
+        case 'admin':
+            return 'admin_id';
+        case 'communication':
+            return 'comm_id';
+        case 'emergency_alerts':
+            return 'emergency_alert_id';
+        case 'activity_log':
+            return 'log_id';
+        case 'achievement':
+            return 'achvmt_id';
+        case 'users':
+             return 'unique_user_no'; // Based on describe users output
+        // Add cases for other tables like achievement, activity_log, etc.
+        default:
+            console.warn(`Primary key for table '${tableName}' not explicitly defined. Assuming 'id'. Modify getPrimaryKeyField if this is incorrect.`);
+            return 'id'; // Default assumption
+    }
 }
 
 // GET /api/:tableName - Get all items
@@ -50,7 +73,8 @@ router.get('/:id', async (req, res) => {
 // POST /api/:tableName - Create new item
 router.post('/', async (req, res) => {
     const { tableName } = req.params;
-const dataToInsert = req.body; // Assumes body contains column:value pairs
+    console.log(`--- Generic CRUD: POST /api/${tableName} received ---`); // Added log
+    const dataToInsert = req.body; // Assumes body contains column:value pairs
 // Input validation for mentee creation
 const requiredFields = ['unique_user_no', 'mentor_id'];
 const missingFields = requiredFields.filter(field => !(field in dataToInsert));
@@ -73,8 +97,17 @@ if (!dataToInsert || Object.keys(dataToInsert).length === 0) {
        if (error.code === 'ER_BAD_FIELD_ERROR') {
             return res.status(400).json({ message: `Invalid column name provided for table '${tableName}'.`, detail: error.sqlMessage });
         }
-        // Handle other errors like duplicate entries, foreign key constraints etc.
-        res.status(500).json({ message: `Error saving data to table ${tableName}`, code: error.code });
+        // Log more specific errors
+        console.error(`Detailed error creating item in ${tableName}:`, error.code, error.sqlMessage, error.sql);
+        // Handle specific common errors
+        if (error.code === 'ER_DUP_ENTRY') {
+             return res.status(409).json({ message: `Duplicate entry. This item might already exist.`, detail: error.sqlMessage });
+        }
+        if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+             return res.status(400).json({ message: `Invalid reference. Ensure the provided user number and mentor ID exist.`, detail: error.sqlMessage });
+        }
+        // Generic error
+        res.status(500).json({ message: `Error saving data to table ${tableName}`, code: error.code, detail: error.sqlMessage });
     }
 });
 
@@ -111,6 +144,7 @@ router.put('/:id', async (req, res) => {
 // DELETE /api/:tableName/:id - Delete item by ID
 router.delete('/:id', async (req, res) => {
     const { tableName, id } = req.params;
+    console.log(`--- Generic CRUD: DELETE /api/${tableName}/${id} received ---`); // Added log
     const primaryKeyField = getPrimaryKeyField(tableName);
     try {
         const sql = 'DELETE FROM ?? WHERE ?? = ?';

@@ -1155,6 +1155,7 @@
     async function deleteUser(event, userId) {
         console.log('Delete user:', userId);
         const deleteButton = event.target.closest('button');
+        const totalUserCount = document.getElementById('totalUsers');
         if (!deleteButton) return;
         const row = deleteButton.closest('tr');
         const originalContent = deleteButton.innerHTML;
@@ -1177,6 +1178,7 @@
                     populateUsersTable(); // Fallback refresh
                 }
                 showToast('User deleted successfully', 'success');
+                totalUserCount.textContent = parseInt(totalUserCount.textContent) - 1; // Decrement total users count
             } catch (error) {
                 console.error('Error deleting user:', error);
                 showToast(`Error: ${error.message}`, 'error');
@@ -1231,6 +1233,7 @@
      async function handleAddUser(event) {
         event.preventDefault();
         const submitBtn = document.getElementById('submit-btn');
+        const totalUserCount = document.getElementById('totalUsers');
         const statusDiv = document.getElementById('form-status');
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
@@ -1263,6 +1266,7 @@
             statusDiv.className = 'form-status success';
             statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> User added successfully!`;
             statusDiv.style.display = 'block';
+            totalUserCount.textContent = parseInt(totalUserCount.textContent) + 1; // Increment total users count
             populateUsersTable(); // Refresh table in background
             setTimeout(closeModal, 1500); // Close modal after delay
         } catch (error) {
@@ -1454,5 +1458,6 @@
         }
     }
     </script>
+    <script src="/js/admin-dashboard.js"></script> <!-- Added admin dashboard script -->
 </body>
 </html>

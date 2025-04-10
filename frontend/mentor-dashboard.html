@@ -276,6 +276,45 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Enhancements for Mentee List */
+        .mentee-section {
+            grid-column: span 2; /* Make mentee section wider */
+            min-height: 400px; /* Ensure it has some height */
+        }
+
+        #mentee-list ul {
+            padding-left: 0; /* Remove default ul padding */
+        }
+
+        #mentee-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 10px; /* Increased padding */
+            border: 1px solid var(--border-color); /* Add subtle border */
+            margin-bottom: 8px; /* Add space between items */
+            border-radius: 4px;
+        }
+
+        .mentee-info {
+            display: flex;
+            align-items: center;
+            gap: 15px; /* Increased gap */
+        }
+
+        .profile-pic-small {
+            width: 50px; /* Larger profile pic */
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .mentee-info strong {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
     </style>
 </head>
 <body class="dashboard-layout">
@@ -296,79 +335,51 @@
                 </div>
             </div>
         </header>
+        <div class="header-bar">
+            <label for="mentor-select">Select Mentor:</label>
+            <select id="mentor-select">
+                <option value="" disabled selected>Select a mentor</option>
+                <!-- Mentor options will be dynamically populated -->
+            </select>
+        </div>
         <div class="dashboard-content">
             <section class="stats-section">
                 <div class="stats-grid">
-                    <div class="stat-card primary"><i class="fas fa-users"></i><h3>Total Mentees</h3><div id="total-mentees">3</div></div>
-                    <div class="stat-card success"><i class="fas fa-tasks"></i><h3>Active Tasks</h3><div id="active-tasks">3</div></div>
-                    <div class="stat-card info"><i class="fas fa-calendar-check"></i><h3>Upcoming Meetings</h3><div id="upcoming-meetings">1</div></div>
-                    <div class="stat-card warning"><i class="fas fa-bell"></i><h3>Pending Actions</h3><div id="pending-actions">4</div></div>
+                    <div class="stat-card primary" style="grid-column: span 1;"><i class="fas fa-users"></i><h3>Total Mentees</h3><div id="total-mentees">-</div></div>
                 </div>
             </section>
             <div class="dashboard-grid">
-                <section class="dashboard-section">
+                <section class="dashboard-section mentee-section">
                     <div class="section-header">
                         <h2>My Mentees</h2>
                         <div class="filter-controls">
                             <select id="mentee-filter"><option value="all">All</option><option value="excellent">Excellent</option></select>
-                            <button id="add-mentee" class="btn-primary"><i class="fas fa-plus"></i> Add Mentee</button>
+                            <button id="add-mentee-btn" class="btn-primary"><i class="fas fa-plus"></i> Add Mentee</button>
                         </div>
                     </div>
                     <div id="mentee-list" class="scrollable"></div>
                 </section>
-                <section class="dashboard-section">
+
+              
+
+                <section class="dashboard-section achievement-management" style="grid-column: span 2;"> 
                     <div class="section-header">
-                        <h2>Task Management</h2>
-                        <select id="task-filter"><option value="all">All Tasks</option></select>
-                        <button id="create-task" class="btn-primary"><i class="fas fa-plus"></i> New Task</button>
+                        <h2>Achievement Management</h2>
+                        <button class="btn-primary" id="award-achievement-btn"><i class="fas fa-trophy"></i> Award Achievement</button>
                     </div>
-                    <div id="task-list" class="scrollable"></div>
-                </section>
-                <section class="dashboard-section progress-tracking">
-                    <div class="section-header">
-                        <h2>Progress Overview</h2>
-                        <select id="progress-period" class="filter-select">
-                            <option value="week">This Week</option>
-                            <option value="month">This Month</option>
-                            <option value="semester">This Semester</option>
-                        </select>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="progress-chart"></canvas>
+                    <div id="achievement-list" class="scrollable list-container">
+                        <!-- Achievements will be loaded here -->
+                        <p>Loading achievements...</p>
                     </div>
                 </section>
 
-                <section class="dashboard-section meetings">
-                    <div class="section-header">
-                        <h2>Upcoming Meetings</h2>
-                        <button class="btn-primary" id="schedule-meeting">
-                            <i class="fas fa-calendar-plus"></i> Schedule Meeting
-                        </button>
-                    </div>
-                    <div class="meeting-list scrollable" id="meeting-list"></div>
-                </section>
+              
 
-                <section class="dashboard-section communications">
-                    <div class="section-header">
-                        <h2>Recent Communications</h2>
-                        <button class="btn-primary" id="new-message">
-                            <i class="fas fa-paper-plane"></i> New Message
-                        </button>
-                    </div>
-                    <div class="communication-list scrollable" id="communication-list"></div>
-                </section>
-
-                <section class="dashboard-section emergency-alerts">
-                    <div class="section-header">
-                        <h2>Emergency Alerts</h2>
-                    </div>
-                    <div class="alert-list scrollable" id="alert-list">
-                    </div>
-                </section>
-            </div>
-        </div>
+            </div> <!-- End dashboard-grid -->
+        </div> <!-- End dashboard-content -->
     </main>
-    <script src="js/navigation.js"></script>
+    <!-- <script src="js/navigation.js"></script> --> <!-- Commented out as file not found -->
     <script src="js/mentor-dashboard.js"></script>
+    <!-- Removed conflicting inline script block -->
 </body>
 </html>
