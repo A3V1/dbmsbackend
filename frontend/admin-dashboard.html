@@ -1104,7 +1104,12 @@
                     <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
                     <td>
                         <button class="btn btn-sm btn-outline mr-1" onclick="editUser(event, ${user.unique_user_no})"><i class="fas fa-edit"></i> Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteUser(event, ${user.unique_user_no})"><i class="fas fa-trash"></i> Delete</button>
+                        <button class="btn btn-sm btn-danger"
+                                onclick="deleteUser(event)"
+                                data-user-id="${user.unique_user_no}"
+                                data-user-role="${user.role}">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
                     </td>
                 </tr>
             `).join('');
@@ -1197,35 +1202,60 @@
         }
     }
 
-    // Delete User: Confirm and send DELETE request
-    async function deleteUser(event, userId) {
-        console.log('Delete user:', userId);
+    // Delete User: Confirm and send DELETE request (handles mentee specific deletion)
+    async function deleteUser(event) {
         const deleteButton = event.target.closest('button');
-        const totalUserCount = document.getElementById('totalUsers');
         if (!deleteButton) return;
+
+        const userId = deleteButton.dataset.userId;
+        const userRole = deleteButton.dataset.userRole;
+        const totalUserCount = document.getElementById('totalUsers');
         const row = deleteButton.closest('tr');
         const originalContent = deleteButton.innerHTML;
-        if (confirm(`Are you sure you want to delete user ID: ${userId}? This action cannot be undone.`)) {
+
+        console.log(`Attempting to delete user: ID ${userId}, Role: ${userRole}`);
+
+        // Use a more specific confirmation message for mentees
+        const confirmationMessage = userRole === 'mentee'
+            ? `Are you sure you want to delete Mentee ID: ${userId}? This will also remove all associated records (attendance, achievements, etc.). This action cannot be undone.`
+            : `Are you sure you want to delete user ID: ${userId}? This action cannot be undone.`;
+
+        if (confirm(confirmationMessage)) {
             deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             deleteButton.disabled = true;
             if (row) row.style.opacity = '0.5';
+
+            // The try...catch block should start here, after the confirmation
             try {
-                const response = await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+                // Always use the standard user delete endpoint.
+                // The backend will handle role-specific logic (like calling the procedure for mentees).
+                const apiUrl = `/api/users/${userId}`;
+                console.log(`Using standard user delete endpoint for user ${userId} (role: ${userRole}): ${apiUrl}`);
+
+                const response = await fetch(apiUrl, { method: 'DELETE' });
+
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
                     throw new Error(errorData.message || `Failed to delete user (Status: ${response.status})`);
                 }
+                // The try block continues here for success handling
+
                 // Success: Remove row visually and show toast
                 if (row) {
                     row.style.transition = 'opacity 0.5s ease';
                     row.style.opacity = '0';
-                    setTimeout(() => row.remove(), 500);
+                    setTimeout(() => { if (row.parentNode) row.remove(); }, 500); // Check parentNode before removing
                 } else {
                     populateUsersTable(); // Fallback refresh
                 }
                 showToast('User deleted successfully', 'success');
-                totalUserCount.textContent = parseInt(totalUserCount.textContent) - 1; // Decrement total users count
-            } catch (error) {
+                // Safely decrement count
+                if (!isNaN(parseInt(totalUserCount.textContent))) {
+                     totalUserCount.textContent = parseInt(totalUserCount.textContent) - 1;
+                }
+                // No need for finally block here if we handle button restoration in catch
+            // End of the try block
+            } catch (error) { // Start of the catch block
                 console.error('Error deleting user:', error);
                 showToast(`Error: ${error.message}`, 'error');
                 // Restore button/row on error
@@ -1233,11 +1263,12 @@
                 deleteButton.disabled = false;
                 if (row) row.style.opacity = '1';
             }
+            // Button state is restored only in the catch block now
         } else {
             // User cancelled confirmation - do nothing, button state is implicitly restored
             console.log('User cancelled deletion.');
         }
-    }
+    } // End of deleteUser function
 
     // --- Modal Functions (Refactored) ---
      function openModal() {

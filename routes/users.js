@@ -207,43 +207,148 @@ router.post('/', async (req, res) => {
     }
 });
 
-// DELETE /api/users/:id - Delete user by ID
+// DELETE /api/users/:id - Delete user by ID (handles role-specific dependencies)
 router.delete('/:id', async (req, res) => {
+    const userId = req.params.id;
+    let connection; // Define connection outside try block for finally
+
+    // Validate user ID
+    if (!userId || isNaN(parseInt(userId))) {
+        return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
     try {
-        const userId = req.params.id;
-        
-        // Validate user ID
-        if (!userId || isNaN(parseInt(userId))) {
-            return res.status(400).json({ message: 'Invalid user ID' });
-        }
-        
-        // Check if user exists
-        const [checkUser] = await db.query('SELECT unique_user_no FROM users WHERE unique_user_no = ?', [userId]);
-        
+        // Get a connection for transaction
+        connection = await db.getConnection();
+        await connection.beginTransaction();
+        console.log(`Starting transaction to delete user ${userId}`);
+
+        // Check if user exists and get their role
+        const [checkUser] = await connection.query('SELECT unique_user_no, role FROM users WHERE unique_user_no = ?', [userId]);
+
         if (checkUser.length === 0) {
+            await connection.rollback(); // Rollback if user not found
+            console.log(`User ${userId} not found. Transaction rolled back.`);
             return res.status(404).json({ message: 'User not found' });
         }
-        
-        // Delete the user
-        const [result] = await db.query('DELETE FROM users WHERE unique_user_no = ?', [userId]);
-        
-        if (result.affectedRows === 1) {
-            return res.status(200).json({ message: 'User deleted successfully' });
+
+        const userToDelete = checkUser[0]; // Get the user data (including role)
+        const userRole = userToDelete.role;
+
+        // --- Role-based Deletion Logic ---
+        if (userRole === 'mentee') {
+            // --- Call Stored Procedure for Mentee ---
+            console.log(`User ${userId} is a mentee. Calling DeleteMenteeAndAllAssociations...`);
+            const callQuery = 'CALL DeleteMenteeAndAllAssociations(?)';
+            // Execute procedure within the transaction
+            const [procResult] = await connection.query(callQuery, [userId]);
+            console.log('DeleteMenteeAndAllAssociations procedure result:', procResult);
+            // Assume success if no error is thrown by the procedure
+
+        } else if (userRole === 'mentor') {
+            // --- Manual Deletion Logic for Mentor ---
+            console.log(`User ${userId} is a mentor. Deleting associated records...`);
+
+            // 1. Get mentor_id (needed for some associations)
+            const [mentorData] = await connection.query('SELECT mentor_id FROM mentor WHERE unique_user_no = ?', [userId]);
+            const mentorId = mentorData.length > 0 ? mentorData[0].mentor_id : null;
+
+            // 2. Delete achievements awarded by this mentor (if applicable)
+            if (mentorId) {
+                await connection.query('DELETE FROM achievement WHERE mentor_id = ?', [mentorId]);
+                console.log(`Deleted achievements for mentor_id ${mentorId}`);
+            }
+
+            // 3. Delete mentor-mentee links
+            if (mentorId) {
+                // Assuming a table like 'mentor_mentee_link' exists
+                // If not, adjust or remove this step. Let's assume it doesn't exist for now based on procedure.
+                // await connection.query('DELETE FROM mentor_mentee_link WHERE mentor_id = ?', [mentorId]);
+                // console.log(`Deleted links for mentor_id ${mentorId}`);
+            }
+
+            // 4. Delete related communications
+            await connection.query('DELETE FROM communication WHERE sender_id = ? OR receiver_id = ?', [userId, userId]);
+            console.log(`Deleted communications for user ${userId}`);
+
+            // 5. Delete activity logs
+            await connection.query('DELETE FROM activity_log WHERE user_id = ?', [userId]);
+            console.log(`Deleted activity logs for user ${userId}`);
+
+            // 6. Delete from mentor table
+            await connection.query('DELETE FROM mentor WHERE unique_user_no = ?', [userId]);
+            console.log(`Deleted mentor record for user ${userId}`);
+
+            // 7. Delete from users table
+            await connection.query('DELETE FROM users WHERE unique_user_no = ?', [userId]);
+            console.log(`Deleted user record for mentor ${userId}`);
+
+        } else if (userRole === 'admin') {
+            // --- Manual Deletion Logic for Admin ---
+            console.log(`User ${userId} is an admin. Deleting associated records...`);
+
+            // 1. Delete related communications
+            await connection.query('DELETE FROM communication WHERE sender_id = ? OR receiver_id = ?', [userId, userId]);
+            console.log(`Deleted communications for user ${userId}`);
+
+            // 2. Delete activity logs
+            await connection.query('DELETE FROM activity_log WHERE user_id = ?', [userId]);
+            console.log(`Deleted activity logs for user ${userId}`);
+
+            // 3. Delete from admin table (if one exists and needs cleanup)
+            // Assuming no separate 'admin' table needs specific cleanup based on procedure.
+            // If there is an 'admin' table with unique_user_no, add:
+            // await connection.query('DELETE FROM admin WHERE unique_user_no = ?', [userId]);
+            // console.log(`Deleted admin record for user ${userId}`);
+
+            // 4. Delete from users table
+            await connection.query('DELETE FROM users WHERE unique_user_no = ?', [userId]);
+            console.log(`Deleted user record for admin ${userId}`);
+
         } else {
-            throw new Error('Failed to delete user');
+            // Should not happen if role validation is correct, but good to handle
+            await connection.rollback();
+            console.log(`Unknown role '${userRole}' for user ${userId}. Transaction rolled back.`);
+            return res.status(500).json({ message: `Unknown user role: ${userRole}` });
         }
-        
+        // --- End Role-based Deletion Logic ---
+
+        // If all deletions were successful, commit the transaction
+        await connection.commit();
+        console.log(`Successfully deleted user ${userId} (role: ${userRole}). Transaction committed.`);
+        return res.status(200).json({ message: `User (role: ${userRole}) deleted successfully` });
+
     } catch (error) {
-        console.error('Error deleting user:', error);
-        
-        // Check if the error is due to foreign key constraint
+        console.error(`Error deleting user ${userId}:`, error);
+        // Rollback transaction on any error
+        if (connection) {
+            try {
+                await connection.rollback();
+                console.log(`Transaction rolled back due to error while deleting user ${userId}.`);
+            } catch (rollbackError) {
+                console.error('Error rolling back transaction:', rollbackError);
+            }
+        }
+
+        // Check if the error is due to foreign key constraint (might indicate a missed dependency)
         if (error.code === 'ER_ROW_IS_REFERENCED_2') {
-            return res.status(409).json({ 
-                message: 'Cannot delete this user because they have associated records. Remove those records first.' 
+            return res.status(409).json({
+                message: 'Cannot delete this user due to remaining associated records (foreign key constraint). Check dependencies.',
+                error: error.message
             });
         }
-        
+
         res.status(500).json({ message: 'Error deleting user', error: error.message });
+    } finally {
+        // Always release the connection
+        if (connection) {
+            try {
+                connection.release();
+                console.log('Database connection released.');
+            } catch (releaseError) {
+                console.error('Error releasing connection:', releaseError);
+            }
+        }
     }
 });
 
