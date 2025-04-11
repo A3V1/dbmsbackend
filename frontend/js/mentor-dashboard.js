@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Made async for po
     console.log("Mentor Dashboard JS Loaded");
 
     // --- Retrieve User Info from Session Storage ---
-    const loggedInUserId = sessionStorage.getItem('userId')-2;
+    const loggedInUserId = sessionStorage.getItem('userId');
     const loggedInUserRole = sessionStorage.getItem('userRole');
 
 
@@ -29,9 +29,10 @@ document.addEventListener('DOMContentLoaded', async () => { // Made async for po
     // For now, assuming the API endpoints correctly use the ID passed (which seems to be mentor_id based on route structure).
     // Let's keep selectedMentorId as the ID from session storage for now, assuming it's the correct one needed by the API.
     // If APIs fail with 404, we might need to fetch mentor details first to get the correct mentor_id.
-    let selectedMentorId = parseInt(loggedInUserId, 10); // Assuming this is the correct ID for API calls
-    let apiBaseUrl = `/api/mentor-dashboard/${selectedMentorId}`; // Set API base URL immediately
-    let mentorDetails = null;
+    // We will fetch mentor details first using unique_user_no to get the correct mentor_id
+    let selectedMentorId = null; // Will be set after fetching mentor details
+    let apiBaseUrl = null;       // Will be set after fetching mentor details
+    let mentorDetails = null;    // Will store the fetched mentor details
     // let academicChart = null; // Remove if not used
     let allMenteesData = []; // Store all fetched mentees for filtering
 
@@ -123,9 +124,51 @@ document.addEventListener('DOMContentLoaded', async () => { // Made async for po
         if (currentTimeEl) currentTimeEl.textContent = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     };
 
+    // Function to fetch initial mentor data using unique_user_no and set global vars
+    const fetchInitialMentorData = async (userNo) => {
+        console.log(`Fetching initial mentor details for user ID: ${userNo}`);
+        try {
+            const response = await fetch(`/api/mentor/details/by-user/${userNo}`);
+            if (!response.ok) {
+                if (response.status === 404) {
+                    console.error(`Mentor details not found for user ID ${userNo}. User might not be a mentor.`);
+                    throw new Error('Mentor details not found. Ensure you are logged in as a mentor.');
+                }
+                const errorText = await response.text();
+                console.error(`HTTP error fetching initial mentor details! Status: ${response.status}, Response: ${errorText}`);
+                throw new Error(`Failed to load mentor data (Status: ${response.status})`);
+            }
+            mentorDetails = await response.json(); // Store globally
+            if (!mentorDetails || !mentorDetails.mentor_id) {
+                 console.error("Fetched mentor data is invalid or missing mentor_id:", mentorDetails);
+                 throw new Error("Invalid mentor data received from server.");
+            }
+            selectedMentorId = mentorDetails.mentor_id; // Set the correct mentor_id
+            apiBaseUrl = `/api/mentor-dashboard/${selectedMentorId}`; // Set the correct base URL
+            console.log(`Successfully fetched mentor_id: ${selectedMentorId}. API base URL set to: ${apiBaseUrl}`);
+            return true; // Indicate success
+        } catch (error) {
+            console.error("Error in fetchInitialMentorData:", error);
+            // Display error to the user
+            if (mentorNameEl) mentorNameEl.textContent = "Error Loading Mentor Data";
+            if (mentorDepartmentEl) mentorDepartmentEl.textContent = error.message;
+            // Clear other details
+            const roomEl = document.getElementById('mentor-room');
+            const timetableEl = document.getElementById('mentor-timetable');
+            const backgroundEl = document.getElementById('mentor-background');
+            if (roomEl) roomEl.textContent = 'N/A';
+            if (timetableEl) timetableEl.textContent = 'N/A';
+            if (backgroundEl) backgroundEl.textContent = 'N/A';
+            // Clear dashboard sections
+            clearDashboardSections(); // Clear sections if initial load fails
+            return false; // Indicate failure
+        }
+    };
+
+
     const loadMentorDetails = async () => {
-        // Fetch details using the new dedicated endpoint
-        mentorDetails = await fetchData('/details'); // Endpoint relative to apiBaseUrl
+        // Details are now pre-fetched by fetchInitialMentorData and stored in global 'mentorDetails'
+        // This function now only populates the HTML elements
 
         if (mentorDetails) {
             // Use official_mail_id as display name since 'name' column doesn't exist
@@ -339,6 +382,14 @@ document.addEventListener('DOMContentLoaded', async () => { // Made async for po
     const initializeDashboard = async () => {
         updateDateTime();
         setInterval(updateDateTime, 1000);
+
+        // Fetch initial mentor data to get the correct mentor_id
+        const initSuccess = await fetchInitialMentorData(loggedInUserId);
+        if (!initSuccess) {
+            console.error("Dashboard initialization failed: Could not fetch initial mentor data.");
+            // Error message already displayed by fetchInitialMentorData
+            return; // Stop initialization
+        }
 
         // Hide the mentor selection dropdown
         if (mentorSelectEl) {

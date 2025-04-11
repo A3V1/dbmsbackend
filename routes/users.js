@@ -89,14 +89,17 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// POST /api/users - Create a new user (handles mentee creation via procedure)
+// POST /api/users - Create a new user (handles mentee creation via procedure, mentor via transaction)
 router.post('/', async (req, res) => {
+    let connection; // Define connection outside try block for finally
     try {
         // Extract all potential user data from request body
         const {
             official_mail_id, password, phone_num, prn_id, role, profile_picture,
-            // Mentee specific fields (might be undefined if role is not mentee)
-            calendar_id, mentor_id, course, year, attendance, academic_context, academic_background
+            // Mentee specific fields
+            calendar_id, mentor_id, course, year, attendance, academic_context, academic_background,
+            // Mentor specific fields (added)
+            room_no, timetable, department // academic_background is reused from mentee fields
         } = req.body;
 
         // Basic Validation
@@ -155,15 +158,22 @@ router.post('/', async (req, res) => {
         } else {
             // --- Standard User Insert (Admin/Mentor) ---
             console.log(`Attempting to add new ${role}...`);
-            const insertQuery = `
+
+            // Get a connection for potential transaction (needed for mentor)
+            connection = await db.getConnection();
+            await connection.beginTransaction();
+            console.log(`Transaction started for adding ${role}`);
+
+            // Insert into users table first
+            const userInsertQuery = `
                 INSERT INTO users
                 (official_mail_id, password, phone_num, prn_id, role, profile_picture, calendar_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             `;
-             // Generate a default calendar ID if not provided for admin/mentor
-             const final_calendar_id = calendar_id || `calendar_${role}_${Date.now()}`;
+            // Generate a default calendar ID if not provided for admin/mentor
+            const final_calendar_id = calendar_id || `calendar_${role}_${Date.now()}`;
 
-            const [result] = await db.query(insertQuery, [
+            const [userResult] = await connection.query(userInsertQuery, [
                 official_mail_id,
                 password, // Consider hashing!
                 phone_num || null,
@@ -173,37 +183,106 @@ router.post('/', async (req, res) => {
                 final_calendar_id
             ]);
 
-            if (result.affectedRows === 1) {
-                // Return the newly created user (excluding password)
-                const [newUser] = await db.query('SELECT * FROM users WHERE unique_user_no = ?', [result.insertId]);
-                 const userResponse = { ...newUser[0] };
-                 delete userResponse.password; // Don't send password back
-                 console.log(`${role} ${official_mail_id} added successfully with ID ${result.insertId}.`);
-                 res.status(201).json(userResponse);
-            } else {
-                console.error(`Failed to insert ${role} ${official_mail_id}. Result:`, result);
-                throw new Error(`Failed to create ${role}`);
+            if (userResult.affectedRows !== 1) {
+                await connection.rollback();
+                console.error(`Failed to insert user ${official_mail_id}. Result:`, userResult);
+                throw new Error(`Failed to create user part for ${role}`);
             }
+
+            const newUserId = userResult.insertId;
+            console.log(`User ${official_mail_id} inserted successfully with ID ${newUserId}.`);
+
+            // --- Mentor Specific Update (if role is mentor) ---
+            // Assumes a trigger creates the initial mentor row upon user insert with role='mentor'
+            if (role === 'mentor') {
+                console.log(`Updating mentor details for user ID ${newUserId}...`);
+                // Validate required mentor fields
+                if (room_no === undefined || timetable === undefined || department === undefined || academic_background === undefined) {
+                    await connection.rollback();
+                    return res.status(400).json({ message: 'Missing required mentor detail fields (Room No, Timetable, Department, Academic Background).' });
+                }
+
+                const mentorUpdateQuery = `
+                    UPDATE mentor
+                    SET room_no = ?, timetable = ?, department = ?, academic_background = ?
+                    WHERE unique_user_no = ?
+                `;
+                const [mentorUpdateResult] = await connection.query(mentorUpdateQuery, [
+                    room_no,
+                    timetable,
+                    department,
+                    academic_background, // Reusing the field name
+                    newUserId
+                ]);
+
+                // Check if the update affected a row. If not, the trigger might have failed or the mentor record doesn't exist.
+                if (mentorUpdateResult.affectedRows === 0) {
+                     await connection.rollback();
+                     console.error(`Failed to update mentor details for user ID ${newUserId}. Mentor record might not exist (trigger issue?).`);
+                     // Consider if a direct insert should be attempted here as a fallback, or just error out.
+                     // For now, error out as the trigger is expected to create the row.
+                     throw new Error('Failed to update mentor details; mentor record not found after user creation.');
+                }
+                 console.log(`Mentor details updated successfully for user ID ${newUserId}. Result:`, mentorUpdateResult);
+            }
+            // --- End Mentor Specific Update ---
+
+            // If we reached here, all necessary inserts were successful (or handled)
+            await connection.commit();
+            console.log(`Transaction committed successfully for adding ${role} ${official_mail_id}.`);
+
+            // Return the newly created user (excluding password)
+            const [newUser] = await connection.query('SELECT * FROM users WHERE unique_user_no = ?', [newUserId]);
+            const userResponse = { ...newUser[0] };
+            delete userResponse.password; // Don't send password back
+            res.status(201).json(userResponse);
         }
 
     } catch (error) {
         console.error(`Error creating user/mentee (${req.body.role}):`, error);
-        
-        // Check for duplicate entry errors
+
+        // Rollback transaction if connection exists and an error occurred
+        if (connection) {
+            try {
+                await connection.rollback();
+                console.log('Transaction rolled back due to error.');
+            } catch (rollbackError) {
+                console.error('Error rolling back transaction:', rollbackError);
+            }
+        }
+
+        // Check for duplicate entry errors (primarily for the initial user insert now)
         if (error.code === 'ER_DUP_ENTRY') {
-            if (error.message.includes('official_mail_id')) {
+            // Check which constraint caused the error
+            if (error.message.includes('users.official_mail_id')) {
                 return res.status(409).json({ message: 'Email already exists' });
             }
-            if (error.message.includes('prn_id')) {
+            if (error.message.includes('users.prn_id')) {
                 return res.status(409).json({ message: 'PRN ID already exists' });
             }
-            if (error.message.includes('calendar_id')) {
+            if (error.message.includes('users.calendar_id')) {
                 return res.status(409).json({ message: 'Calendar ID already exists' });
             }
-            return res.status(409).json({ message: 'Duplicate entry error' });
+             // Duplicate entry on mentor table was handled above, but check just in case
+             if (error.message.includes('mentor.unique_user_no')) {
+                 console.warn('Duplicate entry error caught for mentor table, should have been handled earlier.');
+                 // This might indicate an issue if the trigger handling logic failed
+                 return res.status(500).json({ message: 'Internal server error during mentor creation.' });
+             }
+            return res.status(409).json({ message: 'Duplicate entry error', detail: error.message });
         }
-        
+
         res.status(500).json({ message: 'Error creating user', error: error.message });
+    } finally {
+        // Always release the connection
+        if (connection) {
+            try {
+                connection.release();
+                console.log('Database connection released.');
+            } catch (releaseError) {
+                console.error('Error releasing connection:', releaseError);
+            }
+        }
     }
 });
 
