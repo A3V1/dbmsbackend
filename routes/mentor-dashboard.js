@@ -2,6 +2,25 @@ const express = require('express');
 const router = express.Router();
 const db = require('../dbConfig.js');
 
+// --- 🧑‍🏫 Get All Mentors for Dropdown ---
+// GET /api/mentor-dashboard/mentors
+router.get('/mentors', async (req, res) => {
+    try {
+        const query = `
+            SELECT m.mentor_id, u.name AS mentor_name
+            FROM mentor m
+            JOIN users u ON m.unique_user_no = u.unique_user_no
+            ORDER BY u.name;
+        `;
+        const [mentors] = await db.query(query);
+        res.status(200).json(mentors);
+    } catch (error) {
+        console.error('Error fetching all mentors:', error);
+        res.status(500).json({ message: 'Error fetching mentor list from database' });
+    }
+});
+
+
 // Helper function to get mentor's unique_user_no from mentor_id
 async function getMentorUserNo(mentorId) {
     // Validate mentorId is a number
@@ -15,26 +34,60 @@ async function getMentorUserNo(mentorId) {
     return rows[0].unique_user_no;
 }
 
-// --- 📚 Mentee List & Profiles (using Stored Procedure) ---
-// GET /api/mentor-dashboard/:mentorId/mentees
-router.get('/:mentorId/mentees', async (req, res) => {
+// --- 🧑‍🏫 Mentor Details ---
+// GET /api/mentor-dashboard/:mentorId/details
+router.get('/:mentorId/details', async (req, res) => {
     const { mentorId } = req.params;
+    if (isNaN(mentorId)) {
+        return res.status(400).json({ message: 'Invalid Mentor ID format' });
+    }
     try {
-        // Call the stored procedure to get mentee academic details
-        const query = `CALL get_mentor_mentees_academics(?)`;
-        const [results] = await db.query(query, [mentorId]);
-        const mentees = results[0]; // Stored procedures often return results in an array
-
-        // The procedure returns: mentee_id, mentee_email, course, year, attendance, academic_context
-        // Returning direct procedure result. Frontend will need adjustment if it needs more user details.
-        res.status(200).json(mentees);
+        const query = `
+            SELECT m.mentor_id, m.room_no, m.timetable, m.department, m.academic_background, u.official_mail_id -- Removed u.name
+            FROM mentor m
+            JOIN users u ON m.unique_user_no = u.unique_user_no
+            WHERE m.mentor_id = ?;
+        `;
+        const [details] = await db.query(query, [mentorId]);
+        if (details.length === 0) {
+            return res.status(404).json({ message: 'Mentor not found' });
+        }
+        res.status(200).json(details[0]);
     } catch (error) {
-        console.error(`Error fetching mentees for mentor ${mentorId} using procedure:`, error);
-        res.status(500).json({ message: 'Error fetching mentee data from database' });
+        console.error(`Error fetching details for mentor ${mentorId}:`, error);
+        res.status(500).json({ message: 'Error fetching mentor details from database' });
     }
 });
 
-// --- 🗓️ Meeting Scheduler & Agenda ---
+
+// --- 📚 Mentee List & Academic Profiles (using JOIN Query) ---
+// GET /api/mentor-dashboard/:mentorId/mentees
+router.get('/:mentorId/mentees', async (req, res) => {
+    const { mentorId } = req.params;
+     if (isNaN(mentorId)) {
+        return res.status(400).json({ message: 'Invalid Mentor ID format' });
+    }
+    try {
+        // Use the provided JOIN query
+        const query = `
+            SELECT mav.mentee_id, mav.mentee_email, mav.course, mav.year, mav.attendance, mav.academic_context, u.profile_picture -- Replaced u.profile_pic_url with u.profile_picture
+            FROM mentor_view mv
+            JOIN mentee_academic_view mav ON mv.mentee_id = mav.mentee_id
+            JOIN mentee me ON mav.mentee_id = me.mentee_id  -- Join mentee table
+            JOIN users u ON me.unique_user_no = u.unique_user_no -- Join users table for name/pic
+            WHERE mv.mentor_id = ?;
+        `;
+        const [mentees] = await db.query(query, [mentorId]);
+        res.status(200).json(mentees);
+    } catch (error) {
+        console.error(`Error fetching mentees for mentor ${mentorId}:`, error.message); // Log specific error message
+        console.error('DB Error Details:', error); // Log the full error object
+        res.status(500).json({ message: 'Error fetching mentee data from database', error: error.message }); // Include error in response (optional, for debugging)
+    }
+});
+
+
+// --- 🗓️ Meeting Scheduler & Agenda (Existing - Keep as is for now) ---
 // GET /api/mentor-dashboard/:mentorId/meetings
 router.get('/:mentorId/meetings', async (req, res) => {
     const { mentorId } = req.params;
@@ -71,42 +124,72 @@ router.get('/:mentorId/meetings', async (req, res) => {
     }
 });
 
-// --- 💬 Communication Center & Alerts (using Stored Procedure) ---
+// --- 📊 Communication Statistics ---
+// GET /api/mentor-dashboard/:mentorId/communication-stats
+router.get('/:mentorId/communication-stats', async (req, res) => {
+    const { mentorId } = req.params;
+    try {
+        const mentorUserNo = await getMentorUserNo(mentorId);
+        const query = `
+            SELECT type, message_status, COUNT(*) AS total_messages
+            FROM communication
+            WHERE sender_id = ? OR receiver_id = ?
+            GROUP BY type, message_status;
+        `;
+        const [stats] = await db.query(query, [mentorUserNo, mentorUserNo]);
+        res.status(200).json(stats);
+    } catch (error) {
+        console.error(`Error fetching communication stats for mentor ${mentorId}:`, error);
+        if (error.message === 'Mentor not found' || error.message === 'Invalid Mentor ID format') {
+            return res.status(404).json({ message: 'Mentor not found or invalid ID.' });
+        }
+        res.status(500).json({ message: 'Error fetching communication statistics' });
+    }
+});
+
+
+// --- 💬 Recent Communications (using communication_view) ---
 // GET /api/mentor-dashboard/:mentorId/communications
 router.get('/:mentorId/communications', async (req, res) => {
     const { mentorId } = req.params;
     try {
-        const mentorUserNo = await getMentorUserNo(mentorId); // Still need user_no for the procedure parameter
-        // Call the stored procedure
-        const query = `CALL get_mentor_communications_emergencies(?)`;
-        const [results] = await db.query(query, [mentorUserNo]);
-        const communications = results[0]; // Procedure result
-
-        // The procedure returns combined communication and alert data.
-        // Returning direct procedure result. Frontend will need adjustment.
+        const mentorUserNo = await getMentorUserNo(mentorId);
+        // Use the communication_view query provided
+        // Assuming 'timestamp' column exists in communication_view. If not, remove ORDER BY or use a different column.
+        const query = `
+            SELECT *
+            FROM communication_view
+            WHERE sender_id = ? OR receiver_id = ?
+            LIMIT 10; -- Removed ORDER BY timestamp DESC
+        `;
+        const [communications] = await db.query(query, [mentorUserNo, mentorUserNo]);
         res.status(200).json(communications);
-
     } catch (error) {
-        console.error(`Error fetching communications/alerts for mentor ${mentorId} using procedure:`, error);
-         if (error.message === 'Mentor not found' || error.message === 'Invalid Mentor ID format') {
+        console.error(`Error fetching communications for mentor ${mentorId}:`, error.message); // Log specific error message
+        console.error('DB Error Details:', error); // Log the full error object
+        // Removed the specific timestamp error handling as we removed the ORDER BY clause
+        if (error.message === 'Mentor not found' || error.message === 'Invalid Mentor ID format') {
             return res.status(404).json({ message: 'Mentor not found or invalid ID.' });
         }
-        res.status(500).json({ message: 'Error fetching communication/alert data' });
+        res.status(500).json({ message: 'Error fetching communication data', error: error.message }); // Include error in response (optional, for debugging)
     }
 });
 
-// --- Achievement Management (Keeping existing query as it seems more robust) ---
+
+// --- 🏆 Achievement Management (using provided JOIN Query) ---
 // GET /api/mentor-dashboard/:mentorId/achievements
 router.get('/:mentorId/achievements', async (req, res) => {
     const { mentorId } = req.params;
+     if (isNaN(mentorId)) {
+        return res.status(400).json({ message: 'Invalid Mentor ID format' });
+    }
     try {
-        // Fetch achievements awarded by this mentor
+        // Use the provided JOIN query
         const query = `
             SELECT
-                a.achvmt_id,
+                a.achvmt_id, -- Assuming achievement table has primary key achvmt_id
                 a.mentee_id,
                 u.official_mail_id AS mentee_email,
-                u.prn_id AS mentee_prn,
                 a.title,
                 a.description,
                 a.date_awarded,
@@ -115,7 +198,7 @@ router.get('/:mentorId/achievements', async (req, res) => {
             JOIN mentee m ON a.mentee_id = m.mentee_id
             JOIN users u ON m.unique_user_no = u.unique_user_no
             WHERE a.mentor_id = ?
-            ORDER BY a.date_awarded DESC, a.title;
+            ORDER BY a.date_awarded DESC; -- Order as per example if needed
         `;
         const [achievements] = await db.query(query, [mentorId]);
         res.status(200).json(achievements);
@@ -125,7 +208,8 @@ router.get('/:mentorId/achievements', async (req, res) => {
     }
 });
 
-// --- 📈 Academic Monitoring Dashboard (using Stored Procedure for data source) ---
+
+// --- 📈 Academic Monitoring Dashboard (Existing - Keep as is, uses procedure results) ---
 // GET /api/mentor-dashboard/:mentorId/academic-summary
 router.get('/:mentorId/academic-summary', async (req, res) => {
      const { mentorId } = req.params;
@@ -190,12 +274,32 @@ router.get('/:mentorId/feedback', async (req, res) => {
     }
 });
 
-// --- File Review Panel Route Removed ---
+// --- 🚨 Pending Emergency Alerts ---
+// GET /api/mentor-dashboard/:mentorId/pending-alerts
+router.get('/:mentorId/pending-alerts', async (req, res) => {
+    const { mentorId } = req.params;
+    try {
+        const mentorUserNo = await getMentorUserNo(mentorId);
+        const query = `
+            SELECT ea.emergency_alert_id, ea.comm_id, ea.alert_reason, ea.alert_status, c.sender_id, c.receiver_id
+            FROM emergency_alerts ea
+            JOIN communication c ON ea.comm_id = c.comm_id
+            WHERE ea.alert_status = 'pending'
+              AND (c.sender_id = ? OR c.receiver_id = ?);
+        `;
+        const [alerts] = await db.query(query, [mentorUserNo, mentorUserNo]);
+        res.status(200).json(alerts);
+    } catch (error) {
+        console.error(`Error fetching pending alerts for mentor ${mentorId}:`, error);
+        if (error.message === 'Mentor not found' || error.message === 'Invalid Mentor ID format') {
+            return res.status(404).json({ message: 'Mentor not found or invalid ID.' });
+        }
+        res.status(500).json({ message: 'Error fetching pending emergency alerts' });
+    }
+});
 
-// --- 🚨 Emergency Alert Viewer Route Removed (Data now in /communications) ---
 
-
-// --- 📌 Activity Tracker ---
+// --- 📌 Activity Tracker (Existing - Keep as is) ---
 // GET /api/mentor-dashboard/:mentorId/activity
 router.get('/:mentorId/activity', async (req, res) => {
     const { mentorId } = req.params;
@@ -293,6 +397,32 @@ router.post('/:mentorId/achievements', async (req, res) => {
 //     // Needs implementation: Validate input, update emergency_alerts table
 //     res.status(501).json({ message: 'Updating alert status not implemented yet.' });
 // });
+
+// DELETE /api/mentor-dashboard/achievements/:achievementId (Delete an achievement)
+// Note: We don't include mentorId in the route as achievementId should be unique
+router.delete('/achievements/:achievementId', async (req, res) => {
+    const { achievementId } = req.params;
+
+    if (isNaN(achievementId)) {
+        return res.status(400).json({ message: 'Invalid Achievement ID format.' });
+    }
+
+    try {
+        const query = `DELETE FROM achievement WHERE achvmt_id = ?;`;
+        const [result] = await db.query(query, [achievementId]);
+
+        if (result.affectedRows === 1) {
+            res.status(200).json({ message: 'Achievement deleted successfully.' });
+        } else {
+            // If no rows were affected, the achievement ID likely didn't exist
+            res.status(404).json({ message: 'Achievement not found or already deleted.' });
+        }
+    } catch (error) {
+        console.error(`Error deleting achievement ${achievementId}:`, error);
+        // Handle potential foreign key constraint issues if needed, though less likely on DELETE
+        res.status(500).json({ message: 'Error deleting achievement from database.' });
+    }
+});
 
 
 module.exports = router;

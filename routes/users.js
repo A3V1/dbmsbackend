@@ -89,49 +89,105 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// POST /api/users - Create a new user
+// POST /api/users - Create a new user (handles mentee creation via procedure)
 router.post('/', async (req, res) => {
     try {
-        // Extract user data from request body
-        const { official_mail_id, password, phone_num, prn_id, role, profile_picture, calendar_id } = req.body;
-        
-        // Validation
+        // Extract all potential user data from request body
+        const {
+            official_mail_id, password, phone_num, prn_id, role, profile_picture,
+            // Mentee specific fields (might be undefined if role is not mentee)
+            calendar_id, mentor_id, course, year, attendance, academic_context, academic_background
+        } = req.body;
+
+        // Basic Validation
         if (!official_mail_id || !password || !prn_id || !role) {
-            return res.status(400).json({ message: 'Required fields missing: email, password, PRN ID, and role are required' });
+            return res.status(400).json({ message: 'Required fields missing: email, password, PRN ID, and role are required.' });
         }
-        
-        // Validate role is one of the allowed values
+
+        // Validate role
         if (!['admin', 'mentor', 'mentee'].includes(role)) {
-            return res.status(400).json({ message: 'Invalid role. Must be admin, mentor, or mentee' });
+            return res.status(400).json({ message: 'Invalid role. Must be admin, mentor, or mentee.' });
         }
-        
-        // Insert new user
-        const query = `
-            INSERT INTO users 
-            (official_mail_id, password, phone_num, prn_id, role, profile_picture, calendar_id) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `;
-        
-        const [result] = await db.query(query, [
-            official_mail_id, 
-            password, 
-            phone_num || null, 
-            prn_id, 
-            role, 
-            profile_picture || null, 
-            calendar_id || `calendar${Date.now()}` // Generate a default calendar ID if not provided
-        ]);
-        
-        if (result.affectedRows === 1) {
-            // Return the newly created user
-            const [newUser] = await db.query('SELECT * FROM users WHERE unique_user_no = ?', [result.insertId]);
-            res.status(201).json(newUser[0]);
+
+        // --- Conditional Logic based on Role ---
+        if (role === 'mentee') {
+            // --- Call AddNewMentee Stored Procedure ---
+            console.log('Attempting to add new mentee via procedure...');
+
+            // Validate required mentee fields received from frontend
+            if (mentor_id === undefined || calendar_id === undefined || course === undefined || year === undefined || attendance === undefined || academic_context === undefined || academic_background === undefined) {
+                 return res.status(400).json({ message: 'Missing required mentee detail fields (Mentor, Calendar ID, Course, Year, Attendance, Context, Background).' });
+            }
+
+            const callQuery = 'CALL AddNewMentee(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+            const params = [
+                official_mail_id,
+                password, // Consider hashing this password before storing!
+                phone_num || null,
+                prn_id,
+                calendar_id, // Use the one sent from frontend
+                parseInt(mentor_id, 10), // Ensure it's an integer
+                course,
+                parseInt(year, 10), // Ensure it's an integer
+                parseFloat(attendance), // Ensure it's a float/decimal
+                academic_context,
+                academic_background
+            ];
+
+            // Validate numeric conversions
+             if (isNaN(params[5]) || isNaN(params[7]) || isNaN(params[8])) {
+                 return res.status(400).json({ message: 'Invalid numeric value for Mentor ID, Year, or Attendance.' });
+             }
+
+            console.log('Executing AddNewMentee with params:', params);
+            const [result] = await db.query(callQuery, params);
+            console.log('AddNewMentee procedure result:', result);
+
+            // Check if the procedure indicated success (might vary based on procedure implementation)
+            // Often, procedures don't return affectedRows like INSERT. Success might be indicated by lack of error.
+            // We might need a more specific check if the procedure returns an output parameter.
+            // For now, assume success if no error is thrown.
+             console.log(`Mentee ${official_mail_id} potentially added successfully via procedure.`);
+             // Since the procedure handles insertion across tables, we might not have a simple new user ID to return.
+             // Returning a generic success message might be best unless the procedure provides an output ID.
+             res.status(201).json({ message: `Mentee ${official_mail_id} created successfully.` });
+
         } else {
-            throw new Error('Failed to create user');
+            // --- Standard User Insert (Admin/Mentor) ---
+            console.log(`Attempting to add new ${role}...`);
+            const insertQuery = `
+                INSERT INTO users
+                (official_mail_id, password, phone_num, prn_id, role, profile_picture, calendar_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            `;
+             // Generate a default calendar ID if not provided for admin/mentor
+             const final_calendar_id = calendar_id || `calendar_${role}_${Date.now()}`;
+
+            const [result] = await db.query(insertQuery, [
+                official_mail_id,
+                password, // Consider hashing!
+                phone_num || null,
+                prn_id,
+                role,
+                profile_picture || null,
+                final_calendar_id
+            ]);
+
+            if (result.affectedRows === 1) {
+                // Return the newly created user (excluding password)
+                const [newUser] = await db.query('SELECT * FROM users WHERE unique_user_no = ?', [result.insertId]);
+                 const userResponse = { ...newUser[0] };
+                 delete userResponse.password; // Don't send password back
+                 console.log(`${role} ${official_mail_id} added successfully with ID ${result.insertId}.`);
+                 res.status(201).json(userResponse);
+            } else {
+                console.error(`Failed to insert ${role} ${official_mail_id}. Result:`, result);
+                throw new Error(`Failed to create ${role}`);
+            }
         }
-        
+
     } catch (error) {
-        console.error('Error creating user:', error);
+        console.error(`Error creating user/mentee (${req.body.role}):`, error);
         
         // Check for duplicate entry errors
         if (error.code === 'ER_DUP_ENTRY') {

@@ -315,6 +315,77 @@
             color: var(--primary-color);
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; /* 5% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+            max-width: 600px; /* Maximum width */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 10px 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            margin: -20px -20px 15px -20px; /* Adjust padding */
+        }
+
+         .modal-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+         }
+
+        .modal-body {
+            padding: 2px 16px;
+            line-height: 1.6;
+        }
+
+        .modal-body p {
+            margin-bottom: 10px;
+        }
+
+        .modal-body strong {
+            color: var(--primary-color);
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            line-height: 1;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body class="dashboard-layout">
@@ -327,6 +398,11 @@
                     <span id="mentor-name"></span>
                     <span id="mentor-department"></span>
                 </div>
+                <div class="mentor-profile-details" style="margin-top: 10px; font-size: 0.9em; color: var(--light-text);">
+                    <span title="Room Number"><i class="fas fa-door-closed"></i> <span id="mentor-room"></span></span> |
+                    <span title="Timetable"><i class="fas fa-calendar-alt"></i> <span id="mentor-timetable"></span></span> |
+                    <span title="Academic Background"><i class="fas fa-user-graduate"></i> <span id="mentor-background"></span></span>
+                </div>
             </div>
             <div class="header-right">
                 <div class="date-time">
@@ -335,13 +411,7 @@
                 </div>
             </div>
         </header>
-        <div class="header-bar">
-            <label for="mentor-select">Select Mentor:</label>
-            <select id="mentor-select">
-                <option value="" disabled selected>Select a mentor</option>
-                <!-- Mentor options will be dynamically populated -->
-            </select>
-        </div>
+        <!-- Mentor Selection Dropdown Removed -->
         <div class="dashboard-content">
             <section class="stats-section">
                 <div class="stats-grid">
@@ -354,7 +424,7 @@
                         <h2>My Mentees</h2>
                         <div class="filter-controls">
                             <select id="mentee-filter"><option value="all">All</option><option value="excellent">Excellent</option></select>
-                            <button id="add-mentee-btn" class="btn-primary"><i class="fas fa-plus"></i> Add Mentee</button>
+                            <!-- Add Mentee Button Removed -->
                         </div>
                     </div>
                     <div id="mentee-list" class="scrollable"></div>
@@ -376,10 +446,88 @@
               
 
             </div> <!-- End dashboard-grid -->
+
+            <!-- New Sections for Dynamic Data -->
+            <!-- Communication Stats Section Removed -->
+
+            <section class="dashboard-section recent-communications" style="grid-column: span 2;">
+                <div class="section-header">
+                    <h2>Recent Communications</h2>
+                </div>
+                <div id="recent-communications-list" class="scrollable list-container">
+                    <p>Loading communications...</p>
+                </div>
+            </section>
+
+            <section class="dashboard-section pending-alerts" style="grid-column: span 4;"> <!-- Span full width -->
+                 <div class="section-header">
+                    <h2><i class="fas fa-exclamation-triangle" style="color: #FF9800;"></i> Pending Alerts</h2>
+                 </div>
+                 <div id="pending-alerts-list" class="list-container alert-list"> <!-- Added alert-list class for potential styling -->
+                     <p>Loading alerts...</p>
+                 </div>
+            </section>
+
         </div> <!-- End dashboard-content -->
     </main>
     <!-- <script src="js/navigation.js"></script> --> <!-- Commented out as file not found -->
     <script src="js/mentor-dashboard.js"></script>
     <!-- Removed conflicting inline script block -->
+
+    <!-- Mentee Profile Modal -->
+    <div id="menteeProfileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-btn">&times;</span>
+                <h2 id="modalMenteeName">Mentee Profile</h2>
+            </div>
+            <div class="modal-body">
+                <p><strong>Course:</strong> <span id="modalMenteeCourse"></span></p>
+                <p><strong>Year:</strong> <span id="modalMenteeYear"></span></p>
+                <p><strong>Attendance:</strong> <span id="modalMenteeAttendance"></span></p>
+                <p><strong>Academic Context:</strong> <span id="modalMenteeContext"></span></p>
+                <hr>
+                <p><strong>Academic Background:</strong></p>
+                <p id="modalMenteeBackground" style="white-space: pre-wrap;"></p> <!-- Use pre-wrap to preserve formatting -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Award Achievement Modal -->
+    <div id="awardAchievementModal" class="modal">
+        <div class="modal-content">
+             <div class="modal-header">
+                <span class="close-btn award-close-btn">&times;</span>
+                <h2>Award New Achievement</h2>
+            </div>
+            <div class="modal-body">
+                <form id="awardAchievementForm">
+                    <div class="form-group">
+                        <label for="awardMenteeId">Mentee ID:</label>
+                        <input type="number" id="awardMenteeId" name="mentee_id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="awardTitle">Title:</label>
+                        <input type="text" id="awardTitle" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="awardDescription">Description:</label>
+                        <textarea id="awardDescription" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="awardDate">Date Awarded:</label>
+                        <input type="date" id="awardDate" name="date_awarded" required>
+                    </div>
+                     <div class="form-group">
+                        <label for="awardBadgeIcon">Badge Icon Filename (Optional):</label>
+                        <input type="text" id="awardBadgeIcon" name="badge_icon" placeholder="e.g., project_badge.png">
+                    </div>
+                    <div id="awardError" class="error-message" style="display: none; color: red; margin-bottom: 10px;"></div>
+                    <button type="submit" class="btn-primary">Award Achievement</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

@@ -7,37 +7,40 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #1e3c72;
-            --accent-color: #2a5298;
+            --primary-color: #FF6B00; /* Orange */
+            --secondary-color: #FF8C38; /* Lighter Orange */
+            --accent-color: #1E5CC8; /* Blue */
+            --accent-dark: #0D47A1; /* Darker Blue */
             --text-color: #333;
             --text-muted: #666;
+            --white: #ffffff;
+            --light-gray: #f5f7fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
         }
 
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-dark));
             min-height: 100vh;
-            display: flex; /* Use flexbox to center content */
-            flex-direction: column; /* Stack navbar and main content */
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            flex-grow: 1; /* Allow container to grow and push footer down */
-            display: flex; /* Use flexbox for centering login section */
-            justify-content: center; /* Center horizontally */
-            align-items: center; /* Center vertically */
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
         }
 
         /* Header */
         .navbar {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1rem;
-            backdrop-filter: blur(10px);
-            width: 100%; /* Ensure navbar spans full width */
+            background: var(--white);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .navbar-content {
@@ -48,113 +51,319 @@
             margin: 0 auto;
         }
 
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
         .logo img {
-            height: 50px; /* Adjusted logo size */
+            height: 50px;
+            transition: transform 0.3s ease;
         }
 
-        /* Main Content - Adjusted for centering */
+        .logo img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Main Content */
         .main-content {
-             flex-grow: 1; /* Take remaining vertical space */
-             display: flex;
-             justify-content: center;
-             align-items: center;
-             width: 100%;
-             padding: 20px; /* Add padding */
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
         }
 
+        /* Decorative elements */
+        .background-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            top: -100px;
+            left: -100px;
+        }
+
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            bottom: 10%;
+            right: 10%;
+        }
+
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            bottom: -50px;
+            left: 30%;
+        }
+
+        /* Login Section */
+        .login-container {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            overflow: hidden;
+            background: var(--white);
+        }
+
+        .login-image {
+            flex: 1;
+            background: url('/api/placeholder/500/700') center center/cover;
+            min-height: 400px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 107, 0, 0.9), rgba(255, 140, 56, 0.8));
+        }
+
+        .image-content {
+            position: relative;
+            z-index: 2;
+            color: var(--white);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .image-content h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .image-content p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .features {
+            list-style: none;
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .features li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .features li i {
+            margin-right: 10px;
+            color: var(--white);
+        }
 
         .login-section {
-            background: white;
-            padding: 40px; /* Adjusted padding */
-            border-radius: 15px; /* Slightly smaller radius */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            width: 100%; /* Responsive width */
-            max-width: 450px; /* Max width for the box */
-            text-align: center;
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .login-section h2 {
             color: var(--primary-color);
             margin-bottom: 10px;
+            font-size: 1.8rem;
+            font-weight: 600;
         }
 
         .login-section p {
             color: var(--text-muted);
-            margin-bottom: 30px; /* Increased space */
+            margin-bottom: 30px;
+            font-size: 1rem;
         }
 
-
-        /* Form Styles - Kept for potential future use, but not strictly needed now */
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        input {
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-top: 5px;
-            box-sizing: border-box; /* Include padding in width */
         }
 
         .btn {
-            background: var(--primary-color); /* Use primary color */
-            color: white;
-            padding: 12px 20px; /* Slightly larger padding */
+            background: var(--primary-color);
+            color: var(--white);
+            padding: 14px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            width: calc(100% - 0px); /* Adjusted width calculation */
-            margin-top: 10px;
-            text-decoration: none; /* Remove underline from link */
-            display: inline-block; /* Ensure proper block behavior */
+            text-decoration: none;
+            display: block;
             font-size: 1rem;
-            transition: background-color 0.3s ease;
+            font-weight: 500;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn:hover {
-             background: var(--accent-color); /* Darken on hover */
+            background: var(--secondary-color);
+            transform: translateY(-2px);
         }
 
+        .btn-signup {
+            background: var(--white);
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+        }
 
-        /* Signup Link */
-        .signup-link {
-            margin-top: 20px; /* Increased space */
-            padding-top: 15px;
-            border-top: 1px solid #eee;
+        .btn-signup:hover {
+            background: var(--light-gray);
+            color: var(--accent-dark);
+            border-color: var(--accent-dark);
+        }
+
+        .social-login {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .social-login p {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .social-login p::before,
+        .social-login p::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .social-login p::before {
+            left: 0;
+        }
+
+        .social-login p::after {
+            right: 0;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            background: var(--accent-color);
+            color: var(--white);
+            transform: translateY(-3px);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: var(--white);
+            color: var(--accent-color);
             font-size: 0.9rem;
-            color: var(--text-muted);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
         }
 
-        .signup-link a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: bold;
+        /* Responsive */
+        @media (max-width: 992px) {
+            .login-container {
+                flex-direction: column;
+                max-width: 600px;
+            }
+            
+            .login-image {
+                min-height: 250px;
+            }
         }
 
-        .signup-link a:hover {
-            text-decoration: underline;
-        }
-
-         /* Responsive */
         @media (max-width: 768px) {
-             .login-section {
-                 padding: 30px;
-             }
-             .logo img {
-                 height: 40px;
-             }
+            .navbar {
+                padding: 0.8rem 1rem;
+            }
+            
+            .logo img {
+                height: 40px;
+            }
+            
+            .login-section {
+                padding: 30px;
+            }
+            
+            .image-content h2 {
+                font-size: 1.5rem;
+            }
         }
-         @media (max-width: 480px) {
-             .login-section {
-                 padding: 20px;
-             }
-              .btn {
-                 padding: 10px 15px;
-             }
-         }
 
+        @media (max-width: 480px) {
+            .login-section {
+                padding: 20px;
+            }
+            
+            .btn {
+                padding: 12px 15px;
+            }
+            
+            .features {
+                margin: 10px 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -163,31 +372,71 @@
             <div class="logo">
                 <img src="assets/mit-wpu_logo.png" alt="MIT WPU Logo">
             </div>
-            <!-- Optional: Add nav links back if needed -->
         </div>
     </nav>
 
     <div class="main-content">
-        <!-- Container is removed from here as main-content now handles centering -->
-        <div class="login-section">
-            <h2>Welcome to the MIT WPU Mentor-Mentee System</h2>
-            <p>Please log in or sign up to continue.</p>
-
-            <a href="mit-wpu-login.html" class="btn" style="margin-bottom: 15px;">Login</a>
-            <a href="signup.html" class="btn">Sign Up</a>
-
-            <!-- Removed the role selection section -->
-            <!--
-            <div class="signup-link">
-                Don't have an account? <a href="signup.html">Sign Up</a>
+        <div class="background-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        
+        <div class="login-container">
+            <div class="login-image">
+                <div class="image-content">
+                    <h2>MIT WPU Mentor-Mentee System</h2>
+                    <p>Connecting mentors and mentees for academic excellence</p>
+                    <ul class="features">
+                        <li><i class="fas fa-check-circle"></i> Personalized academic guidance</li>
+                        <li><i class="fas fa-check-circle"></i> Schedule meetings with mentors</li>
+                        <li><i class="fas fa-check-circle"></i> Track your progress</li>
+                        <li><i class="fas fa-check-circle"></i> Resource sharing</li>
+                    </ul>
+                </div>
             </div>
-            -->
+            
+            <div class="login-section">
+                <h2>Welcome Back!</h2>
+                <p>Please log in or sign up to access the mentor-mentee portal.</p>
+                
+                <div class="btn-container">
+                    <a href="mit-wpu-login.html" class="btn">Login to Your Account</a>
+                    <a href="signup.html" class="btn btn-signup">Create New Account</a>
+                </div>
+                
+                <div class="social-login">
+                    <p>Or continue with</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-google"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-microsoft"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Minimal script section -->
+    <footer>
+        <p>&copy; 2025 MIT World Peace University. All rights reserved.</p>
+    </footer>
+
     <script>
-        // Basic scripts can go here if needed in the future.
+        // Add subtle animation to background shapes
+        document.addEventListener('DOMContentLoaded', function() {
+            const shapes = document.querySelectorAll('.shape');
+            
+            // Animate background shapes randomly
+            shapes.forEach(shape => {
+                setInterval(() => {
+                    const xPos = Math.random() * 20 - 10;
+                    const yPos = Math.random() * 20 - 10;
+                    const scale = 0.95 + Math.random() * 0.1;
+                    
+                    shape.style.transform = `translate(${xPos}px, ${yPos}px) scale(${scale})`;
+                }, 3000);
+            });
+        });
     </script>
 </body>
 </html>

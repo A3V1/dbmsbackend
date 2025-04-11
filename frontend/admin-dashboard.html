@@ -694,6 +694,52 @@
                             <label class="form-label">Phone Number</label>
                             <input type="tel" class="form-input" id="user-phone" required>
                         </div>
+
+                        <!-- Mentee Specific Fields (Initially Hidden) -->
+                        <div id="mentee-specific-fields" style="display: none;">
+                            <hr style="margin: 15px 0;">
+                            <h4 style="margin-bottom: 10px; color: var(--primary-color);">Mentee Details</h4>
+                            <div class="form-group">
+                                <label class="form-label">Assign Mentor</label>
+                                <select class="form-input" id="user-mentor-id">
+                                    <option value="">-- Select Mentor --</option>
+                                    <!-- Mentor options will be populated by JS -->
+                                </select>
+                            </div>
+                             <div class="form-group">
+                                <label class="form-label">Calendar ID</label>
+                                <input type="text" class="form-input" id="user-calendar-id">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Course</label>
+                                <input type="text" class="form-input" id="user-course">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Year</label>
+                                <input type="number" class="form-input" id="user-year" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Attendance (%)</label>
+                                <input type="number" class="form-input" id="user-attendance" step="0.01" min="0" max="100">
+                            </div>
+                             <div class="form-group">
+                                <label class="form-label">Academic Context</label>
+                                <select class="form-input" id="user-academic-context">
+                                     <option value="">-- Select Context --</option>
+                                     <option value="Excellent">Excellent</option>
+                                     <option value="Good">Good</option>
+                                     <option value="Average">Average</option>
+                                     <option value="Poor">Poor</option>
+                                     <option value="Critical">Critical</option> <!-- Added based on typical usage -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Academic Background</label>
+                                <textarea class="form-input" id="user-academic-background" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <!-- End Mentee Specific Fields -->
+
                         <div class="form-status" id="form-status" style="margin: 10px 0; display: none;"></div>
                         <div class="form-group text-right">
                             <button type="button" class="btn btn-outline mr-2" onclick="closeModal()">Cancel</button>
@@ -1197,8 +1243,13 @@
      function openModal() {
         const modal = document.getElementById('add-user-modal');
         modal.style.display = 'block';
-        document.getElementById('form-status').style.display = 'none';
+        // Reset form and hide mentee fields initially
         document.getElementById('add-user-form').reset();
+        document.getElementById('mentee-specific-fields').style.display = 'none';
+        // Populate mentor dropdown when modal opens
+        populateMentorDropdown();
+        document.getElementById('form-status').style.display = 'none';
+        // document.getElementById('add-user-form').reset(); // Reset moved up
         document.body.classList.add('modal-open'); // Prevent background scroll
     }
     function closeModal() {
@@ -1239,16 +1290,44 @@
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
         statusDiv.style.display = 'none';
         try {
+            const role = document.getElementById('user-role').value;
             const userData = {
                 official_mail_id: document.getElementById('user-email').value.trim(),
                 password: document.getElementById('user-password').value,
-                role: document.getElementById('user-role').value,
+                role: role,
                 prn_id: document.getElementById('user-prn').value.trim(),
                 phone_num: document.getElementById('user-phone').value.trim() || null,
             };
-             // Client-side validation
+
+            // Add mentee-specific data if role is 'mentee'
+            if (role === 'mentee') {
+                userData.mentor_id = document.getElementById('user-mentor-id').value;
+                userData.calendar_id = document.getElementById('user-calendar-id').value.trim();
+                userData.course = document.getElementById('user-course').value.trim();
+                userData.year = document.getElementById('user-year').value;
+                userData.attendance = document.getElementById('user-attendance').value;
+                userData.academic_context = document.getElementById('user-academic-context').value;
+                userData.academic_background = document.getElementById('user-academic-background').value.trim();
+
+                // Add validation for required mentee fields (adjust as needed)
+                // Note: p_academic_background is TEXT, might not always be required?
+                if (!userData.mentor_id || !userData.calendar_id || !userData.course || !userData.year || userData.attendance === '' || !userData.academic_context || !userData.academic_background) {
+                    throw new Error('Please fill in all required mentee detail fields (Mentor, Calendar ID, Course, Year, Attendance, Context, Background).');
+                }
+                // Convert year and attendance to numbers if they are not empty
+                userData.year = userData.year ? parseInt(userData.year, 10) : null;
+                userData.attendance = userData.attendance !== '' ? parseFloat(userData.attendance) : null;
+                userData.mentor_id = userData.mentor_id ? parseInt(userData.mentor_id, 10) : null;
+
+                 // Further validation for numeric types
+                 if (isNaN(userData.year) || isNaN(userData.attendance) || isNaN(userData.mentor_id)) {
+                     throw new Error('Year, Attendance, and Mentor ID must be valid numbers.');
+                 }
+            }
+
+             // Client-side validation (basic)
              if (!userData.official_mail_id || !userData.password || !userData.prn_id || !userData.role) {
-                 throw new Error('Please fill in all required fields (Email, Password, PRN ID, Role).');
+                 throw new Error('Please fill in all required user fields (Email, Password, PRN ID, Role).');
              }
              if (!/\S+@\S+\.\S+/.test(userData.official_mail_id)) {
                  throw new Error('Please enter a valid email address.');
@@ -1444,7 +1523,120 @@
         console.log('DOM fully loaded and parsed');
         populateStatCards();
         populateTables();
+
+        // Add event listener for role change in Add User modal
+        const userRoleSelect = document.getElementById('user-role');
+        const menteeFieldsDiv = document.getElementById('mentee-specific-fields');
+        // Get references to the new/updated fields
+        const mentorSelect = document.getElementById('user-mentor-id');
+        const calendarIdInput = document.getElementById('user-calendar-id');
+        const courseInput = document.getElementById('user-course');
+        const yearInput = document.getElementById('user-year');
+        const attendanceInput = document.getElementById('user-attendance');
+        const academicContextSelect = document.getElementById('user-academic-context');
+        const academicBgTextarea = document.getElementById('user-academic-background');
+
+        if (userRoleSelect && menteeFieldsDiv) {
+            userRoleSelect.addEventListener('change', function() {
+                const isMentee = this.value === 'mentee';
+                menteeFieldsDiv.style.display = isMentee ? 'block' : 'none';
+
+                // Toggle required attribute for the new set of fields
+                // Adjust required status based on actual requirements from the procedure/backend
+                mentorSelect.required = isMentee;
+                calendarIdInput.required = isMentee;
+                courseInput.required = isMentee;
+                yearInput.required = isMentee;
+                attendanceInput.required = isMentee;
+                academicContextSelect.required = isMentee;
+                academicBgTextarea.required = isMentee; // Assuming background is required
+
+                if (isMentee) {
+                    populateMentorDropdown(); // Populate mentors if role changed to mentee
+                }
+            });
+             // Initial check in case the modal is pre-filled or state is restored
+             const initialIsMentee = userRoleSelect.value === 'mentee';
+             menteeFieldsDiv.style.display = initialIsMentee ? 'block' : 'none';
+             mentorSelect.required = initialIsMentee;
+             calendarIdInput.required = initialIsMentee;
+             courseInput.required = initialIsMentee;
+             yearInput.required = initialIsMentee;
+             attendanceInput.required = initialIsMentee;
+             academicContextSelect.required = initialIsMentee;
+             academicBgTextarea.required = initialIsMentee;
+
+        } else {
+            console.error("Could not find 'user-role' select or 'mentee-specific-fields' div for event listener setup.");
+        }
     });
+
+    // --- Placeholder Function to Populate Mentor Dropdown ---
+    async function populateMentorDropdown() {
+        const mentorSelect = document.getElementById('user-mentor-id');
+        if (!mentorSelect) {
+            console.error("Mentor select dropdown ('user-mentor-id') not found.");
+            return;
+        }
+
+        // Avoid re-populating if already has options beyond the default
+        if (mentorSelect.options.length > 1) {
+            console.log("Mentor dropdown already populated.");
+            // return; // Keep commented out if you want to refresh every time modal opens
+        }
+
+        mentorSelect.innerHTML = '<option value="">-- Loading Mentors... --</option>'; // Clear existing options and show loading
+
+        try {
+            // Fetch the list of mentors from the backend API
+            const response = await fetch('/api/mentor');
+
+            if (!response.ok) {
+                 // Handle cases where no mentors are found (e.g., 404) gracefully
+                 if (response.status === 404) {
+                     console.log("No mentors found in the database.");
+                     mentorSelect.innerHTML = '<option value="">-- No Mentors Available --</option>';
+                     return; // Exit the function
+                 }
+                 // For other errors, throw an error
+                 const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
+                 throw new Error(errorData.message || `Failed to fetch mentors list (Status: ${response.status})`);
+            }
+            const mentors = await response.json();
+            console.log('Mentors data received from /api/mentor:', mentors); // Log the received data
+
+            // Reset dropdown
+            mentorSelect.innerHTML = '<option value="">-- Select Mentor --</option>';
+
+            if (mentors && mentors.length > 0) {
+                mentors.forEach(mentor => {
+                    const option = document.createElement('option');
+                    option.value = mentor.mentor_id; // Assumes column is named mentor_id
+
+                    // Determine the best text to display for the option
+                    let displayText = `Mentor ID: ${mentor.mentor_id}`; // Default fallback
+                    const email = mentor.official_mail_id || mentor.email; // Check for common email variations
+                    const name = mentor.name || mentor.mentor_name; // Check for common name variations
+
+                    if (name && email) {
+                        displayText = `${name} (${email})`;
+                    } else if (name) {
+                        displayText = name;
+                    } else if (email) {
+                        displayText = email;
+                    }
+                    option.textContent = displayText;
+                    mentorSelect.appendChild(option);
+                });
+            } else {
+                mentorSelect.innerHTML = '<option value="">-- No Mentors Found --</option>';
+            }
+        } catch (error) {
+            console.error("Error populating mentor dropdown:", error);
+            mentorSelect.innerHTML = '<option value="">-- Error Loading Mentors --</option>';
+            showToast('Could not load mentor list.', 'error');
+        }
+    }
 
     function toggleTable(containerId, buttonId) {
         const tableContainer = document.getElementById(containerId);

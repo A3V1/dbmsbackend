@@ -1,5 +1,3 @@
-//mit-wpu login page
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,84 +14,259 @@
             height: 100vh;
             background: linear-gradient(135deg, #1e3c72, #2a5298);
             font-family: Arial, sans-serif;
+            overflow: hidden; /* Prevent scrollbars during animations */
         }
+        
         .login-container {
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
+            max-width: 1600px;
+            height: 100vh;
+            padding: 20px;
         }
+        
         .login-box {
             background: #0d47a1;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 60px;
+            border-radius: 20px;
             text-align: center;
             color: white;
-            width: 350px;
+            width: 700px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
         }
+        
+        .login-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        
         .logo {
-            width: 300px;
-            margin-bottom: 10px;
+            width: 450px;
+            margin-bottom: 30px;
         }
+        
         h2 {
-            margin-bottom: 20px;
+            margin-bottom: 40px;
+            font-size: 36px;
         }
+        
+        form {
+            width: 100%;
+        }
+        
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        
         input {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
+            padding: 18px;
+            margin: 10px 0 25px;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
+            font-size: 18px;
+            box-sizing: border-box;
         }
+        
         .password-container {
             display: flex;
             align-items: center;
             position: relative;
+            margin-bottom: 25px;
         }
+        
         .password-container input {
             flex: 1;
+            margin-bottom: 0;
         }
+        
         .password-container button {
             position: absolute;
-            right: 10px;
+            right: 20px;
             background: none;
             border: none;
             cursor: pointer;
             color: black;
+            font-size: 20px;
         }
+        
         .remember-me {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
+            font-size: 16px;
+            margin-bottom: 30px;
         }
+        
+        .remember-me input[type="checkbox"] {
+            width: auto;
+            margin: 0 8px 0 0;
+            transform: scale(1.2);
+        }
+        
+        .remember-me label {
+            display: inline;
+            margin: 0;
+        }
+        
+        .forgot-password {
+            color: #ffcc80;
+            text-decoration: none;
+        }
+        
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+        
         .login-btn {
             width: 100%;
-            padding: 10px;
+            padding: 18px;
             background: orange;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            background: #ffb74d;
+        }
+        
+        #login-error {
+            color: #ffcc80; 
+            margin-top: 20px; 
+            height: 1.5em;
             font-size: 16px;
         }
+        
         .footer-links {
-            margin-top: 10px;
-            font-size: 12px;
+            margin-top: 40px;
+            font-size: 16px;
         }
+        
         .footer-links a {
             color: white;
-            margin: 0 5px;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Decoration elements to fill desktop space */
+        .background-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .circle-1 {
+            width: 600px;
+            height: 600px;
+            top: -150px;
+            right: -150px;
+        }
+        
+        .circle-2 {
+            width: 500px;
+            height: 500px;
+            bottom: -120px;
+            left: 10%;
+        }
+        
+        .circle-3 {
+            width: 300px;
+            height: 300px;
+            top: 20%;
+            left: 15%;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 800px) {
+            .login-box {
+                width: 90%;
+                padding: 40px;
+            }
+            
+            .logo {
+                width: 80%;
+            }
+            
+            h2 {
+                font-size: 28px;
+            }
+            
+            input, .login-btn {
+                padding: 15px;
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .login-box {
+                padding: 30px;
+            }
+            
+            h2 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            
+            .logo {
+                width: 85%;
+                margin-bottom: 20px;
+            }
+            
+            label {
+                font-size: 16px;
+            }
+            
+            input, .login-btn {
+                padding: 12px;
+                margin: 8px 0 20px;
+            }
+            
+            .footer-links {
+                margin-top: 25px;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="background-elements">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+    </div>
+
     <div class="login-container">
         <div class="login-box">
             <img src="assets/mit-wpu_logo.png" alt="MIT WPU Logo" class="logo">
             <h2>Welcome to My MIT WPU</h2>
-            <form id="login-form"> {/* Added form ID */}
-                <label for="email">Official Email ID</label> {/* Changed label */}
-                <input type="email" id="email" name="email" placeholder="Enter your official email ID" required> {/* Changed type, id, name, placeholder */}
+            <form id="login-form">
+                <label for="email">Official Email ID</label> 
+                <input type="email" id="email" name="email" placeholder="Enter your official email ID" required> 
                 
                 <label for="password">Password</label>
                 <div class="password-container">
@@ -102,20 +275,23 @@
                 </div>
                 
                 <div class="remember-me">
-                    <input type="checkbox" id="remember">
-                    <label for="remember">Remember me</label>
+                    <div>
+                        <input type="checkbox" id="remember">
+                        <label for="remember">Remember me</label>
+                    </div>
                     <a href="#" class="forgot-password">Forgot Password?</a>
                 </div>
                 
                 <button type="submit" class="login-btn">LOGIN</button>
             </form>
-            <p id="login-error" style="color: #ffcc80; margin-top: 10px; height: 1em;"></p> {/* Added error message paragraph */}
+            <p id="login-error"></p>
             <div class="footer-links">
                 <a href="#">Privacy Policy</a>
                 <a href="#">Terms & Conditions</a>
             </div>
         </div>
     </div>
+    
     <script>
         document.getElementById('togglePassword').addEventListener('click', function() {
             const passwordField = document.getElementById('password');
@@ -126,6 +302,6 @@
             }
         });
     </script>
-    <script src="/js/login.js"></script> <!-- Added login script -->
+    <script src="/js/login.js"></script>
 </body>
 </html>

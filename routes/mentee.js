@@ -197,4 +197,38 @@ router.get('/feedback', async (req, res) => {
     }
 });
 
+
+// Get Detailed Academic Background for a Mentee
+router.get('/:menteeId/academic-details', async (req, res) => {
+    const { menteeId } = req.params;
+    if (isNaN(menteeId)) {
+        return res.status(400).json({ message: 'Invalid Mentee ID format.' });
+    }
+
+    try {
+        const query = `
+            SELECT 
+                mentee_id, 
+                course, 
+                year, 
+                attendance, 
+                academic_context, 
+                academic_background 
+            FROM mentee_academics 
+            WHERE mentee_id = ?;
+        `;
+        const [results] = await db.query(query, [menteeId]);
+
+        if (results.length > 0) {
+            res.status(200).json(results[0]); // Return the single record
+        } else {
+            res.status(404).json({ message: 'Academic details not found for this mentee.' });
+        }
+    } catch (error) {
+        console.error(`Error fetching academic details for mentee ${menteeId}:`, error);
+        res.status(500).json({ message: 'Error fetching academic details from server.' });
+    }
+});
+
+
 module.exports = router;
