@@ -247,42 +247,40 @@ document.addEventListener('DOMContentLoaded', async () => { // Corrected syntax 
     // Removed fetchEmergencyAlerts function
 
     // My Achievements
-    async function fetchAchievements(menteeId) {
-        if (!menteeId) {
-            console.warn("Mentee ID is missing. Cannot fetch achievements.");
-            return;
-        }
+    async function fetchAchievements(menteeId) { // Removed filter parameter for now
+        if (!menteeId) return;
         console.log(`Fetching achievements for mentee ID: ${menteeId}...`);
         achievementList.innerHTML = '<p class="no-data">Loading achievements...</p>'; // Set loading state
         try {
+            // Use the new backend route
             const achievements = await apiFetch(`/api/achievement/mentee/${menteeId}`);
             console.log("Achievements data fetched:", achievements); // Debug log
 
             if (achievements && achievements.length > 0) {
                 achievementList.innerHTML = achievements.map(ach => {
+                    // Format date nicely (YYYY-MM-DD)
                     const dateAwarded = ach.date_awarded ? new Date(ach.date_awarded).toISOString().split('T')[0] : '[Date Unknown]';
+                    // Use badge icon if available, otherwise default trophy
                     const iconHtml = ach.badge_icon
-                        ? `<img src="/frontend/assets/${ach.badge_icon}" alt="Badge" class="achievement-icon" style="width: 24px; height: 24px; margin-right: 8px;">`
+                        ? `<img src="assets/${ach.badge_icon}" alt="Badge" class="achievement-icon" style="width: 24px; height: 24px; margin-right: 8px;">` // Assuming icons are in assets/
                         : `<i class="fas fa-trophy achievement-icon"></i>`;
 
                     return `
-                        <div class="achievement-item" data-achievement-id="${ach.achvmt_id}">
-                            ${iconHtml}
-                            <div style="flex-grow: 1;">
-                                <h4 style="margin-bottom: 4px;">${ach.title || 'Achievement'}</h4>
-                                <p style="margin-bottom: 4px; font-size: 0.9em;">${ach.description || ''}</p>
-                                <p style="font-size: 0.8em; color: var(--light-text);">Awarded: ${dateAwarded}</p>
-                            </div>
+                    <div class="achievement-item" data-achievement-id="${ach.achvmt_id}">
+                        ${iconHtml}
+                        <div style="flex-grow: 1;">
+                            <h4 style="margin-bottom: 4px;">${ach.title || 'Achievement'}</h4>
+                            <p style="margin-bottom: 4px; font-size: 0.9em;">${ach.description || ''}</p>
+                            <p style="font-size: 0.8em; color: var(--light-text);">Awarded: ${dateAwarded}</p>
                         </div>
-                    `;
-                }).join('');
+                    </div>
+                `;}).join('');
             } else {
-                console.log("No achievements found for this mentee.");
-                achievementList.innerHTML = '<p class="no-data">No achievements recorded.</p>';
+                 achievementList.innerHTML = '<p class="no-data">No achievements recorded.</p>';
             }
         } catch (error) {
             console.error('Error fetching achievements:', error);
-            achievementList.innerHTML = '<p class="no-data error">Error loading achievements.</p>';
+            achievementList.innerHTML = '<p class="no-data error">Error loading achievements.</p>'; // Error message
         }
     }
 
@@ -429,8 +427,10 @@ document.addEventListener('DOMContentLoaded', async () => { // Corrected syntax 
         console.log(`Loading all data for user: ${unique_user_no}, mentee: ${menteeId}`);
         fetchProfileAndAcademics(unique_user_no, menteeId);
         fetchMentorInfo(menteeId);
+        // Removed fetchCalendarData call
         fetchCommunications(unique_user_no);
-        fetchAchievements(menteeId); // Ensure this is called
+        // Removed fetchEmergencyAlerts call
+        fetchAchievements(menteeId); // Removed filter argument
     }
 
     // --- Initial Data Load ---
@@ -491,12 +491,5 @@ document.addEventListener('DOMContentLoaded', async () => { // Corrected syntax 
 
     updateDateTime();
     setInterval(updateDateTime, 60000);
-
-    // Debugging: Verify if the achievementList element is correctly targeted
-    if (!achievementList) {
-        console.error("Achievement list element not found in the DOM.");
-    } else {
-        console.log("Achievement list element found:", achievementList);
-    }
 
 });
