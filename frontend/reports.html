@@ -4,74 +4,86 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports - Mentor-Mentee Management System</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: var(--background-color);
+            font-family: 'Inter', Arial, sans-serif;
+            background: #f8fafc;
             margin: 0;
-            padding: 0;
+            color: #23272f;
         }
-
         .container {
-            max-width: 1200px;
-            margin: auto;
-            padding: 16px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 38px 18px 28px 18px;
         }
-
         .section-title {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 16px;
+            font-size: 2.3rem;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 32px;
         }
-
         .report-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 28px;
+            margin-bottom: 28px;
         }
-
         .card {
-            background: white;
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            padding: 32px 22px 24px 22px;
+            border-radius: 18px;
+            box-shadow: 0 2px 18px rgba(37,99,235,0.07);
             text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: box-shadow 0.2s, transform 0.2s;
         }
-
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 24px rgba(37,99,235,0.13);
+            transform: translateY(-3px) scale(1.012);
         }
-
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2563eb;
+            margin-bottom: 16px;
+        }
         .chart-container {
             position: relative;
-            height: 300px;
+            height: 320px;
         }
-
         .btn {
-            padding: 8px 16px;
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 1rem;
             border: none;
-            border-radius: 4px;
+            border-radius: 7px;
+            padding: 10px 26px;
             cursor: pointer;
-            color: white;
-            background-color: var(--primary-color);
-            transition: all 0.3s ease;
+            font-weight: 600;
+            background: #2563eb;
+            color: #fff;
+            box-shadow: 0 1px 3px rgba(37,99,235,0.06);
+            transition: background 0.18s, color 0.18s, box-shadow 0.18s;
         }
-
         .btn:hover {
-            background-color: #153e75;
+            background: #3b82f6;
+        }
+        .card p {
+            color: #444;
+            font-size: 1.08rem;
+            margin-bottom: 18px;
+        }
+        @media (max-width: 900px) {
+            .container { padding: 18px 2vw 12px 2vw; }
+            .card { padding: 14px 4px 10px 4px; }
+            .chart-container { height: 220px; }
         }
     </style>
 </head>
 <body>
-    <div id="navigation"></div>
     <div class="container">
-        <h1 class="section-title">Reports</h1>
+        <h1 class="section-title">Analytics & Reports</h1>
         <div class="report-grid">
             <div class="card">
                 <h2>User Statistics</h2>
@@ -99,13 +111,6 @@
         </div>
     </div>
     <script>
-        // Load navigation
-        fetch('components/navigation.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('navigation').innerHTML = data;
-            });
-
         // Chart.js example data
         const userStatsCtx = document.getElementById('userStatsChart').getContext('2d');
         const mentorMenteeCtx = document.getElementById('mentorMenteeChart').getContext('2d');

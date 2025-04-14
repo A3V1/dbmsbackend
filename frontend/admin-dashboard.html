@@ -6,410 +6,379 @@
     <title>Admin Dashboard - Mentor-Mentee Management System</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Include Chart.js for analytics -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --secondary: #facc15;
+            --danger: #ef4444;
+            --sidebar-bg: linear-gradient(135deg, #2563eb 60%, #3b82f6 100%);
+            --card-bg: #fff;
+            --card-shadow: 0 2px 16px rgba(37,99,235,0.08);
+            --border-radius: 14px;
+            --table-header-bg: #f3f6fa;
+            --table-row-alt: #f9fafb;
+            --table-row-hover: #e0e7ef;
+            --stat-bg: linear-gradient(135deg, #f3f6fa 60%, #e0e7ef 100%);
+            --font-main: 'Inter', Arial, sans-serif;
+        }
         body {
-            font-family: Arial, sans-serif;
-            background-color: var(--background-color);
+            font-family: var(--font-main);
+            background: #f4f6fb;
+            color: #222;
             margin: 0;
             padding: 0;
         }
-
-        .dashboard-container {
-            max-width: 1200px;
-            margin: auto;
-        }
-
-        .dashboard-title {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 24px;
-            color: var(--primary-color);
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-        }
-
-        .card {
-            background: white;
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border-top: 3px solid var(--primary-color);
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .summary-card {
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            border-radius: 8px;
-        }
-
-        .blue { 
-            background-color: var(--primary-color);
-            border-top: none;
-        }
-        .orange { 
-            background-color: var(--secondary-color);
-            border-top: none;
-        }
-        .cyan { 
-            background-color: var(--accent-color);
-            border-top: none;
-        }
-        .yellow { 
-            background-color: #facc15;
-            border-top: none;
-        }
-        .red { 
-            background-color: var(--danger-color);
-            border-top: none;
-        }
-
-        .table-container {
-            margin-top: 24px;
-            background: white;
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        table {
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        th {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        tr:nth-child(even) {
-            background-color: var(--blue-light);
-        }
-        
-        tr:hover {
-            background-color: var(--orange-light);
-        }
-
-        .btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            color: white;
-            background-color: var(--primary-color);
-            transition: all 0.3s ease;
-        }
-        
-        .btn:hover {
-            background-color: #153e75;
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background-color: var(--danger-color);
-        }
-        
-        .btn-danger:hover {
-            background-color: #b91c1c;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
-            padding: 6px 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-outline:hover {
-            background-color: var(--blue-light);
-            transform: translateY(-2px);
-        }
-
-        .stat-card {
+            height: 64px;
+            background: #fff;
+            z-index: 1101;
+            box-shadow: 0 2px 10px rgba(37,99,235,0.05);
             display: flex;
             align-items: center;
-            gap: 1rem;
+            padding: 0 28px;
         }
-
-        .stat-icon {
-            font-size: 2rem;
-            padding: 1rem;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: white;
+        .sidebar {
+            background: var(--sidebar-bg);
+            color: #fff;
+            min-width: 220px;
+            box-shadow: 2px 0 12px rgba(37,99,235,0.08);
+            border-top-right-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+            z-index: 1102;
         }
-
-        .stat-content h3 {
-            margin: 0;
-            font-size: 0.875rem;
-            color: var(--light-text);
-        }
-
-        .stat-number {
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--text-color);
-        }
-
-        .activity-log {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .activity-item {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border-color);
-            transition: background-color 0.2s;
-        }
-
-        .activity-item:hover {
-            background-color: var(--orange-light);
-        }
-
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-
-        .activity-time {
-            font-size: 0.75rem;
-            color: var(--light-text);
-        }
-
-        .alerts-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .alert-item {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border-color);
+        .sidebar-header {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 32px 24px 18px 32px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            transition: background-color 0.2s;
+            gap: 14px;
         }
-        
-        .alert-item:hover {
-            background-color: var(--orange-light);
+        .sidebar-profile {
+            background: rgba(255,255,255,0.09);
+            border-radius: 10px;
+            margin: 18px 18px 18px 32px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-
-        .alert-item:last-child {
-            border-bottom: none;
+        .sidebar-profile-img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #fff2;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.09);
         }
-
-        .table-responsive {
-            overflow-x: auto;
-        }
-        
-        .section-title {
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--secondary-color);
-            padding-bottom: 8px;
-            margin-top: 40px;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-        
-        .feature-card {
-            text-align: center;
-            padding: 24px;
-            transition: all 0.3s ease;
-            height: 100%;
+        .sidebar-profile-details {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            gap: 3px;
         }
-        
-        .feature-card .icon-lg {
-            font-size: 3rem;
-            margin-bottom: 16px;
-            color: var(--secondary-color);
+        .sidebar-profile-details .profile-name {
+            font-weight: 600;
+            font-size: 1rem;
         }
-        
-        .feature-card h3 {
-            color: var(--primary-color);
-            margin-bottom: 8px;
+        .sidebar-profile-details .profile-role {
+            font-size: 0.92rem;
+            color: #e0e7ef;
         }
-        
-        .feature-card p {
-            color: var(--light-text);
-            margin-bottom: 16px;
-        }
-        
-        .feature-card .btn {
-            margin-top: auto;
-        }
-
-        @media (max-width: 768px) {
-            .grid-4 {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .grid-4 {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .common-features {
-            width: 560px; /* Extra wide for better content display */
-            background: var(--background-color);
-            padding: 32px; /* More breathing room */
-            border-radius: 16px; /* Softer, modern rounded corners */
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Deeper shadow for depth */
-            position: relative;
-            top: 20px;
-            left: 20px;
-            z-index: 20; /* Higher z-index to ensure prominence */
-            border: 1px solid rgba(0, 0, 0, 0.05); /* Subtle border for definition */
-        }
-        
-        .common-features h2 {
-            font-size: 28px; /* Bigger heading */
-            margin-bottom: 28px; /* More space below title */
-            color: var(--primary-color);
-            font-weight: 700; /* Extra bold for impact */
-            letter-spacing: -0.5px; /* Slightly tighter letters for modern look */
-        }
-        
-        .common-features .feature-list {
+        .sidebar-nav ul {
             list-style: none;
             padding: 0;
             margin: 0;
         }
-        
-        .common-features .feature-item {
-            margin-bottom: 24px; /* Bigger gap between items */
-        }
-        
-        .common-features .feature-link {
+        .sidebar-nav a {
             display: flex;
             align-items: center;
-            gap: 20px; /* Wider spacing between icon and text */
-            padding: 20px 24px; /* More padding for a chunkier feel */
-            border-radius: 12px; /* Extra rounded for a soft look */
-            color: var(--primary-color);
+            gap: 12px;
+            color: #fff;
             text-decoration: none;
-            background: white;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother animation */
-            font-size: 20px; /* Larger text for readability */
-            font-weight: 500; /* Slightly bolder text */
+            padding: 14px 32px;
+            font-weight: 500;
+            font-size: 1.08rem;
+            border-left: 4px solid transparent;
+            transition: background 0.18s, border-color 0.18s;
         }
-        
-        .common-features .feature-link:hover {
-            background-color: var(--blue-light);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-            transform: translateY(-3px); /* More noticeable lift */
-            color: var(--primary-dark); /* Slightly darker on hover */
+        .sidebar-nav a.active, .sidebar-nav a:hover {
+            background: rgba(255,255,255,0.10);
+            border-left: 4px solid var(--secondary);
+            color: var(--secondary);
         }
-        
-        .common-features .feature-link i {
-            font-size: 4.5rem; /* Massive icons */
-            min-width: 72px; /* Fixed width for alignment */
-            text-align: center;
-            color: var(--primary-color); /* Optional: Make icons match theme */
-            transition: transform 0.3s ease; /* Add icon animation */
+        .sidebar-footer {
+            padding: 18px 32px;
+            font-size: 0.96rem;
+            border-top: 1px solid #ffffff22;
+            color: #e0e7ef;
         }
-        
-        .common-features .feature-link:hover i {
-            transform: scale(1.05); /* Slight icon grow on hover */
+        .main-content {
+            margin-left: 220px;
+            padding: 100px 32px 32px 32px;
+            min-height: 100vh;
         }
-
-        .form-status {
-            padding: 8px 12px;
-            border-radius: 4px;
-            margin-bottom: 16px;
+        @media (max-width: 900px) {
+            .main-content { margin-left: 0; padding: 90px 6vw 24px 6vw; }
+            .sidebar { position: static; min-width: 0; border-radius: 0; }
         }
-        .form-status.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        .dashboard-title {
+            font-size: 2.1rem;
+            font-weight: 700;
+            margin-bottom: 36px;
+            letter-spacing: 0.5px;
+            color: var(--primary);
         }
-        .form-status.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        /* Stats (4 boxes) grid: always parallel, fit in space, lighter backgrounds, dark text */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            margin-bottom: 32px;
         }
-        .text-right {
-            text-align: right;
+        .stat-card {
+            background: #f7fafc;
+            color: #1a202c;
+            border-radius: var(--border-radius);
+            box-shadow: 0 1px 8px rgba(37,99,235,0.06);
+            padding: 28px 14px 20px 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 0;
+            min-height: 120px;
         }
-        .mr-2 {
-            margin-right: 8px;
+        .stat-icon {
+            font-size: 2.1rem;
+            margin-bottom: 10px;
+            color: var(--primary);
         }
-
-        /* Prevent background scroll when modal is open */
-        body.modal-open {
-            overflow: hidden;
+        .stat-content h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin: 0 0 7px 0;
+            color: #1a202c;
         }
-
-        /* Basic Toast Styling */
-        .toast-notification {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 20px;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            color: white;
-            font-size: 0.9rem;
-            z-index: 10000; /* Ensure it's above other elements */
-            opacity: 0;
-            transition: opacity 0.3s ease, bottom 0.3s ease;
-            pointer-events: none; /* Allow clicks through */
+        .stat-content p {
+            font-size: 1.55rem;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+            color: #1a202c;
         }
-        .toast-notification.show {
-            opacity: 1;
-            bottom: 30px; /* Slide up */
-            pointer-events: auto; /* Enable interaction */
+        .stat-breakdown span {
+            font-size: 0.97rem;
+            color: #444;
         }
-        .toast-notification.success {
-            background-color: #28a745; /* Green */
+        @media (max-width: 1100px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
-        .toast-notification.error {
-            background-color: #dc3545; /* Red */
+        @media (max-width: 700px) {
+            .stats-grid { grid-template-columns: 1fr; }
         }
-        .toast-notification.info {
-            background-color: #17a2b8; /* Blue */
+        /* Common features grid below stats: parallel, fit in space, lighter bg, dark text */
+        .common-features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            margin: 0 0 38px 0;
+        }
+        .feature-card {
+            background: #f8fafb;
+            color: #222;
+            border-radius: 14px;
+            box-shadow: 0 1px 8px rgba(37,99,235,0.05);
+            padding: 22px 14px 18px 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 0;
+            min-height: 110px;
+            text-decoration: none;
+            transition: box-shadow 0.18s, transform 0.18s, background 0.18s;
+        }
+        .feature-card:hover {
+            background: #e8f0fe;
+            box-shadow: 0 4px 16px rgba(37,99,235,0.12);
+            transform: translateY(-2px) scale(1.012);
+            text-decoration: none;
+        }
+        .feature-card .icon-lg {
+            font-size: 2.1rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        .feature-card h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin: 0 0 7px 0;
+            color: #1a202c;
+        }
+        .feature-card p {
+            font-size: 1.05rem;
+            color: #444;
+            margin: 0 0 6px 0;
+        }
+        .feature-card:visited, .feature-card:link, .feature-card:active {
+            color: #222;
+            text-decoration: none;
+        }
+        @media (max-width: 1100px) {
+            .common-features-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 700px) {
+            .common-features-grid { grid-template-columns: 1fr; }
+        }
+        .table-container {
+            max-width: 1400px;
+            margin: 0 auto 22px auto;
+            padding: 18px 18px 16px 18px;
+        }
+        @media (max-width: 1500px) {
+            .table-container { max-width: 99vw; }
+        }
+        .table-search-bar {
+            margin-bottom: 18px;
+            display: flex;
+            gap: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 0;
+            background: transparent;
+        }
+        th, td {
+            padding: 14px 12px;
+            text-align: left;
+        }
+        th {
+            background: var(--table-header-bg);
+            color: var(--primary);
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        tr:nth-child(even) { background: var(--table-row-alt); }
+        tr:hover { background: var(--table-row-hover); }
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: var(--border-radius);
+        }
+        .btn {
+            font-family: var(--font-main);
+            font-size: 1rem;
+            border: none;
+            border-radius: 7px;
+            padding: 8px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+        }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-outline {
+            background: #fff;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        .btn-outline:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        .dashboard-section {
+            margin-bottom: 54px;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 18px;
+        }
+        /* Card hover */
+        .card, .stat-card, .table-container {
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .card:hover, .stat-card:hover, .table-container:hover {
+            box-shadow: 0 4px 24px rgba(37,99,235,0.14);
+            transform: translateY(-2px) scale(1.012);
+        }
+        /* Responsive tweaks */
+        @media (max-width: 700px) {
+            .dashboard-title { font-size: 1.3rem; }
+            .main-content { padding: 10px 2vw; }
+            .stat-card { padding: 18px 8px; }
+            .table-container { padding: 12px 2px; }
+        }
+        /* Stack tables vertically and reduce their size */
+        .tables-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+        .table-container {
+            max-width: 1400px;
+            margin: 0 auto 22px auto;
+            padding: 16px 8px 10px 8px;
+        }
+        @media (max-width: 1500px) {
+            .table-container { max-width: 99vw; }
+        }
+        table {
+            font-size: 0.93rem;
+        }
+        th, td {
+            padding: 10px 7px;
+        }
+        .section-title {
+            font-size: 1.08rem;
+        }
+        @media (max-width: 800px) {
+            .table-container { max-width: 100%; }
+            table { font-size: 0.88rem; }
         }
     </style>
 </head>
 <body>
-    <!-- Include Navigation -->
-    <div id="navigation"></div>
+    <nav class="sidebar" id="sidebarNav" aria-label="Admin Dashboard Sidebar">
+        <div class="sidebar-header">Admin Panel</div>
+        <div class="sidebar-nav">
+            <ul>
+                <li><a href="#dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="#users"><i class="fas fa-users"></i> Users</a></li>
+                <li><a href="#mentors"><i class="fas fa-user-tie"></i> Mentors</a></li>
+                <li><a href="#mentees"><i class="fas fa-user-graduate"></i> Mentees</a></li>
+                <li><a href="communication-hub.html"><i class="fas fa-comments"></i> Communication</a></li>
+                <li><a href="reports.html"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+                <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
+                <li><a href="#alerts"><i class="fas fa-bell"></i> Alerts</a></li>
+                <li><a href="#achievements"><i class="fas fa-trophy"></i> Achievements</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">&copy; 2025 Mentor-Mentee System</div>
+    </nav>
+    <main class="main-content">
+        <!-- Remove navigation include to prevent duplicate sidebar -->
+        <!-- <div id="navigation"></div> -->
 
-    <!-- Main Content -->
-    <div class="main-content">
+        <!-- Main Content -->
         <div class="container">
             <!-- Dashboard Header -->
             <div class="dashboard-header">
@@ -484,7 +453,9 @@
                 </div>
             </div>
 
-    <!-- Tables Section -->
+            
+
+            <!-- Tables Section -->
             <div class="container">
                 <div class="tables-grid">
                     <!-- All Users Table -->
@@ -492,6 +463,10 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                             <h2 class="section-title" style="margin: 0;"><i class="fas fa-users-cog"></i> All Users</h2>
                             <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Add User</button>
+                        </div>
+                        <div class="table-search-bar">
+                            <input type="search" id="userTableSearch" placeholder="Search users..." aria-label="Search users">
+                            <button class="btn" onclick="searchTable('usersTable', 'userTableSearch')"><i class="fas fa-search"></i> Search</button>
                         </div>
                         <div class="table-responsive">
                             <table id="usersTable">
@@ -698,7 +673,7 @@
                         <!-- Mentee Specific Fields (Initially Hidden) -->
                         <div id="mentee-specific-fields" style="display: none;">
                             <hr style="margin: 15px 0;">
-                            <h4 style="margin-bottom: 10px; color: var(--primary-color);">Mentee Details</h4>
+                            <h4 style="margin-bottom: 10px; color: var(--primary);">Mentee Details</h4>
                             <div class="form-group">
                                 <label class="form-label">Assign Mentor</label>
                                 <select class="form-input" id="user-mentor-id">
@@ -743,7 +718,7 @@
                         <!-- Mentor Specific Fields (Initially Hidden) -->
                         <div id="mentor-specific-fields" style="display: none;">
                             <hr style="margin: 15px 0;">
-                            <h4 style="margin-bottom: 10px; color: var(--primary-color);">Mentor Details</h4>
+                            <h4 style="margin-bottom: 10px; color: var(--primary);">Mentor Details</h4>
                             <div class="form-group">
                                 <label class="form-label">Room No</label>
                                 <input type="text" class="form-input" id="user-mentor-room">
@@ -813,42 +788,17 @@
                     </form>
                 </div>
             </div>
-            <div class="common-features">
-                <h2>Common Features</h2>
-                <ul class="feature-list">
-                    <li class="feature-item">
-                        <a href="meeting-schedule.html" class="feature-link">
-                            <i class="fas fa-calendar-alt"></i> Meeting Schedule
-                        </a>
-                    </li>
-                    <li class="feature-item">
-                        <a href="student-profile.html" class="feature-link">
-                            <i class="fas fa-user-graduate"></i> Student Profiles
-                        </a>
-                    </li>
-                    <li class="feature-item">
-                        <a href="communication-hub.html" class="feature-link">
-                            <i class="fas fa-comments"></i> Communication Hub
-                        </a>
-                    </li>
-                    <li class="feature-item">
-                        <a href="reports.html" class="feature-link">
-                            <i class="fas fa-chart-bar"></i> Reports & Achievements
-                        </a>
-                    </li>
-                </ul>
-            </div>
         </div>
         
-    </div>
+    </main>
     
     <script>
     // Load navigation
-    fetch('components/navigation.html')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('navigation').innerHTML = data;
-        });
+    // fetch('components/navigation.html')
+    //     .then(response => response.text())
+    //     .then(data => {
+    //         document.getElementById('navigation').innerHTML = data;
+    //     });
 
     // Update date and time
     function updateDateTime() {
@@ -917,8 +867,8 @@
         try {
             const response = await fetch(url);
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
-                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                 const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
+                 throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
             processDataFunc(element, data);
@@ -1004,17 +954,16 @@
         try {
             const response = await fetch(url);
             if (!response.ok) {
-                 const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
-                 if (errorData.message && (errorData.message.includes('forbidden') || errorData.message.includes('not found'))) {
-                     throw new Error(`Endpoint ${url} not found or access forbidden.`);
-                 } else {
-                     tableBody.innerHTML = `<tr><td colspan="${actualColSpan}">No records found or error loading data.</td></tr>`;
-                     console.warn(`${errorMsg}: Response not OK (Status: ${response.status}), but not 403/404. Message: ${errorData.message}`);
+                 // Handle 404 specifically as "no records found"
+                 if (response.status === 404) {
+                     tableBody.innerHTML = `<tr><td colspan="${actualColSpan}">No records found.</td></tr>`;
                      return;
                  }
+                 const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
+                 throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            if (!Array.isArray(data) || data.length === 0) {
+            if (!Array.isArray(data) || data.length === 0) { // Check if array
                 tableBody.innerHTML = `<tr><td colspan="${actualColSpan}">No records found.</td></tr>`;
                 return;
             }
@@ -1565,7 +1514,7 @@
          // 1. Open a modal with form fields (comm_id, reason, status)
          // 2. Send POST request to /api/alerts (Need to create this endpoint)
          // 3. Handle response, show toast, refresh table
-     }
+    }
 
      // Placeholder for Add Achievement - requires modal/form and backend POST endpoint
      function addAchievement() {
@@ -1575,7 +1524,7 @@
          // 1. Open a modal with form fields (mentor_id, mentee_id, title, etc.)
          // 2. Send POST request to /api/achievement (Uses generic router)
          // 3. Handle response, show toast, refresh table
-     }
+    }
 
     // Toggle Activity Log visibility
     function toggleActivityLog() {
@@ -1731,6 +1680,41 @@
         } else {
             tableContainer.style.display = 'none';
             toggleButton.textContent = 'Show Table';
+        }
+    }
+    </script>
+    <script>
+    // Sidebar toggle for mobile
+    const sidebar = document.getElementById('sidebarNav');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('open');
+    });
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth <= 900 && sidebar.classList.contains('open')) {
+            if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        }
+    });
+    // Table search function (simple client-side filter)
+    function searchTable(tableId, searchInputId) {
+        const input = document.getElementById(searchInputId);
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        const tr = table.getElementsByTagName('tr');
+        for (let i = 1; i < tr.length; i++) { // skip header
+            let show = false;
+            const tds = tr[i].getElementsByTagName('td');
+            for (let j = 0; j < tds.length; j++) {
+                if (tds[j].textContent.toLowerCase().indexOf(filter) > -1) {
+                    show = true;
+                    break;
+                }
+            }
+            tr[i].style.display = show ? '' : 'none';
         }
     }
     </script>
