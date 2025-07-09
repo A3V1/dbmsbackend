@@ -41,10 +41,10 @@ document.addEventListener('DOMContentLoaded', async () => { // Corrected syntax 
     const achievementFilter = document.getElementById('achievement-filter');
     const achievementList = document.getElementById('achievement-list');
     const submitFeedbackBtn = document.getElementById('submit-feedback-btn');
-    const submitFeedbackArea = document.getElementById('submit-feedback-area');
-    const feedbackText = document.getElementById('feedback-text');
-    const sendFeedbackBtn = document.getElementById('send-feedback-btn');
-    const feedbackList = document.getElementById('feedback-list');
+const submitFeedbackArea = document.getElementById('submit-feedback-area');
+const feedbackText = document.getElementById('feedback-text');
+const sendFeedbackBtn = document.getElementById('send-feedback-btn');
+const feedbackList = document.getElementById('feedback-list');
     const mentorDetailName = document.getElementById('mentor-detail-name');
     const mentorDetailEmail = document.getElementById('mentor-detail-email');
     // Removed: mentorDetailPhone, mentorPhoneLine
@@ -260,10 +260,19 @@ document.addEventListener('DOMContentLoaded', async () => { // Corrected syntax 
                 achievementList.innerHTML = achievements.map(ach => {
                     // Format date nicely (YYYY-MM-DD)
                     const dateAwarded = ach.date_awarded ? new Date(ach.date_awarded).toISOString().split('T')[0] : '[Date Unknown]';
-                    // Use badge icon if available, otherwise default trophy
-                    const iconHtml = ach.badge_icon
-                        ? `<img src="assets/${ach.badge_icon}" alt="Badge" class="achievement-icon" style="width: 24px; height: 24px; margin-right: 8px;">` // Assuming icons are in assets/
-                        : `<i class="fas fa-trophy achievement-icon"></i>`;
+                    let iconHtml;
+                    if (ach.badge_icon) {
+                        const isCertificateUrl = ach.badge_icon.startsWith('http') || ach.badge_icon.toLowerCase().endsWith('.pdf');
+                        if (isCertificateUrl) {
+                            iconHtml = `<a href="${ach.badge_icon}" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit;">
+                                            <i class="fas fa-file-pdf achievement-icon" style="color: var(--danger-color);"></i>
+                                        </a>`;
+                        } else {
+                            iconHtml = `<img src="assets/${ach.badge_icon}" alt="Badge" class="achievement-icon" style="width: 24px; height: 24px; margin-right: 8px;">`; // Assuming icons are in assets/
+                        }
+                    } else {
+                        iconHtml = `<i class="fas fa-trophy achievement-icon"></i>`;
+                    }
 
                     return `
                     <div class="achievement-item" data-achievement-id="${ach.achvmt_id}">
@@ -328,7 +337,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Corrected syntax 
         newMessageArea.style.display = newMessageArea.style.display === 'none' ? 'block' : 'none';
     });
 
-    submitFeedbackBtn?.addEventListener('click', () => {
+submitFeedbackBtn?.addEventListener('click', () => {
         if (!currentUniqueUserNo) return alert("User ID not found.");
         submitFeedbackArea.style.display = submitFeedbackArea.style.display === 'none' ? 'block' : 'none';
     });
@@ -378,44 +387,159 @@ document.addEventListener('DOMContentLoaded', async () => { // Corrected syntax 
         }
     });
 
-    sendFeedbackBtn?.addEventListener('click', async () => {
-        // ... (Keep existing sendFeedbackBtn logic) ...
-         if (!currentUniqueUserNo) return alert("Login required to send feedback.");
-        let mentorUserId = null;
-         try {
-            const mentorInfo = await apiFetch(`/api/mentee/mentor-info?menteeId=${currentMenteeId}`);
-            mentorUserId = mentorInfo[0]?.mentor_unique_user_no;
-        } catch {
-             return alert("Could not retrieve mentor details to send feedback.");
-        }
-        if (!mentorUserId) return alert("Could not determine mentor's user ID.");
+sendFeedbackBtn?.addEventListener('click', async () => {
+    console.log("sendFeedbackBtn clicked!"); // Add this line
+    if (!currentUniqueUserNo) return alert("Login required to send feedback.");
 
-        const content = feedbackText.value.trim();
-        if (!content) return alert('Please enter feedback.');
+    let mentorUserId = null;
+    try {
+        const mentorInfo = await apiFetch(`/api/mentee/mentor-info?menteeId=${currentMenteeId}`);
+        mentorUserId = mentorInfo[0]?.mentor_id; // Use mentor_id instead of mentor_unique_user_no
+    } catch {
+        return alert("Could not retrieve mentor details to send feedback.");
+    }
+    if (!mentorUserId) return alert("Could not determine mentor's user ID.");
 
-        console.log('Submitting feedback to mentor:', content);
-        try {
-            await apiFetch('/api/communications', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message_content: content,
-                    receiver_id: mentorUserId,
-                    sender_id: currentUniqueUserNo,
-                    type: 'feedback'
-                })
-            });
-            feedbackText.value = '';
-            submitFeedbackArea.style.display = 'none';
-            fetchCommunications(currentUniqueUserNo);
-            alert('Feedback submitted successfully.');
-        } catch (error) {
-            console.error('Failed to submit feedback:', error);
-            alert(`Failed to submit feedback: ${error.message}`);
+    const content = feedbackText.value.trim();
+    const file = feedbackAttachment.files[0];
+
+    if (!content && !file) return alert('Please enter feedback or attach a file.');
+
+    console.log('Submitting feedback to mentor:', content, file ? `File: ${file.name}` : '');
+
+    try {
+        const formData = new FormData();
+        formData.append('menteeId', currentUniqueUserNo); // Use currentUniqueUserNo as menteeId
+        formData.append('mentorId', mentorUserId); // Use mentorUserId as mentorId
+        formData.append('message_content', content); // Text content
+
+        if (file) {
+            formData.append('feedback-attachment', file); // Append the file
         }
-    });
+
+        await apiFetch('/api/mentee/submit-feedback', {
+            method: 'POST',
+            headers: {
+                'Content-Type': undefined
+            },
+            body: formData,
+        });
+
+        feedbackText.value = '';
+        feedbackAttachment.value = null;
+        submitFeedbackArea.style.display = 'none';
+        fetchCommunications(currentUniqueUserNo);
+        alert('Feedback submitted successfully.');
+    } catch (error) {
+        console.error('Failed to submit feedback:', error);
+        alert(`Failed to submit feedback: ${error.message}`);
+    }
+});
 
     // Removed sendAlertBtn listener and logic
+
+    // --- Global Modal Functions (for consistency) ---
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.classList.add('modal-open'); // Add class to body to prevent scroll
+        }
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open'); // Remove class from body
+        }
+    }
+
+    // Close modals if clicking outside the content area
+    window.addEventListener('click', function(event) {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            if (event.target === modal) {
+                closeModal(modal.id);
+            }
+        });
+    });
+
+    // --- Achievement Modal Elements and Handlers ---
+    const addAchievementBtn = document.getElementById('add-achievement-btn');
+    const addAchievementModal = document.getElementById('add-achievement-modal');
+    const addAchievementForm = document.getElementById('add-achievement-form');
+    const achievementTitleInput = document.getElementById('achievement-title');
+    const achievementDescriptionInput = document.getElementById('achievement-description');
+    const achievementDateInput = document.getElementById('achievement-date');
+    const achievementBadgeIconInput = document.getElementById('achievement-badge-icon');
+
+    addAchievementBtn?.addEventListener('click', () => {
+        if (!currentMenteeId) {
+            alert("Please select a mentee or ensure mentee details are loaded to add an achievement.");
+            return;
+        }
+        // Pre-fill date with today's date
+        achievementDateInput.value = new Date().toISOString().split('T')[0];
+        openModal('add-achievement-modal');
+    });
+
+    // Close modal buttons within the achievement modal
+    addAchievementModal?.querySelectorAll('.close-modal, .btn-secondary').forEach(button => {
+        button.addEventListener('click', () => closeModal('add-achievement-modal'));
+    });
+
+    addAchievementForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (!currentMenteeId) {
+            alert("Mentee ID not found. Cannot add achievement.");
+            return;
+        }
+
+        let mentorId = null;
+        try {
+            // Fetch mentor_id directly from the mentee table using the new route
+            const mentorResponse = await apiFetch(`/api/mentee/get-mentor-id/${currentMenteeId}`);
+            mentorId = mentorResponse?.mentor_id;
+        } catch (error) {
+            console.error("Failed to get mentor ID for achievement:", error);
+            alert("Failed to get mentor details. Cannot add achievement.");
+            return;
+        }
+
+        if (!mentorId) {
+            alert("Mentor ID not found for the current mentee. Cannot add achievement. Please ensure a mentor is assigned.");
+            return;
+        }
+
+        const achievementData = {
+            mentee_id: currentMenteeId,
+            mentor_id: mentorId,
+            title: achievementTitleInput.value.trim(),
+            description: achievementDescriptionInput.value.trim(),
+            date_awarded: achievementDateInput.value,
+            badge_icon: achievementBadgeIconInput.value.trim() || null // Allow null if empty
+        };
+
+        console.log('Submitting new achievement:', achievementData);
+
+        try {
+            await apiFetch('/api/achievement', { // Use the generic achievement endpoint
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(achievementData)
+            });
+
+            alert('Achievement added successfully!');
+            addAchievementForm.reset();
+            closeModal('add-achievement-modal');
+            fetchAchievements(currentMenteeId); // Refresh the list
+        } catch (error) {
+            console.error('Failed to add achievement:', error);
+            alert(`Failed to add achievement: ${error.message}`);
+        }
+    });
 
     // --- Data Loading Logic ---
 

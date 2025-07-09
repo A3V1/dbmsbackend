@@ -3,6 +3,7 @@ require('dotenv').config(); // Load .env variables first
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const multer = require('multer');
 const genericCrudRouter = require('./routes/genericcrud'); // Import router
 const mentorRouter = require('./routes/mentor'); // Import mentor router
 const usersRouter = require('./routes/users'); // Import the new users router
@@ -49,7 +50,8 @@ app.use(cors()); // Enable CORS for frontend requests (configure appropriately f
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 
-// --- Serve Static Frontend Files ---
+// --- Serve Static Files ---
+app.use('/uploads', express.static(path.join(__dirname, 'uploads/feedback_pdfs')));
 app.use(express.static(path.join(__dirname, 'frontend'))); // Serve static files from the 'frontend' directory
 app.use('/img', express.static(path.join(__dirname, 'frontend', 'img'))); // Explicitly serve images
 app.use('/js', express.static(path.join(__dirname, 'frontend', 'js'))); // Explicitly serve JavaScript files

@@ -1,6 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../dbConfig.js');
+const multer = require('multer');
+const path = require('path');
+
+// --- Multer configuration ---
+const storage = multer.diskStorage({
+    destination: path.join(__dirname, '../uploads/feedback_pdfs'),
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage: storage });
 
 // Get Mentee ID by Unique User Number
 router.get('/details-by-user/:unique_user_no', async (req, res) => {
@@ -54,7 +67,7 @@ router.get('/mentor-info', async (req, res) => {
         const { menteeId } = req.query;
         // Corrected: Select official_mail_id as mentor_name since full_name doesn't exist in users table
         const query = `
-            SELECT u.official_mail_id AS mentor_name, u.official_mail_id, m.room_no, m.department, m.timetable
+            SELECT u.official_mail_id AS mentor_name, u.official_mail_id, m.room_no, m.department, m.timetable, m.mentor_id
             FROM mentor_view mv
             JOIN mentor m ON mv.mentor_id = m.mentor_id
             JOIN users u ON m.unique_user_no = u.unique_user_no
@@ -230,5 +243,63 @@ router.get('/:menteeId/academic-details', async (req, res) => {
     }
 });
 
+
+// Get Mentor ID for a specific Mentee
+router.get('/get-mentor-id/:menteeId', async (req, res) => {
+    try {
+        const { menteeId } = req.params;
+        if (!menteeId) {
+            return res.status(400).json({ message: 'Mentee ID parameter is required.' });
+        }
+
+        const query = `
+            SELECT mentor_id
+            FROM mentee
+            WHERE mentee_id = ?;
+        `;
+        const [results] = await db.query(query, [menteeId]);
+
+        if (results.length > 0) {
+            res.status(200).json({ mentor_id: results[0].mentor_id });
+        } else {
+            res.status(404).json({ message: 'Mentor ID not found for the given mentee ID.' });
+        }
+    } catch (error) {
+        console.error('Error fetching mentor ID by mentee ID:', error);
+        res.status(500).json({ message: 'Error fetching mentor ID from server.' });
+    }
+});
+
+// Submit Feedback with PDF Upload
+router.post('/submit-feedback', upload.single('feedback-attachment'), async (req, res) => {
+    try {
+        const { menteeId, mentorId, message_content } = req.body;
+        const file = req.file;
+
+        if (!menteeId || !mentorId) {
+            return res.status(400).json({ message: 'Mentee ID and Mentor ID are required.' });
+        }
+
+        let filePath = null;
+        if (file) {
+            filePath = `/uploads/feedback_pdfs/${file.filename}`; // Store relative path
+        }
+
+        const content = file ? filePath : message_content;
+
+        const query = `
+            INSERT INTO communication (sender_id, receiver_id, type, message_content, timestamp)
+            VALUES (?, ?, ?, ?, NOW());
+        `;
+
+        // Assuming mentee is sending feedback to mentor
+        const [results] = await db.query(query, [menteeId, mentorId, 'feedback', content]);
+
+        res.status(200).json({ message: 'Feedback submitted successfully!' });
+    } catch (error) {
+        console.error('Error submitting feedback:', error);
+        res.status(500).json({ message: 'Error submitting feedback' });
+    }
+});
 
 module.exports = router;
